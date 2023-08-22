@@ -104,7 +104,7 @@ def len_adjust(args, split_dict, split_type=None):
             topic_keyword = topic
             sum_len = len(summary.split(' '))
             new_dialogue = 'Length of Summary: {}. Topic of Summary: {}. Dialogue: '.format(
-                topic_keyword, sum_len) + dialogue
+                sum_len, topic_keyword) + dialogue
             new_dialogue_list.append(new_dialogue)
 
     elif args.len_input == 'predict':
