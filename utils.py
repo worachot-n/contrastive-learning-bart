@@ -73,7 +73,7 @@ def len_adjust(args, split_dict, split_type=None):
                 num_utt, num_word, dialogue)
             new_dialogue_list.append(new_dialogue)
 
-    elif args.len_input == 'real' or split_type != 'test':
+    elif args.len_input == 'length' or split_type != 'test':
         new_dialogue_list = []
         for dialogue, summary in zip(dialogue_list, summary_list):
             sum_len = len(summary.split(' '))
@@ -95,6 +95,15 @@ def len_adjust(args, split_dict, split_type=None):
             topic_keyword = topic
             sum_len = len(summary.split(' '))
             new_dialogue = 'Topic of Summary: {}. Length of Summary: {}. Dialogue: '.format(
+                topic_keyword, sum_len) + dialogue
+            new_dialogue_list.append(new_dialogue)
+
+    elif args.len_input == 'length-topic':
+        new_dialogue_list = []
+        for dialogue, summary, topic in zip(dialogue_list, summary_list, topic_list):
+            topic_keyword = topic
+            sum_len = len(summary.split(' '))
+            new_dialogue = 'Length of Summary: {}. Topic of Summary: {}. Dialogue: '.format(
                 topic_keyword, sum_len) + dialogue
             new_dialogue_list.append(new_dialogue)
 
@@ -121,6 +130,23 @@ def len_adjust(args, split_dict, split_type=None):
             sum_len = len(summary.split(' '))
             new_summary = 'Length of Summary: {}. Summary: '.format(
                 sum_len) + summary
+            new_summary_list.append(new_summary)
+
+    elif args.len_output == 'topic':
+        new_summary_list = []
+        for summary, topic in zip(summary_list, topic_list):
+            topic_keyword = topic
+            new_summary = 'Topic of Summary: {}. Summary: '.format(
+                topic_keyword) + summary
+            new_summary_list.append(new_summary)
+
+    elif args.len_output == 'topic-length':
+        new_summary_list = []
+        for summary, topic in zip(summary_list, topic_list):
+            topic_keyword = topic
+            sum_len = len(summary.split(' '))
+            new_summary = 'Topic of Summary: {}. Length of Summary: {}. Summary: '.format(
+                topic_keyword, sum_len) + summary
             new_summary_list.append(new_summary)
 
     split_dict = {
