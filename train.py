@@ -26,12 +26,16 @@ from utils import label_smoothed_nll_loss, postprocess_text
 
 # =  =  =  =  =  =  =  =  =  = Logging Setup =  =  =  =  =  =  =  =  =  =  =  =
 
+# import os
+# os.environ['TRANSFORMERS_NO_ADVISORY_WARNINGS'] = 'true'
+
 logger = logging.getLogger(__name__)
 logging.basicConfig(
     format="%(asctime)s - %(levelname)s - %(name)s - %(message)s",
     datefmt="%m/%d/%Y %H:%M:%S",
     level=logging.INFO,
 )
+# logging.disable(logging.WARNING)
 
 # =  =  =  =  =  =  =  =  =  = Pre-check Package Info =  =  =  =  =  =  =  =  =  =  =  =
 require_version("datasets>=1.8.0",
