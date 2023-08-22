@@ -62,6 +62,32 @@ def load_from_dialogsum(args, file_path):
     return data_dict
 
 
+def raw_data_loader(args):
+    ''' load raw datasets from csv files '''
+
+    data_files = {}
+    if args.train_file is not None:
+        data_files["train"] = args.train_file
+    if args.validation_file is not None:
+        data_files["validation"] = args.validation_file
+    if args.test_file is not None:
+        data_files["test"] = args.test_file
+
+    if 'dialogsum' in args.train_file:
+        train_dict = load_from_dialogsum(args, args.train_file)
+        val_dict = load_from_dialogsum(args, args.validation_file)
+        test_dict = load_from_dialogsum(args, args.test_file)
+
+    train_dict = utils.len_adjust(args, train_dict, 'train')
+    val_dict = utils.len_adjust(args, val_dict, 'val')
+    test_dict = utils.len_adjust(args, test_dict, 'test')
+
+    raw_datasets = datasets.DatasetDict(
+        {"train": train_dict, "validation": val_dict, "test": test_dict})
+
+    return raw_datasets
+
+
 def data_processor(logger, args, accelerator, raw_datasets, tokenizer, model):
     ''' prepare dataset format for train/val/test '''
     def preprocess_function(examples):
