@@ -16,9 +16,9 @@ def parse_args():
     '''
     arg_parser = argparse.ArgumentParser(description="BART")
     arg_parser.add_argument("--len_input", dest="len_input", type=str, default=None, help="Use the ctrlen model or not",
-                            choices=('no', 'predict', 'surface', 'topic', 'length', 'topic-length', 'length-topic'))
+                            choices=('no', 'topic', 'length', 'topic-length', 'length-topic'))
     arg_parser.add_argument("--len_output", dest="len_output", default=None,
-                            help="Use the ctrlen model or not", choices=('no', 'real'))
+                            help="Use the ctrlen model or not", choices=('no', 'topic', 'length', 'topic-length', 'length-topic'))
     arg_parser.add_argument("--output_dir", dest="output_dir",
                             type=str, default="./output/1", help="default")
     arg_parser.add_argument("--train_file", dest="train_file", type=str,

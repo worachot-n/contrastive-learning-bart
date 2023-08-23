@@ -60,18 +60,18 @@ def len_adjust(args, split_dict, split_type=None):
     if args.len_input == 'no':
         new_dialogue_list = dialogue_list
 
-    elif args.len_input == 'surface':
-        new_dialogue_list = []
-        for dialogue in dialogue_list:
-            utt_diag = dialogue.split('\n')
-            num_utt = len(utt_diag)
-            word_diag = [utt.split(' ') for utt in utt_diag]
-            word_diag = [word for utt in word_diag for word in utt]
-            num_word = len(word_diag)
+    # elif args.len_input == 'surface':
+    #     new_dialogue_list = []
+    #     for dialogue in dialogue_list:
+    #         utt_diag = dialogue.split('\n')
+    #         num_utt = len(utt_diag)
+    #         word_diag = [utt.split(' ') for utt in utt_diag]
+    #         word_diag = [word for utt in word_diag for word in utt]
+    #         num_word = len(word_diag)
 
-            new_dialogue = 'Number of utterrance: {}. Length of Dialogue: {}. Dialogue: {}'.format(
-                num_utt, num_word, dialogue)
-            new_dialogue_list.append(new_dialogue)
+    #         new_dialogue = 'Number of utterrance: {}. Length of Dialogue: {}. Dialogue: {}'.format(
+    #             num_utt, num_word, dialogue)
+    #         new_dialogue_list.append(new_dialogue)
 
     elif args.len_input == 'length' or split_type != 'test':
         new_dialogue_list = []
@@ -107,24 +107,24 @@ def len_adjust(args, split_dict, split_type=None):
                 sum_len, topic_keyword) + dialogue
             new_dialogue_list.append(new_dialogue)
 
-    elif args.len_input == 'predict':
-        if split_type == 'test':
-            new_dialogue_list = []
-            if 'dialogsum' in args.train_file:
-                with open('./data/dialogsum/predicted_len.txt', 'r') as f:
-                    lines = f.readlines()
+    # elif args.len_input == 'predict':
+    #     if split_type == 'test':
+    #         new_dialogue_list = []
+    #         if 'dialogsum' in args.train_file:
+    #             with open('./data/dialogsum/predicted_len.txt', 'r') as f:
+    #                 lines = f.readlines()
 
-            for line, dialogue in zip(lines, dialogue_list):
-                index, length = line.strip().split('\t')
-                length = int(length)
-                new_dialogue = 'Length of Summary: {}. Dialogue: '.format(
-                    length) + dialogue
-                new_dialogue_list.append(new_dialogue)
+    #         for line, dialogue in zip(lines, dialogue_list):
+    #             index, length = line.strip().split('\t')
+    #             length = int(length)
+    #             new_dialogue = 'Length of Summary: {}. Dialogue: '.format(
+    #                 length) + dialogue
+    #             new_dialogue_list.append(new_dialogue)
 
     if args.len_output == 'no' or split_type == 'val' or split_type == 'test':
         new_summary_list = summary_list
 
-    elif args.len_output == 'real':
+    elif args.len_output == 'length':
         new_summary_list = []
         for summary in summary_list:
             sum_len = len(summary.split(' '))
@@ -147,6 +147,15 @@ def len_adjust(args, split_dict, split_type=None):
             sum_len = len(summary.split(' '))
             new_summary = 'Topic of Summary: {}. Length of Summary: {}. Summary: '.format(
                 topic_keyword, sum_len) + summary
+            new_summary_list.append(new_summary)
+
+    elif args.len_output == 'length-topic':
+        new_summary_list = []
+        for summary, topic in zip(summary_list, topic_list):
+            topic_keyword = topic
+            sum_len = len(summary.split(' '))
+            new_summary = 'Length of Summary: {}. Topic of Summary: {}. Summary: '.format(
+                sum_len, topic_keyword) + summary
             new_summary_list.append(new_summary)
 
     split_dict = {

@@ -26,8 +26,8 @@ from utils import label_smoothed_nll_loss, postprocess_text
 
 # =  =  =  =  =  =  =  =  =  = Logging Setup =  =  =  =  =  =  =  =  =  =  =  =
 
-# import os
-# os.environ['TRANSFORMERS_NO_ADVISORY_WARNINGS'] = 'true'
+import os
+os.environ['TRANSFORMERS_NO_ADVISORY_WARNINGS'] = 'true'
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(
