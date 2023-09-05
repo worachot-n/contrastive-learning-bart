@@ -15,10 +15,10 @@ def parse_args():
         config arguments for training
     '''
     arg_parser = argparse.ArgumentParser(description="BART")
-    arg_parser.add_argument("--len_input", dest="len_input", type=str, default=None, help="Use the ctrlen model or not",
+    arg_parser.add_argument("--len_input", dest="len_input", type=str, default=None, help="set up prefix input",
                             choices=('no', 'topic', 'length', 'topic-length', 'length-topic'))
-    arg_parser.add_argument("--len_output", dest="len_output", default=None,
-                            help="Use the ctrlen model or not", choices=('no', 'topic', 'length', 'topic-length', 'length-topic'))
+    arg_parser.add_argument("--len_output", dest="len_output", default=None, help="set up prefix output", 
+                            choices=('no', 'topic', 'length', 'topic-length', 'length-topic'))
     arg_parser.add_argument("--output_dir", dest="output_dir",
                             type=str, default="./output/1", help="default")
     arg_parser.add_argument("--train_file", dest="train_file", type=str,
@@ -43,7 +43,6 @@ def parse_args():
                             help="A prefix to add before every source text " "(useful for T5 models).")
     arg_parser.add_argument("--preprocessing_num_workers", type=int, default=None,
                             help="The number of processes to use for the preprocessing.")
-    # arg_parser.add_argument("--overwrite_cache", dest="overwrite_cache", type=lambda x:bool(strtobool(x)), default=True, help="default")
     arg_parser.add_argument("--overwrite_cache", dest="overwrite_cache", type=bool,
                             default=None, help="Overwrite the cached training and evaluation sets")
     arg_parser.add_argument("--min_target_length", dest="min_target_length", type=int,
@@ -79,7 +78,6 @@ def parse_args():
                             type=str, default="./output/cache", help="default")
     arg_parser.add_argument("--seed", dest="seed",
                             type=int, default=12345, help="default")
-    # arg_parser.add_argument("-f", required=False) #important
     arg_parser.add_argument("--config_name", type=str, default=None,
                             help="Pretrained config name or path if not the same as model_name")
     arg_parser.add_argument("--tokenizer_name", type=str, default=None,
@@ -90,12 +88,6 @@ def parse_args():
                             help="Total number of training steps to perform. If provided, overrides num_train_epochs.")
     arg_parser.add_argument("--lr_scheduler_type", type=SchedulerType, default="linear", help="The scheduler type to use.",
                             choices=["linear", "cosine", "cosine_with_restarts", "polynomial", "constant", "constant_with_warmup"])
-    arg_parser.add_argument("--ctrlen_model", action='store_true',
-                            default=False, help="Use the ctrlen model or not")
-    arg_parser.add_argument("--sim_window_size", type=int,
-                            default=5, help="window size for computing loss.")
-    arg_parser.add_argument("--sim_loss", type=float, default=0,
-                            help="the loss weight for similarity scores.")
     arg_parser.add_argument("--special_len_token_init", type=str, default=None,
                             help="ways to initialize special token for length (random, zero, token_embs)")
     arg_parser.add_argument("--embedding_lr", type=float, default=5e-5,

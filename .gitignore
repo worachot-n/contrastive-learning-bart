@@ -162,3 +162,4 @@ cython_debug/
 #My Project
 output/
 result/
+nohup-out/

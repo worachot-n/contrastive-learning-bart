@@ -6,9 +6,9 @@ start=`date +%s`
 echo "= = = = = = = = = = = = = ="
 
 python3 train.py \
-    --len_input 'no' \
+    --len_input 'topic-length' \
     --len_output 'no' \
-    --output_dir ./output/1-bart-baseline \
+    --output_dir ./output/4-bart-topic-length \
     --train_file ./data/dialogsum/dialogsum.train.jsonl \
     --validation_file ./data/dialogsum/dialogsum.dev.jsonl \
     --test_file ./data/dialogsum/dialogsum.test.jsonl \

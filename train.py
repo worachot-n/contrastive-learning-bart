@@ -28,6 +28,8 @@ from utils import label_smoothed_nll_loss, postprocess_text
 
 import os
 os.environ['TRANSFORMERS_NO_ADVISORY_WARNINGS'] = 'true'
+# os.environ['CUDA_VISIBLE_DEVICES'] = "1"
+# torch.device("cuda:1")
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(
@@ -183,13 +185,16 @@ def main():
     best_r2_f1 = None
     best_epoch = 0
 
+    # edit #
     if args.model_type == 'bart' or args.model_type == 't5':
+        # task_specific_params = model.module.config.task_specific_params
         task_specific_params = model.config.task_specific_params
         params = task_specific_params.get('summarization', {})
         params['min_length'] = args.min_target_length
         params['max_length'] = args.max_target_length
         params['length_penalty'] = args.length_penalty
         params['num_beams'] = args.num_beams
+        # model.module.config.update(params)
         model.config.update(params)
     else:
         raise ValueError(
@@ -213,6 +218,9 @@ def main():
                     output_logits = outputs.logits
                     output_probs = torch.nn.functional.log_softmax(
                         output_logits, dim=-1)
+                    # edit #
+                    # output_probs = output_probs.view(-1,
+                    #                                  model.module.config.vocab_size)
                     output_probs = output_probs.view(-1,
                                                      model.config.vocab_size)
 
