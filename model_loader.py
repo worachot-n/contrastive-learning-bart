@@ -1,4 +1,4 @@
-import os 
+import os
 import numpy as np
 
 from transformers import (
@@ -8,6 +8,7 @@ from transformers import (
     AutoTokenizer,
 )
 
+
 def model_loader(accelerator, logger, args):
     '''
         load transformer models (config, tokenizer, s2s model)
@@ -15,46 +16,32 @@ def model_loader(accelerator, logger, args):
 
     # model config
     if args.config_name:
-        config = AutoConfig.from_pretrained(args.config_name, cache_dir=args.cache_dir)
+        config = AutoConfig.from_pretrained(
+            args.config_name, cache_dir=args.cache_dir)
     elif args.model_name_or_path:
-        config = AutoConfig.from_pretrained(args.model_name_or_path, cache_dir=args.cache_dir)
+        config = AutoConfig.from_pretrained(
+            args.model_name_or_path, cache_dir=args.cache_dir)
     else:
         config = CONFIG_MAPPING[args.model_type]()
-        logger.warning("You are instantiating a new config instance from scratch.")
+        logger.warning(
+            "You are instantiating a new config instance from scratch.")
 
     # tokenizer
     if args.tokenizer_name:
-        tokenizer = AutoTokenizer.from_pretrained(args.tokenizer_name, use_fast=not args.use_slow_tokenizer, cache_dir=args.cache_dir)
+        tokenizer = AutoTokenizer.from_pretrained(
+            args.tokenizer_name, use_fast=not args.use_slow_tokenizer, cache_dir=args.cache_dir)
     elif args.model_name_or_path:
-        tokenizer = AutoTokenizer.from_pretrained(args.model_name_or_path, use_fast=not args.use_slow_tokenizer, cache_dir=args.cache_dir)
+        tokenizer = AutoTokenizer.from_pretrained(
+            args.model_name_or_path, use_fast=not args.use_slow_tokenizer, cache_dir=args.cache_dir)
     else:
         raise ValueError(
             "You are instantiating a new tokenizer from scratch. This is not supported by this script."
             "You can do it from another script, save it, and load it from here, using --tokenizer_name."
         )
-    
-    ori_tokenizer_len = len(tokenizer)
-    # print(len(tokenizer))
-    # print(tokenizer.vocab.keys())
-    # print("="*100)
-    # print(tokenizer.all_special_tokens)
 
     if args.topic_tagger:
         special_tokens = {'additional_special_tokens': ['<TAG>']}
         tokenizer.add_special_tokens(special_tokens_dict=special_tokens)
-        # special_tokens_dict = {"additional_special_tokens": ['TAG']}
-        # num_added_tokens = tokenizer.add_special_tokens(special_tokens_dict) # Adding special TAG token
-        # num_added_tokens = tokenizer.add_tokens(['TAG']) # Adding special TAG token
-
-        # num_added_tokens = ["TAG"]
-        # num_added_tokens = set(num_added_tokens) - set(tokenizer.vocab.keys())
-        # tokenizer.add_tokens(list(num_added_tokens))
-        # tokenizer.add_tokens(['TAG'])
-        # print(num_added_tokens)
-        
-        
-    # print(len(tokenizer))
-    # print(tokenizer.vocab.keys())
 
     model = AutoModelForSeq2SeqLM.from_pretrained(
         args.model_name_or_path,
@@ -67,21 +54,22 @@ def model_loader(accelerator, logger, args):
     model.resize_token_embeddings(len(tokenizer))
 
     if model.config.decoder_start_token_id is None:
-        raise ValueError("Make sure that `config.decoder_start_token_id` is correctly defined")
-
+        raise ValueError(
+            "Make sure that `config.decoder_start_token_id` is correctly defined")
 
     # Save initial model
     if args.output_dir is not None:
         os.makedirs(args.output_dir+'/start', exist_ok=True)
         accelerator.wait_for_everyone()
         unwrapped_model = accelerator.unwrap_model(model)
-        unwrapped_model.save_pretrained(args.output_dir+'/start', save_function=accelerator.save)
+        unwrapped_model.save_pretrained(
+            args.output_dir+'/start', save_function=accelerator.save)
         if accelerator.is_main_process:
             tokenizer.save_pretrained(args.output_dir+'/start')
 
-
         vocab = tokenizer.vocab.copy()
-        vocab = {k: v for k, v in sorted(vocab.items(), key=lambda item: item[1])}
+        vocab = {k: v for k, v in sorted(
+            vocab.items(), key=lambda item: item[1])}
         with open(args.output_dir + '/start/vocab.txt', 'w') as f:
             for word, index in vocab.items():
                 word = word.encode('ascii', 'ignore').decode('ascii')
