@@ -5,7 +5,7 @@ echo $currentDate
 start=`date +%s`
 echo "= = = = = = = = = = = = = ="
 
-python3 train.py \
+CUDA_VISIBLE_DEVICES=1 python3 train.py \
     --len_input 'topic' \
     --len_output 'no' \
     --output_dir ./output/3-bart-topic \
@@ -33,6 +33,7 @@ python3 train.py \
     --cache_dir ./output/cache \
     --overwrite_cache True \
     --seed 12345
+    
 
 echo "= = = = = = = = = = = = = ="
 echo "The project is Finished..."

@@ -34,7 +34,27 @@ def model_loader(accelerator, logger, args):
         )
     
     ori_tokenizer_len = len(tokenizer)
-    # print(tokenizer)
+    # print(len(tokenizer))
+    # print(tokenizer.vocab.keys())
+    # print("="*100)
+    # print(tokenizer.all_special_tokens)
+
+    if args.topic_tagger:
+        special_tokens = {'additional_special_tokens': ['<TAG>']}
+        tokenizer.add_special_tokens(special_tokens_dict=special_tokens)
+        # special_tokens_dict = {"additional_special_tokens": ['TAG']}
+        # num_added_tokens = tokenizer.add_special_tokens(special_tokens_dict) # Adding special TAG token
+        # num_added_tokens = tokenizer.add_tokens(['TAG']) # Adding special TAG token
+
+        # num_added_tokens = ["TAG"]
+        # num_added_tokens = set(num_added_tokens) - set(tokenizer.vocab.keys())
+        # tokenizer.add_tokens(list(num_added_tokens))
+        # tokenizer.add_tokens(['TAG'])
+        # print(num_added_tokens)
+        
+        
+    # print(len(tokenizer))
+    # print(tokenizer.vocab.keys())
 
     model = AutoModelForSeq2SeqLM.from_pretrained(
         args.model_name_or_path,
@@ -43,7 +63,7 @@ def model_loader(accelerator, logger, args):
         cache_dir=args.cache_dir,
     )
 
-    model.resize_token_embeddings(ori_tokenizer_len)
+    # model.resize_token_embeddings(ori_tokenizer_len)
     model.resize_token_embeddings(len(tokenizer))
 
     if model.config.decoder_start_token_id is None:

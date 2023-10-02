@@ -10,6 +10,8 @@ from transformers import DataCollatorForSeq2Seq
 
 import utils
 
+from topic_tagger import simple_tokenize, lemmatize_text, build_tagger
+
 
 def load_from_dialogsum(args, file_path):
     ''' load dialoguesum jsonl data '''
@@ -52,10 +54,23 @@ def load_from_dialogsum(args, file_path):
 
         topic_list = topic_list1 + topic_list2 + topic_list3
 
-    data_dict = {'id': id_list,
-                 'dialogue': dialogue_list,
-                 'summary': summary_list,
-                 'topic': topic_list}
+    if args.topic_tagger:
+        topic_tagger = []
+        original_tokens = [simple_tokenize(x) for x in dialogue_list]
+        lemmatized_tokens = [lemmatize_text(x) for x in dialogue_list]
+        for i in range(len(lemmatized_tokens)):
+            tagger = build_tagger(original_tokens, lemmatized_tokens, topic_list[i], i)
+            topic_tagger.extend(tagger)
+
+        data_dict = {'id': id_list,
+                     'dialogue': topic_tagger,
+                     'summary': summary_list,
+                     'topic': topic_list}
+    else:
+        data_dict = {'id': id_list,
+                     'dialogue': dialogue_list,
+                     'summary': summary_list,
+                     'topic': topic_list}
 
     data_dict = Dataset.from_dict(data_dict)
 

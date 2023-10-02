@@ -8,7 +8,7 @@ echo "= = = = = = = = = = = = = ="
 CUDA_VISIBLE_DEVICES=1 python3 train.py \
     --len_input 'topic-length' \
     --len_output 'topic' \
-    --output_dir ./output/7-bart-topic-length_topic \
+    --output_dir ./output/7-bart-topic-length-tagger_topic \
     --train_file ./data/dialogsum/dialogsum.train.jsonl \
     --validation_file ./data/dialogsum/dialogsum.dev.jsonl \
     --test_file ./data/dialogsum/dialogsum.test.jsonl \
@@ -32,7 +32,8 @@ CUDA_VISIBLE_DEVICES=1 python3 train.py \
     --num_warmup_steps 0 \
     --cache_dir ./output/cache \
     --overwrite_cache True \
-    --seed 12345
+    --seed 12345 \
+    --topic_tagger True
 
 echo "= = = = = = = = = = = = = ="
 echo "The project is Finished..."

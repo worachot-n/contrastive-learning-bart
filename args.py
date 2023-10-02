@@ -16,7 +16,7 @@ def parse_args():
     '''
     arg_parser = argparse.ArgumentParser(description="BART")
     arg_parser.add_argument("--len_input", dest="len_input", type=str, default=None, help="set up prefix input",
-                            choices=('no', 'topic', 'length', 'topic-length', 'length-topic'))
+                            choices=('no', 'topic', 'length', 'topic-length', 'length-topic', 'simple', 'simple-topic', 'topic-word', 'topic-simple', 'topic-last-length'))
     arg_parser.add_argument("--len_output", dest="len_output", default=None, help="set up prefix output", 
                             choices=('no', 'topic', 'length', 'topic-length', 'length-topic'))
     arg_parser.add_argument("--output_dir", dest="output_dir",
@@ -37,8 +37,8 @@ def parse_args():
                             help="Path to pretrained model or model identifier from huggingface.co/models.")
     arg_parser.add_argument("--model_type", dest="model_type", type=str, default="bart",
                             help="Model type to use if training from scratch.", choices=MODEL_TYPES)
-    arg_parser.add_argument(
-        "--max_source_length", dest="max_source_length", type=int, default=1024, help="default")
+    arg_parser.add_argument("--max_source_length", dest="max_source_length", 
+                            type=int, default=1024, help="default")
     arg_parser.add_argument("--source_prefix", dest="source_prefix", type=str, default=None,
                             help="A prefix to add before every source text " "(useful for T5 models).")
     arg_parser.add_argument("--preprocessing_num_workers", type=int, default=None,
@@ -80,6 +80,8 @@ def parse_args():
                             type=int, default=12345, help="default")
     arg_parser.add_argument("--config_name", type=str, default=None,
                             help="Pretrained config name or path if not the same as model_name")
+    arg_parser.add_argument("--ctrlen_model", action='store_true', default=False, 
+                            help="Use the ctrlen model or not",)
     arg_parser.add_argument("--tokenizer_name", type=str, default=None,
                             help="Pretrained tokenizer name or path if not the same as model_name")
     arg_parser.add_argument("--use_slow_tokenizer", dest="use_slow_tokenizer", action="store_true",
@@ -102,6 +104,8 @@ def parse_args():
                             help="whether to use the golden length or predicted length")
     arg_parser.add_argument("--shuffle", action='store_true', default=False,
                             help="whether to shuffle the dataset to balance train/validation/test")
+    arg_parser.add_argument("--topic_tagger", dest="topic_tagger", type=bool,
+                            default=None, help="Use topic tag [TAG] or not")
     arg_parser.add_argument("--debug", action='store_true',
                             default=False, help="Use the debug mode or not")
     args = arg_parser.parse_args()

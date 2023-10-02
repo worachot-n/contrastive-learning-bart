@@ -73,7 +73,7 @@ def len_adjust(args, split_dict, split_type=None):
     #             num_utt, num_word, dialogue)
     #         new_dialogue_list.append(new_dialogue)
 
-    elif args.len_input == 'length' or split_type != 'test':
+    elif args.len_input == 'length':
         new_dialogue_list = []
         for dialogue, summary in zip(dialogue_list, summary_list):
             sum_len = len(summary.split(' '))
@@ -107,19 +107,48 @@ def len_adjust(args, split_dict, split_type=None):
                 sum_len, topic_keyword) + dialogue
             new_dialogue_list.append(new_dialogue)
 
-    # elif args.len_input == 'predict':
-    #     if split_type == 'test':
-    #         new_dialogue_list = []
-    #         if 'dialogsum' in args.train_file:
-    #             with open('./data/dialogsum/predicted_len.txt', 'r') as f:
-    #                 lines = f.readlines()
+    elif args.len_input == 'simple':
+        new_dialogue_list = []
+        for dialogue, summary in zip(dialogue_list, summary_list):
+            sum_len = len(summary.split(' '))
+            new_dialogue = 'Summary Length: {}. Dialogue: '.format(
+                sum_len) + dialogue
+            new_dialogue_list.append(new_dialogue)
 
-    #         for line, dialogue in zip(lines, dialogue_list):
-    #             index, length = line.strip().split('\t')
-    #             length = int(length)
-    #             new_dialogue = 'Length of Summary: {}. Dialogue: '.format(
-    #                 length) + dialogue
-    #             new_dialogue_list.append(new_dialogue)
+    elif args.len_input == 'simple-topic':
+        new_dialogue_list = []
+        for dialogue, summary, topic in zip(dialogue_list, summary_list, topic_list):
+            topic_keyword = topic
+            sum_len = len(summary.split(' '))
+            new_dialogue = 'Summary Length: {}. {}. Dialogue: '.format(
+                sum_len, topic_keyword) + dialogue
+            new_dialogue_list.append(new_dialogue)
+
+    elif args.len_input == 'topic-simple':
+        new_dialogue_list = []
+        for dialogue, summary, topic in zip(dialogue_list, summary_list, topic_list):
+            topic_keyword = topic
+            sum_len = len(summary.split(' '))
+            new_dialogue = '{}. Summary Length: {}. Dialogue: '.format(
+                topic_keyword, sum_len) + dialogue
+            new_dialogue_list.append(new_dialogue)
+
+    elif args.len_input == 'topic-word':
+        new_dialogue_list = []
+        for dialogue, summary, topic in zip(dialogue_list, summary_list, topic_list):
+            topic_keyword = topic
+            new_dialogue = '{}. Dialogue: '.format(
+                topic_keyword) + dialogue
+            new_dialogue_list.append(new_dialogue)
+
+    elif args.len_input == 'topic-last-length':
+        new_dialogue_list = []
+        for dialogue, summary, topic in zip(dialogue_list, summary_list, topic_list):
+            topic_keyword = topic
+            sum_len = len(summary.split(' '))
+            new_dialogue = 'Topic of Summary: {}. Dialogue: {} Length of Summary: {}'.format(
+                topic_keyword, dialogue, sum_len)
+            new_dialogue_list.append(new_dialogue)
 
     if args.len_output == 'no' or split_type == 'val' or split_type == 'test':
         new_summary_list = summary_list
