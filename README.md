@@ -1,2 +1,2 @@
-# TL-BART
-Topic Guide and Length Control in BART model
+# Contrastive Learning in BART model
+use contrastive loss in BART training
