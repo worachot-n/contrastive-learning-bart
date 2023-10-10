@@ -190,7 +190,7 @@ def main():
                     outputs = model(**batch)
                     loss = outputs.loss
                 else:
-                    outputs = model(**batch)
+                    outputs = model(**batch, output_hidden_states=True)
                     output_logits = outputs.logits
                     output_probs = torch.nn.functional.log_softmax(output_logits, dim=-1)
                     output_probs = output_probs.view(-1, model.config.vocab_size)
@@ -198,7 +198,20 @@ def main():
                     gt_logits = batch['labels']
                     gt_logits = gt_logits.view(-1)
 
-                    loss, _ = label_smoothed_nll_loss(output_probs, gt_logits, args.label_smoothing, ignore_index=tokenizer.pad_token_id)
+                    loss_nll, nll = label_smoothed_nll_loss(
+                        output_probs, gt_logits, args.label_smoothing, ignore_index=tokenizer.pad_token_id)
+                    
+                    cosine_loss = torch.nn.CosineEmbeddingLoss()
+                    
+                    loss_cs_encoder = cosine_loss(outputs.encoder_last_hidden_state[0], outputs.encoder_last_hidden_state[-1], torch.ones(outputs.encoder_last_hidden_state.size(dim=1)).to(torch.device('cuda')))
+
+                    loss_cs_decoder = cosine_loss(outputs.decoder_hidden_states[-1][0], outputs.decoder_hidden_states[-1][1], torch.ones(outputs.decoder_hidden_states[-1].shape[1]).to(torch.device('cuda')))
+                    
+                    alpha = 1
+
+                    beta = 1
+                    
+                    loss = loss_nll + alpha * (1 - loss_cs_encoder) + beta * (1 - loss_cs_decoder)
 
             acc_losses.append(loss.item())
             loss = loss / args.gradient_accumulation_steps

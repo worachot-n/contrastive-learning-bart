@@ -186,7 +186,7 @@ def len_adjust(args, split_dict, split_type=None):
             new_summary = 'Length of Summary: {}. Topic of Summary: {}. Summary: '.format(
                 sum_len, topic_keyword) + summary
             new_summary_list.append(new_summary)
-
+    
     split_dict = {
         'id': id_list,
         'dialogue': new_dialogue_list,
