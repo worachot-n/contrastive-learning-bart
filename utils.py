@@ -89,12 +89,21 @@ def len_adjust(args, split_dict, split_type=None):
                 topic_keyword) + dialogue
             new_dialogue_list.append(new_dialogue)
 
+    # elif args.len_input == 'topic-length':
+    #     new_dialogue_list = []
+    #     for dialogue, summary, topic in zip(dialogue_list, summary_list, topic_list):
+    #         topic_keyword = topic
+    #         sum_len = len(summary.split(' '))
+    #         new_dialogue = 'Topic of Summary: {}. Length of Summary: {}. Dialogue: '.format(
+    #             topic_keyword, sum_len) + dialogue
+    #         new_dialogue_list.append(new_dialogue)
+    
     elif args.len_input == 'topic-length':
         new_dialogue_list = []
         for dialogue, summary, topic in zip(dialogue_list, summary_list, topic_list):
             topic_keyword = topic
             sum_len = len(summary.split(' '))
-            new_dialogue = 'Topic of Summary: {}. Length of Summary: {}. Dialogue: '.format(
+            new_dialogue = 'Length of Summary: {}. Dialogue: '.format(
                 topic_keyword, sum_len) + dialogue
             new_dialogue_list.append(new_dialogue)
 
