@@ -56,6 +56,7 @@ def len_adjust(args, split_dict, split_type=None):
     dialogue_list = split_dict['dialogue']
     summary_list = split_dict['summary']
     topic_list = split_dict['topic']
+    negative_topic_list = split_dict['negative_topic']
 
     if args.len_input == 'no':
         new_dialogue_list = dialogue_list
@@ -89,23 +90,26 @@ def len_adjust(args, split_dict, split_type=None):
                 topic_keyword) + dialogue
             new_dialogue_list.append(new_dialogue)
 
+    elif args.len_input == 'topic-length':
+        new_dialogue_list = []
+        new_negative_dialogue_list = []
+        for dialogue, summary, topic, negative_topic in zip(dialogue_list, summary_list, topic_list, negative_topic_list):
+            sum_len = len(summary.split(' '))
+            new_dialogue = 'Topic of Summary: {}. Length of Summary: {}. Dialogue: '.format(
+                topic, sum_len) + dialogue
+            new_dialogue_list.append(new_dialogue)
+            new_negative_dialogue = 'Topic of Summary: {}. Length of Summary: {}. Dialogue: '.format(
+                negative_topic, sum_len) + dialogue
+            new_negative_dialogue_list.append(new_dialogue)
+    
     # elif args.len_input == 'topic-length':
     #     new_dialogue_list = []
     #     for dialogue, summary, topic in zip(dialogue_list, summary_list, topic_list):
     #         topic_keyword = topic
     #         sum_len = len(summary.split(' '))
-    #         new_dialogue = 'Topic of Summary: {}. Length of Summary: {}. Dialogue: '.format(
+    #         new_dialogue = 'Length of Summary: {}. Dialogue: '.format(
     #             topic_keyword, sum_len) + dialogue
     #         new_dialogue_list.append(new_dialogue)
-    
-    elif args.len_input == 'topic-length':
-        new_dialogue_list = []
-        for dialogue, summary, topic in zip(dialogue_list, summary_list, topic_list):
-            topic_keyword = topic
-            sum_len = len(summary.split(' '))
-            new_dialogue = 'Length of Summary: {}. Dialogue: '.format(
-                topic_keyword, sum_len) + dialogue
-            new_dialogue_list.append(new_dialogue)
 
     elif args.len_input == 'length-topic':
         new_dialogue_list = []
@@ -199,8 +203,9 @@ def len_adjust(args, split_dict, split_type=None):
     split_dict = {
         'id': id_list,
         'dialogue': new_dialogue_list,
+        'negative_dialogue': new_negative_dialogue_list,
         'summary': new_summary_list,
-        'topic': topic_list
+        'topic': topic_list,
     }
 
     split_dict = Dataset.from_dict(split_dict)
