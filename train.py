@@ -201,6 +201,19 @@ def main():
                     loss_nll, nll = label_smoothed_nll_loss(
                         output_probs, gt_logits, args.label_smoothing, ignore_index=tokenizer.pad_token_id)
                     
+
+                    
+                    cosine_loss = torch.nn.CosineEmbeddingLoss()
+                    
+                    loss_cs_encoder = cosine_loss(outputs.encoder_last_hidden_state[0], 
+                                                  outputs.encoder_last_hidden_state[-1], 
+                                                  -1 * torch.ones(outputs.encoder_last_hidden_state.size(dim=1)).to(torch.device('cuda')))
+                    
+                    alpha = 0.5
+                    
+                    loss = loss_nll + alpha * loss_cs_encoder
+                    
+                    
                     cosine_loss = torch.nn.CosineEmbeddingLoss()
                     
                     loss_cs_encoder = cosine_loss(outputs.encoder_last_hidden_state[0], outputs.encoder_last_hidden_state[-1], torch.ones(outputs.encoder_last_hidden_state.size(dim=1)).to(torch.device('cuda')))
