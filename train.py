@@ -176,6 +176,8 @@ def main():
         model.config.update(params)
     else:
         raise ValueError('{} model type not implemented'.format(args.model_type))
+    
+    device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
 
     # =  =  =  =  =  =  =  =  =  =  =  =  =  =  =  = Train =  =  =  =  =  =  =  =  =  =  =  =  =  =  = 
     for epoch in range(args.num_train_epochs):
@@ -227,24 +229,24 @@ def main():
                     loss_nll, nll = label_smoothed_nll_loss(
                         output_probs, gt_logits, args.label_smoothing, ignore_index=tokenizer.pad_token_id)
                     
-                    # cosine_loss = torch.nn.CosineEmbeddingLoss()
+                    cosine_loss = torch.nn.CosineEmbeddingLoss()
                     
                     # loss_cs = cosine_loss(outputs.encoder_last_hidden_state[0], outputs.encoder_last_hidden_state[1], torch.ones(outputs.encoder_last_hidden_state.size(dim=1)).to(torch.device('cuda')))
-                    # positive_embeddings_1 = outputs.encoder_last_hidden_state[0]
+                    positive_embeddings_1 = outputs.encoder_last_hidden_state[0]
                     # print(positive_embeddings_1.shape)
-                    # positive_embeddings_2 = outputs.encoder_last_hidden_state[1]
+                    positive_embeddings_2 = outputs.encoder_last_hidden_state[1]
                     # print(positive_embeddings_2.shape)
-                    # negative_embeddings_1 = outputs.encoder_last_hidden_state[2]
+                    negative_embeddings_1 = outputs.encoder_last_hidden_state[2]
                     # print(negative_embeddings_1.shape)
-                    # negative_embeddings_2 = outputs.encoder_last_hidden_state[3]
+                    negative_embeddings_2 = outputs.encoder_last_hidden_state[3]
                     # print(negative_embeddings_2.shape)
                     # print('='*100)
                     # print((-1 * torch.ones(positive_embeddings_1.size(dim=0))).shape)
                     # break
                     # Compute contrastive loss
-                    # loss_1 = cosine_loss(positive_embeddings_1, negative_embeddings_1, -1 * torch.ones(positive_embeddings_1.size(dim=0)).to(device))
-                    # loss_2 = cosine_loss(positive_embeddings_2, negative_embeddings_2, -1 * torch.ones(positive_embeddings_2.size(dim=0)).to(device))
-                    # loss_cs = (loss_1 + loss_2) / 2
+                    loss_1 = cosine_loss(positive_embeddings_1, negative_embeddings_1, -1 * torch.ones(positive_embeddings_1.size(dim=0)).to(device))
+                    loss_2 = cosine_loss(positive_embeddings_2, negative_embeddings_2, -1 * torch.ones(positive_embeddings_2.size(dim=0)).to(device))
+                    loss_cs = (loss_1 + loss_2) / 2
                     # print("loss 1: ", loss_1)
                     # print('-'*100)
                     # print("loss 2: ", loss_2)
@@ -254,8 +256,8 @@ def main():
                     
                     alpha = 0.5
                     
-                    # loss = loss_nll + alpha * loss_cs
-                    loss = loss_nll
+                    loss = loss_nll + alpha * loss_cs
+                    # loss = loss_nll
                     
                     # print(f"loss_fn: {loss}")
                     # print("-"*100)

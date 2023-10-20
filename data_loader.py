@@ -12,7 +12,18 @@ import utils
 
 from topic_tagger import simple_tokenize, lemmatize_text, build_tagger
 
+import random
+import warnings
+from collections.abc import Mapping
+from random import randint
+from typing import Any, Callable, Dict, List, NewType, Optional, Tuple, Union
+
 import numpy as np
+
+from dataclasses import dataclass
+from transformers.tokenization_utils_base import PreTrainedTokenizerBase, PaddingStrategy
+from typing import Optional, Union
+import torch
 
 
 def load_from_dialogsum(args, file_path):
@@ -113,131 +124,176 @@ def raw_data_loader(args):
 
     return raw_datasets
 
+@dataclass
 class CustomDataCollator:
-    def __init__(self, tokenizer, model):
-        self.tokenizer = tokenizer
-        self.model = model
+    tokenizer: PreTrainedTokenizerBase
+    model: Optional[Any] = None
+    padding: Union[bool, str, PaddingStrategy] = True
+    max_length: Optional[int] = None
+    pad_to_multiple_of: Optional[int] = None
+    label_pad_token_id: int = -100
+    return_tensors: str = "pt"
 
-    def __call__(self, examples):
-        # positive_input_ids = examples['dialogue']
-        positive_input = [np.array(example['dialogue']) for example in examples]
-        # positive_input_ids = [example['dialogue'][example['dialogue'] != 1] for example in examples]
-        # negative_input_ids = examples['negative_dialogue']
-        negative_input = [np.array(example['negative_dialogue']) for example in examples]
-        # negative_input_ids = [example['negative_dialogue'][example['dialogue'] != 1] for example in examples]
-        # summary_input_ids = examples['summary']
-        summary_input = [np.array(example['summary']) for example in examples]
-        # summary_input_ids = [example['summary'][example['dialogue'] != 1] for example in examples]
-
-        positive_input_ids = [example[example != 1] for example in positive_input]
-        negative_input_ids = [example[example != 1] for example in negative_input]
-        summary_input_ids = [example[example != 1] for example in summary_input]
-        # summary_input_ids = [example['summary'] for example in examples]
-            
-        # inputs["input_ids"] = tokenizer.pad
-        # negative_inputs["input_ids"] = tokenizer.pad
+    def __call__(self, features, return_tensors=None):
+        if return_tensors is None:
+            return_tensors = self.return_tensors
+        labels = [feature["labels"] for feature in features] if "labels" in features[0].keys() else None
+        # We have to pad the labels before calling `tokenizer.pad` as this method won't pad them and needs them of the
+        # same length to return tensors.
+        positive_input = [np.array(feature['input_ids']) for feature in features]
+        negative_input = [np.array(feature['negative_input_ids']) for feature in features]
         
-        batch = self.tokenizer.pad(encoded_inputs={"input_ids": positive_input_ids+ negative_input_ids}, padding=True, return_tensors='pt')
-        # batch["decoder_input_ids"] = torch.stack((inputs["labels"], inputs["labels"]))
-        # batch["decoder_attention_mask"] = torch.stack((inputs["labels"], inputs["decoder_attention_mask"]))
-        batch["decoder_input_ids"] = self.tokenizer.pad(encoded_inputs={"input_ids": summary_input_ids+summary_input_ids}, padding=True, return_tensors='pt')["input_ids"]
-        # summary = [[(l if l != self.tokenizer.pad_token_id else -100) for l in label] for label in summary_input_ids]
-        summary = self.tokenizer.pad(encoded_inputs={"input_ids": summary_input_ids+summary_input_ids}, padding=True, return_tensors='pt')["input_ids"]
-        summary[summary == 1] = -100
-        batch["labels"] = summary
-        # summary =  self.tokenizer.pad(encoded_inputs={"input_ids": summary_input_ids+summary_input_ids}, padding=True, return_tensors='pt')["input_ids"]
-        # summary = [[(l if l != self.tokenizer.pad_token_id else -100) for l in label] for label in summary_input_ids]
+        if labels is not None:
+            max_label_length = max(len(l) for l in labels)
+            if self.pad_to_multiple_of is not None:
+                max_label_length = (
+                    (max_label_length + self.pad_to_multiple_of - 1)
+                    // self.pad_to_multiple_of
+                    * self.pad_to_multiple_of
+                )
 
-        return batch
-
-class CustomDataCollatorValidate:
-    def __init__(self, tokenizer, model):
-        self.tokenizer = tokenizer
-        self.model = model
-
-    def __call__(self, examples):
-        # positive_input_ids = examples['dialogue']
-        positive_input = [np.array(example['dialogue']) for example in examples]
-        # positive_input_ids = [example['dialogue'][example['dialogue'] != 1] for example in examples]
-        # negative_input_ids = examples['negative_dialogue']
-        # negative_input = [np.array(example['negative_dialogue']) for example in examples]
-        # negative_input_ids = [example['negative_dialogue'][example['dialogue'] != 1] for example in examples]
-        # summary_input_ids = examples['summary']
-        summary_input = [np.array(example['summary']) for example in examples]
-        # summary_input_ids = [example['summary'][example['dialogue'] != 1] for example in examples]
-
-        positive_input_ids = [example[example != 1] for example in positive_input]
-        # negative_input_ids = [example[example != 1] for example in negative_input]
-        summary_input_ids = [example[example != 1] for example in summary_input]
-        # summary_input_ids = [example['summary'] for example in examples]
-            
-        # inputs["input_ids"] = tokenizer.pad
-        # negative_inputs["input_ids"] = tokenizer.pad
+            padding_side = self.tokenizer.padding_side
+            for feature in features:
+                
+                remainder = [self.label_pad_token_id] * (max_label_length - len(feature["labels"]))
+                if isinstance(feature["labels"], list):
+                    feature["labels"] = (
+                        feature["labels"] + remainder if padding_side == "right" else remainder + feature["labels"]
+                    )
+                elif padding_side == "right":
+                    feature["labels"] = np.concatenate([feature["labels"], remainder]).astype(np.int64)
+                else:
+                    feature["labels"] = np.concatenate([remainder, feature["labels"]]).astype(np.int64)
         
-        batch = self.tokenizer.pad(encoded_inputs={"input_ids": positive_input_ids}, padding=True, return_tensors='pt')
-        # batch["decoder_input_ids"] = torch.stack((inputs["labels"], inputs["labels"]))
-        # batch["decoder_attention_mask"] = torch.stack((inputs["labels"], inputs["decoder_attention_mask"]))
-        batch["decoder_input_ids"] = self.tokenizer.pad(encoded_inputs={"input_ids": summary_input_ids}, padding=True, return_tensors='pt')["input_ids"]
-        # summary = [[(l if l != self.tokenizer.pad_token_id else -100) for l in label] for label in summary_input_ids]
-        summary = self.tokenizer.pad(encoded_inputs={"input_ids": summary_input_ids}, padding=True, return_tensors='pt')["input_ids"]
-        summary[summary == 1] = -100
-        batch["labels"] = summary
-        # summary =  self.tokenizer.pad(encoded_inputs={"input_ids": summary_input_ids+summary_input_ids}, padding=True, return_tensors='pt')["input_ids"]
-        # summary = [[(l if l != self.tokenizer.pad_token_id else -100) for l in label] for label in summary_input_ids]
+        new_labels = [feature["labels"] for feature in features]
+        
+        # print(len(features))
+        stack_features = self.tokenizer.pad(
+            {"input_ids": positive_input+negative_input},
+            padding=self.padding,
+            max_length=self.max_length,
+            pad_to_multiple_of=self.pad_to_multiple_of,
+            return_tensors=return_tensors,
+        )
+        
+        stack_features["labels"] = self.tokenizer.pad(
+            {"input_ids": new_labels+new_labels},
+            padding=self.padding,
+            max_length=self.max_length,
+            pad_to_multiple_of=self.pad_to_multiple_of,
+            return_tensors=return_tensors,
+        )["input_ids"]
+        
+        # prepare decoder_input_ids
+        if (
+            labels is not None
+            and self.model is not None
+            and hasattr(self.model, "prepare_decoder_input_ids_from_labels")
+        ):
+            decoder_input_ids = self.model.prepare_decoder_input_ids_from_labels(labels=stack_features["labels"])
+            stack_features["decoder_input_ids"] = decoder_input_ids
 
-        return batch
+        return stack_features
+
+@dataclass
+class CustomValidateDataCollator:
+    tokenizer: PreTrainedTokenizerBase
+    model: Optional[Any] = None
+    padding: Union[bool, str, PaddingStrategy] = True
+    max_length: Optional[int] = None
+    pad_to_multiple_of: Optional[int] = None
+    label_pad_token_id: int = -100
+    return_tensors: str = "pt"
+
+    def __call__(self, features, return_tensors=None):
+        if return_tensors is None:
+            return_tensors = self.return_tensors
+        labels = [feature["labels"] for feature in features] if "labels" in features[0].keys() else None
+        # We have to pad the labels before calling `tokenizer.pad` as this method won't pad them and needs them of the
+        # same length to return tensors.
+        positive_input = [np.array(feature['input_ids']) for feature in features]
+        negative_input = [np.array(feature['negative_input_ids']) for feature in features]
+        
+        if labels is not None:
+            max_label_length = max(len(l) for l in labels)
+            if self.pad_to_multiple_of is not None:
+                max_label_length = (
+                    (max_label_length + self.pad_to_multiple_of - 1)
+                    // self.pad_to_multiple_of
+                    * self.pad_to_multiple_of
+                )
+
+            padding_side = self.tokenizer.padding_side
+            for feature in features:
+                
+                remainder = [self.label_pad_token_id] * (max_label_length - len(feature["labels"]))
+                if isinstance(feature["labels"], list):
+                    feature["labels"] = (
+                        feature["labels"] + remainder if padding_side == "right" else remainder + feature["labels"]
+                    )
+                elif padding_side == "right":
+                    feature["labels"] = np.concatenate([feature["labels"], remainder]).astype(np.int64)
+                else:
+                    feature["labels"] = np.concatenate([remainder, feature["labels"]]).astype(np.int64)
+        
+        new_labels = [feature["labels"] for feature in features]
+        
+        # print(len(features))
+        stack_features = self.tokenizer.pad(
+            {"input_ids": positive_input},
+            padding=self.padding,
+            max_length=self.max_length,
+            pad_to_multiple_of=self.pad_to_multiple_of,
+            return_tensors=return_tensors,
+        )
+        
+        stack_features["labels"] = self.tokenizer.pad(
+            {"input_ids": new_labels},
+            padding=self.padding,
+            max_length=self.max_length,
+            pad_to_multiple_of=self.pad_to_multiple_of,
+            return_tensors=return_tensors,
+        )["input_ids"]
+        
+        # prepare decoder_input_ids
+        if (
+            labels is not None
+            and self.model is not None
+            and hasattr(self.model, "prepare_decoder_input_ids_from_labels")
+        ):
+            decoder_input_ids = self.model.prepare_decoder_input_ids_from_labels(labels=stack_features["labels"])
+            stack_features["decoder_input_ids"] = decoder_input_ids
+
+        return stack_features
 
 def data_processor(logger, args, accelerator, raw_datasets, tokenizer, model):
     ''' prepare dataset format for train/val/test '''
     def preprocess_function(examples):
-        positive_documents = examples['dialogue']
-        negative_documents = examples['negative_dialogue']
-        source_summaries = examples['summary']
 
-        # Tokenize and create input tensors
-        inputs = tokenizer(
-            positive_documents,
-            # negative_summaries,
-            return_tensors="pt",
-            padding=True,
-            truncation=True,
-            max_length=args.max_source_length  # Adjust as needed
-        )
-        
-        # Tokenize and create input tensors
-        negative_inputs = tokenizer(
-            negative_documents,
-            return_tensors="pt",
-            padding=True,
-            truncation=True,
-            max_length=args.max_source_length  # Adjust as needed
-        )
-        
+        # summary - target
+        targets = examples[summary_column]
         with tokenizer.as_target_tokenizer():
-            labels = tokenizer(
-                source_summaries,
-                return_tensors="pt",
-                padding=True,
-                truncation=True,
-                max_length=args.max_target_length  # Adjust as needed
-            )
-        
-        # batch = tokenizer.pad(encoded_inputs={"input_ids": inputs["input_ids"].squeeze().tolist() + negative_inputs["input_ids"].squeeze().tolist()}, padding=True, return_tensors='pt')
-        # # batch["decoder_input_ids"] = torch.stack((inputs["labels"], inputs["labels"]))
-        # # batch["decoder_attention_mask"] = torch.stack((inputs["labels"], inputs["decoder_attention_mask"]))
-        # batch["decoder_input_ids"] = tokenizer.pad(encoded_inputs={"input_ids": labels["input_ids"].squeeze().tolist()+labels["input_ids"].squeeze().tolist()}, padding=False, return_tensors='pt')["input_ids"]
-        # labels["input_ids"] = [[(l if l != tokenizer.pad_token_id else -100) for l in label] for label in labels["input_ids"]]
-        # batch["labels"] =  tokenizer.pad(encoded_inputs={"input_ids": labels["input_ids"]+labels["input_ids"]}, padding=True, return_tensors='pt')["input_ids"]
+            labels = tokenizer(targets, max_length=max_target_length, padding=padding, truncation=True)
 
-        # return batch
-        model_inputs = inputs
-        model_inputs["dialogue"] = inputs["input_ids"]
-        model_inputs["negative_dialogue"] = negative_inputs["input_ids"]
-        model_inputs["summary"] = labels["input_ids"]
+        # dialogue - input
+        inputs = examples[text_column]
+
+        model_inputs = tokenizer(inputs, max_length=args.max_source_length, padding=padding, truncation=True)
+
+        negative_inputs = examples['negative_dialogue']
+        negative_model_inputs = tokenizer(negative_inputs, max_length=args.max_source_length, padding=padding, truncation=True)
+
+        # If we are padding here, replace all tokenizer.pad_token_id in the labels by -100 when we want to ignore
+        # padding in the loss.
+        if padding == "max_length" and args.ignore_pad_token_for_loss:
+            labels["input_ids"] = [
+                [(l if l != tokenizer.pad_token_id else -100) for l in label] for label in labels["input_ids"]
+            ]
+
+        model_inputs["negative_input_ids"] = negative_model_inputs["input_ids"]
+        model_inputs["labels"] = labels["input_ids"]
 
         return model_inputs
-
-    prefix = args.source_prefix if args.source_prefix is not None else ""
 
     # Preprocessing the datasets.
     # First we tokenize all the texts.
@@ -245,16 +301,8 @@ def data_processor(logger, args, accelerator, raw_datasets, tokenizer, model):
 
     # Get the column names for input/target.
     text_column = args.text_column
-    if text_column not in column_names:
-        raise ValueError(
-            f"--text_column' value '{args.text_column}' needs to be one of: {', '.join(column_names)}"
-        )
 
     summary_column = args.summary_column
-    if summary_column not in column_names:
-        raise ValueError(
-            f"--summary_column' value '{args.summary_column}' needs to be one of: {', '.join(column_names)}"
-        )
 
     # Temporarily set max_target_length for training.
     max_target_length = args.max_target_length
@@ -264,7 +312,7 @@ def data_processor(logger, args, accelerator, raw_datasets, tokenizer, model):
         processed_datasets = raw_datasets.map(
             preprocess_function,
             batched=True,
-            batch_size=100,
+            batch_size=1000,
             remove_columns=column_names,
             load_from_cache_file=not args.overwrite_cache,
             desc="Running tokenizer on dataset",
@@ -275,28 +323,26 @@ def data_processor(logger, args, accelerator, raw_datasets, tokenizer, model):
     test_dataset  = processed_datasets["test"]
 
     # Log a few random samples from the training set:
-    for index in random.sample(range(len(train_dataset)), 1):
-        logger.info(f"Sample {index} of the training set: {train_dataset[index]}.")
+    # for index in random.sample(range(len(train_dataset)), 1):
+    #     logger.info(f"Sample {index} of the training set: {train_dataset[index]}.")
 
     label_pad_token_id = -100 if args.ignore_pad_token_for_loss else tokenizer.pad_token_id
-    # data_collator = DataCollatorForSeq2Seq(
-    #     tokenizer,
-    #     model=model,
-    #     label_pad_token_id=label_pad_token_id,
-    #     pad_to_multiple_of=8 if accelerator.use_fp16 else None,
-    # )
     data_collator = CustomDataCollator(
         tokenizer,
         model=model,
+        label_pad_token_id=label_pad_token_id,
+        pad_to_multiple_of=8 if accelerator.use_fp16 else None,
     )
     
-    validate_data_collator = CustomDataCollatorValidate(
+    valid_data_collator = CustomValidateDataCollator(
         tokenizer,
         model=model,
+        label_pad_token_id=label_pad_token_id,
+        pad_to_multiple_of=8 if accelerator.use_fp16 else None,
     )
 
     train_dataloader = DataLoader(train_dataset, shuffle=True, collate_fn=data_collator, batch_size=args.per_device_train_batch_size)
-    eval_dataloader = DataLoader(eval_dataset, collate_fn=validate_data_collator, batch_size=args.per_device_eval_batch_size)
-    test_dataloader = DataLoader(test_dataset, collate_fn=validate_data_collator, batch_size=args.per_device_test_batch_size)
+    eval_dataloader = DataLoader(eval_dataset, collate_fn=valid_data_collator, batch_size=args.per_device_eval_batch_size)
+    test_dataloader = DataLoader(test_dataset, collate_fn=valid_data_collator, batch_size=args.per_device_test_batch_size)
 
     return (train_dataloader, eval_dataloader, test_dataloader), (train_dataset, eval_dataset, test_dataset)
