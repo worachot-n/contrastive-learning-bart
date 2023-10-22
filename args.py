@@ -105,7 +105,11 @@ def parse_args():
     arg_parser.add_argument("--shuffle", action='store_true', default=False,
                             help="whether to shuffle the dataset to balance train/validation/test")
     arg_parser.add_argument("--topic_tagger", dest="topic_tagger", type=bool,
-                            default=None, help="Use topic tag [TAG] or not")
+                            default=False, help="Use topic tag [TAG] or not")
+    arg_parser.add_argument("--contrastive_loss", dest="contrastive_loss", type=bool,
+                            default=False, help="Use contrastive loss or not")
+    arg_parser.add_argument("--alpha", dest="alpha", type=float,
+                            default=0.5, help="ration of computation loss in encoder_hidden_layer")
     arg_parser.add_argument("--debug", action='store_true',
                             default=False, help="Use the debug mode or not")
     args = arg_parser.parse_args()

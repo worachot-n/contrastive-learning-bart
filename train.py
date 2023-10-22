@@ -196,74 +196,46 @@ def main():
                     last_output = outputs
                     output_logits = outputs.logits
                     hidden_states = outputs.decoder_hidden_states
-                    # print(f"logits: {output_logits.shape}")
-                    # print("="*100)
-                    # break
-                    # # print(f"hidden states: {hidden_states.shape}")
-                    # print(f"loss: {outputs.loss}")
-                    # print(outputs.keys())
-                    # print("="*100)
+
                     output_probs = torch.nn.functional.log_softmax(
                         output_logits, dim=-1)
                     
-                    output_probs = output_probs[:2,:,:]
-                    # print(f"output_probs: {output_probs.shape}")
-                    # print("="*100)
-                    # edit #
-                    # output_probs = output_probs.view(-1,
-                    #                                  model.module.config.vocab_size)
-                    output_probs = output_probs.view(-1,
-                                                     model.config.vocab_size)
-                    
-    
-                    gt_logits = batch['labels'][:2]
-                    # print(f"label: {gt_logits.shape}")
-                    # print("="*100)
-                    gt_logits = gt_logits.view(-1)
-    
-                    # print(f"output_probs: {output_probs.shape}")
-                    # print("-"*100)
-                    # print(f"gt_logits: {gt_logits.shape}")
-                    # print("="*100)
+                    if args.contrastive_loss:
+                        output_probs = output_probs[:2,:,:]
+                        output_probs = output_probs.view(-1,
+                                                         model.config.vocab_size)
+                        
+        
+                        gt_logits = batch['labels'][:2]
+                        gt_logits = gt_logits.view(-1)
+                    else:
+                        output_probs = output_probs
+                        output_probs = output_probs.view(-1,
+                                                         model.config.vocab_size)
+                        
+        
+                        gt_logits = batch['labels']
+                        gt_logits = gt_logits.view(-1)
                     
                     loss_nll, nll = label_smoothed_nll_loss(
                         output_probs, gt_logits, args.label_smoothing, ignore_index=tokenizer.pad_token_id)
                     
-                    cosine_loss = torch.nn.CosineEmbeddingLoss()
+                    if args.contrastive_loss:
+                        cosine_loss = torch.nn.CosineEmbeddingLoss()
                     
-                    # loss_cs = cosine_loss(outputs.encoder_last_hidden_state[0], outputs.encoder_last_hidden_state[1], torch.ones(outputs.encoder_last_hidden_state.size(dim=1)).to(torch.device('cuda')))
-                    positive_embeddings_1 = outputs.encoder_last_hidden_state[0]
-                    # print(positive_embeddings_1.shape)
-                    positive_embeddings_2 = outputs.encoder_last_hidden_state[1]
-                    # print(positive_embeddings_2.shape)
-                    negative_embeddings_1 = outputs.encoder_last_hidden_state[2]
-                    # print(negative_embeddings_1.shape)
-                    negative_embeddings_2 = outputs.encoder_last_hidden_state[3]
-                    # print(negative_embeddings_2.shape)
-                    # print('='*100)
-                    # print((-1 * torch.ones(positive_embeddings_1.size(dim=0))).shape)
-                    # break
-                    # Compute contrastive loss
-                    loss_1 = cosine_loss(positive_embeddings_1, negative_embeddings_1, -1 * torch.ones(positive_embeddings_1.size(dim=0)).to(device))
-                    loss_2 = cosine_loss(positive_embeddings_2, negative_embeddings_2, -1 * torch.ones(positive_embeddings_2.size(dim=0)).to(device))
-                    loss_cs = (loss_1 + loss_2) / 2
-                    # print("loss 1: ", loss_1)
-                    # print('-'*100)
-                    # print("loss 2: ", loss_2)
-                    # print('-'*100)
-                    # print("loss: ", loss)
-                    # print('='*100)
+                        positive_embeddings_1 = outputs.encoder_last_hidden_state[0]
+                        positive_embeddings_2 = outputs.encoder_last_hidden_state[1]
+                        negative_embeddings_1 = outputs.encoder_last_hidden_state[2]
+                        negative_embeddings_2 = outputs.encoder_last_hidden_state[3]
+
+                        loss_1 = cosine_loss(positive_embeddings_1, negative_embeddings_1, -1 * torch.ones(positive_embeddings_1.size(dim=0)).to(device))
+                        loss_2 = cosine_loss(positive_embeddings_2, negative_embeddings_2, -1 * torch.ones(positive_embeddings_2.size(dim=0)).to(device))
+                        loss_cs = (loss_1 + loss_2) / 2
+                    else:
+                        loss_cs = 0
                     
-                    alpha = 0.5
-                    
-                    loss = loss_nll + alpha * loss_cs
-                    # loss = loss_nll
-                    
-                    # print(f"loss_fn: {loss}")
-                    # print("-"*100)
-                    # print(f"nll: {nll}")
-                    # print("="*100)
-                    # break
+                    loss = loss_nll + args.alpha * loss_cs
+
 
             acc_losses.append(loss.item())
             loss = loss / args.gradient_accumulation_steps
@@ -316,7 +288,7 @@ def main():
                 val_predict.extend(decoded_preds)
                 val_groundtruth.extend(decoded_labels)
 
-        if args.len_output == 'real':
+        if args.len_output == 'topic':
             new_val_predict = []
             for sample in val_predict:
                 try:

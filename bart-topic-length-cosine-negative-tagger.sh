@@ -5,10 +5,10 @@ echo $currentDate
 start=`date +%s`
 echo "= = = = = = = = = = = = = ="
 
-python3 train.py \
+CUDA_VISIBLE_DEVICES=1 python3 train.py \
     --len_input 'topic-length' \
     --len_output 'no' \
-    --output_dir ./output/bart-topic-length-cosine-negative \
+    --output_dir ./output/bart-topic-length-cosine-negative-tagger \
     --train_file ./data/dialogsum/dialogsum.train.jsonl \
     --validation_file ./data/dialogsum/dialogsum.dev.jsonl \
     --test_file ./data/dialogsum/dialogsum.test.jsonl \
@@ -32,7 +32,11 @@ python3 train.py \
     --num_warmup_steps 0 \
     --cache_dir ./output/cache \
     --overwrite_cache True \
-    --seed 12345
+    --seed 12345 \
+    --topic_tagger True \
+    --contrastive_loss True \
+    --alpha 0.5 \
+    --overwrite_cache True \
 
 echo "= = = = = = = = = = = = = ="
 echo "The project is Finished..."

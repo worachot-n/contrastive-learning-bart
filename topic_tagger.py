@@ -52,7 +52,7 @@ def build_tagger(original_tokens,lemmatized_tokens, topic_list, idx):
             if token.lower() not in stopwords.words('english'):
                 # print("="*100)
                 # print(token.lower())
-                original_list[j] = '[TAG]' + original_list[j] + '[TAG]'
+                original_list[j] = '<TAG>' + original_list[j] + '</TAG>'
 
     tagged_tokens.append(" ".join(original_list))
     return tagged_tokens

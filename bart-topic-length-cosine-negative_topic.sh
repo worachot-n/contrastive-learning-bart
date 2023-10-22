@@ -7,8 +7,8 @@ echo "= = = = = = = = = = = = = ="
 
 python3 train.py \
     --len_input 'topic-length' \
-    --len_output 'no' \
-    --output_dir ./output/bart-topic-length-cosine-negative \
+    --len_output 'topic' \
+    --output_dir ./output/bart-topic-length-cosine-negative_topic \
     --train_file ./data/dialogsum/dialogsum.train.jsonl \
     --validation_file ./data/dialogsum/dialogsum.dev.jsonl \
     --test_file ./data/dialogsum/dialogsum.test.jsonl \

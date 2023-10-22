@@ -67,33 +67,57 @@ def load_from_dialogsum(args, file_path):
 
         topic_list = topic_list1 + topic_list2 + topic_list3
 
-    negative_topic_list = []
-    for topic in topic_list:
-        negative_topic = random.choice(topic_list)
-        if negative_topic == topic:
-            negative_topic = random.choice(negative_topic)
-        negative_topic_list.append(negative_topic)
+    if args.contrastive_loss:
+        negative_topic_list = []
+        for topic in topic_list:
+            negative_topic = random.choice(topic_list)
+            if negative_topic == topic:
+                negative_topic = random.choice(negative_topic)
+            negative_topic_list.append(negative_topic)
         
 
-    if args.topic_tagger:
+    if not args.contrastive_loss and args.topic_tagger:
         topic_tagger = []
         original_tokens = [simple_tokenize(x) for x in dialogue_list]
         lemmatized_tokens = [lemmatize_text(x) for x in dialogue_list]
         for i in range(len(lemmatized_tokens)):
             tagger = build_tagger(original_tokens, lemmatized_tokens, topic_list[i], i)
             topic_tagger.extend(tagger)
-
         data_dict = {'id': id_list,
                      'dialogue': topic_tagger,
                      'summary': summary_list,
                      'topic': topic_list}
-    else:
+        
+    elif args.contrastive_loss and args.topic_tagger:
+        topic_tagger = []
+        negative_topic_tagger = []
+        original_tokens = [simple_tokenize(x) for x in dialogue_list]
+        lemmatized_tokens = [lemmatize_text(x) for x in dialogue_list]
+        for i in range(len(lemmatized_tokens)):
+            tagger = build_tagger(original_tokens, lemmatized_tokens, topic_list[i], i)
+            topic_tagger.extend(tagger)
+        for i in range(len(lemmatized_tokens)):
+            tagger = build_tagger(original_tokens, lemmatized_tokens, negative_topic_list[i], i)
+            negative_topic_tagger.extend(tagger)
+        data_dict = {'id': id_list,
+                     'dialogue': topic_tagger,
+                     'negative_dialogue': negative_topic_tagger,
+                     'summary': summary_list,
+                     'topic': topic_list,
+                     'negative_topic': negative_topic_list}
+
+    elif args.contrastive_loss and not args.topic_tagger:
         data_dict = {'id': id_list,
                      'dialogue': dialogue_list,
                      'summary': summary_list,
                      'topic': topic_list,
                      'negative_topic': negative_topic_list}
 
+    else: 
+        data_dict = {'id': id_list,
+                     'dialogue': dialogue_list,
+                     'summary': summary_list,
+                     'topic': topic_list}
     data_dict = Dataset.from_dict(data_dict)
 
     return data_dict
@@ -125,7 +149,7 @@ def raw_data_loader(args):
     return raw_datasets
 
 @dataclass
-class CustomDataCollator:
+class CustomWithNegativeDataCollator:
     tokenizer: PreTrainedTokenizerBase
     model: Optional[Any] = None
     padding: Union[bool, str, PaddingStrategy] = True
@@ -196,7 +220,7 @@ class CustomDataCollator:
         return stack_features
 
 @dataclass
-class CustomValidateDataCollator:
+class CustomDataCollator:
     tokenizer: PreTrainedTokenizerBase
     model: Optional[Any] = None
     padding: Union[bool, str, PaddingStrategy] = True
@@ -212,7 +236,6 @@ class CustomValidateDataCollator:
         # We have to pad the labels before calling `tokenizer.pad` as this method won't pad them and needs them of the
         # same length to return tensors.
         positive_input = [np.array(feature['input_ids']) for feature in features]
-        negative_input = [np.array(feature['negative_input_ids']) for feature in features]
         
         if labels is not None:
             max_label_length = max(len(l) for l in labels)
@@ -279,9 +302,10 @@ def data_processor(logger, args, accelerator, raw_datasets, tokenizer, model):
         inputs = examples[text_column]
 
         model_inputs = tokenizer(inputs, max_length=args.max_source_length, padding=padding, truncation=True)
-
-        negative_inputs = examples['negative_dialogue']
-        negative_model_inputs = tokenizer(negative_inputs, max_length=args.max_source_length, padding=padding, truncation=True)
+        
+        if args.contrastive_loss:
+            negative_inputs = examples['negative_dialogue']
+            negative_model_inputs = tokenizer(negative_inputs, max_length=args.max_source_length, padding=padding, truncation=True)
 
         # If we are padding here, replace all tokenizer.pad_token_id in the labels by -100 when we want to ignore
         # padding in the loss.
@@ -289,8 +313,8 @@ def data_processor(logger, args, accelerator, raw_datasets, tokenizer, model):
             labels["input_ids"] = [
                 [(l if l != tokenizer.pad_token_id else -100) for l in label] for label in labels["input_ids"]
             ]
-
-        model_inputs["negative_input_ids"] = negative_model_inputs["input_ids"]
+        if args.contrastive_loss:
+            model_inputs["negative_input_ids"] = negative_model_inputs["input_ids"]
         model_inputs["labels"] = labels["input_ids"]
 
         return model_inputs
@@ -327,22 +351,35 @@ def data_processor(logger, args, accelerator, raw_datasets, tokenizer, model):
     #     logger.info(f"Sample {index} of the training set: {train_dataset[index]}.")
 
     label_pad_token_id = -100 if args.ignore_pad_token_for_loss else tokenizer.pad_token_id
-    data_collator = CustomDataCollator(
-        tokenizer,
-        model=model,
-        label_pad_token_id=label_pad_token_id,
-        pad_to_multiple_of=8 if accelerator.use_fp16 else None,
-    )
-    
-    valid_data_collator = CustomValidateDataCollator(
-        tokenizer,
-        model=model,
-        label_pad_token_id=label_pad_token_id,
-        pad_to_multiple_of=8 if accelerator.use_fp16 else None,
-    )
 
-    train_dataloader = DataLoader(train_dataset, shuffle=True, collate_fn=data_collator, batch_size=args.per_device_train_batch_size)
-    eval_dataloader = DataLoader(eval_dataset, collate_fn=valid_data_collator, batch_size=args.per_device_eval_batch_size)
-    test_dataloader = DataLoader(test_dataset, collate_fn=valid_data_collator, batch_size=args.per_device_test_batch_size)
+    if args.contrastive_loss:
+        data_collator = CustomWithNegativeDataCollator(
+            tokenizer,
+            model=model,
+            label_pad_token_id=label_pad_token_id,
+            pad_to_multiple_of=8 if accelerator.use_fp16 else None,
+        )
+        
+        valid_data_collator = CustomDataCollator(
+            tokenizer,
+            model=model,
+            label_pad_token_id=label_pad_token_id,
+            pad_to_multiple_of=8 if accelerator.use_fp16 else None,
+        )
+    
+        train_dataloader = DataLoader(train_dataset, shuffle=True, collate_fn=data_collator, batch_size=args.per_device_train_batch_size)
+        eval_dataloader = DataLoader(eval_dataset, collate_fn=valid_data_collator, batch_size=args.per_device_eval_batch_size)
+        test_dataloader = DataLoader(test_dataset, collate_fn=valid_data_collator, batch_size=args.per_device_test_batch_size)
+    else:
+        data_collator = CustomDataCollator(
+            tokenizer,
+            model=model,
+            label_pad_token_id=label_pad_token_id,
+            pad_to_multiple_of=8 if accelerator.use_fp16 else None,
+        )
+    
+        train_dataloader = DataLoader(train_dataset, shuffle=True, collate_fn=data_collator, batch_size=args.per_device_train_batch_size)
+        eval_dataloader = DataLoader(eval_dataset, collate_fn=data_collator, batch_size=args.per_device_eval_batch_size)
+        test_dataloader = DataLoader(test_dataset, collate_fn=data_collator, batch_size=args.per_device_test_batch_size)
 
     return (train_dataloader, eval_dataloader, test_dataloader), (train_dataset, eval_dataset, test_dataset)

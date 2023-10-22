@@ -49,7 +49,7 @@ def model_loader(accelerator, logger, args):
         )
 
     if args.topic_tagger:
-        special_tokens = {'additional_special_tokens': ['<TAG>']}
+        special_tokens = {'additional_special_tokens': ['<TAG>', '</TAG>']}
         tokenizer.add_special_tokens(special_tokens_dict=special_tokens)
 
     model = AutoModelForSeq2SeqLM.from_pretrained(
