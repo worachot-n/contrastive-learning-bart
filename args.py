@@ -106,6 +106,8 @@ def parse_args():
                             help="whether to shuffle the dataset to balance train/validation/test")
     arg_parser.add_argument("--topic_tagger", dest="topic_tagger", type=bool,
                             default=False, help="Use topic tag [TAG] or not")
+    arg_parser.add_argument("--decoder_topic_tagger", dest="decoder_topic_tagger", type=bool,
+                            default=False, help="Use decoder topic tag [TAG] or not")
     arg_parser.add_argument("--contrastive_loss", dest="contrastive_loss", type=bool,
                             default=False, help="Use contrastive loss or not")
     arg_parser.add_argument("--alpha", dest="alpha", type=float,

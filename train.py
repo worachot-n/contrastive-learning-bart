@@ -22,6 +22,7 @@ from data_loader import raw_data_loader, data_processor
 from model_loader import model_loader
 from rouge_s import py_rouge_scores
 from utils import label_smoothed_nll_loss, postprocess_text
+from new_loss import margin_ranking_loss, cosine_embedding_loss
 
 
 # =  =  =  =  =  =  =  =  =  = Logging Setup =  =  =  =  =  =  =  =  =  =  =  = 
@@ -177,7 +178,7 @@ def main():
     else:
         raise ValueError('{} model type not implemented'.format(args.model_type))
     
-    device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
     # =  =  =  =  =  =  =  =  =  =  =  =  =  =  =  = Train =  =  =  =  =  =  =  =  =  =  =  =  =  =  = 
     for epoch in range(args.num_train_epochs):
@@ -193,21 +194,47 @@ def main():
                     loss = outputs.loss
                 else:
                     outputs = model(**batch, output_hidden_states=True)
-                    last_output = outputs
                     output_logits = outputs.logits
-                    hidden_states = outputs.decoder_hidden_states
-
+    
                     output_probs = torch.nn.functional.log_softmax(
                         output_logits, dim=-1)
                     
                     if args.contrastive_loss:
-                        output_probs = output_probs[:2,:,:]
-                        output_probs = output_probs.view(-1,
+
+                        max_encoder_token = batch['input_ids'].shape[1]
+                        divide_num = int(output_probs.shape[0] / 2)
+                        
+                        positive_embeddings = outputs.encoder_last_hidden_state[:divide_num,:,:max_encoder_token]
+                        negative_embeddings = outputs.encoder_last_hidden_state[divide_num:,:,:max_encoder_token]
+                        positive_embeddings = positive_embeddings.view(-1, max_encoder_token)
+                        negative_embeddings = negative_embeddings.view(-1, max_encoder_token)
+                        contrastive = -1 * torch.ones(positive_embeddings.size(dim=0)).to(device)
+    
+                        model.config.max_position_embeddings
+    
+                        loss_cs = cosine_embedding_loss(positive_embeddings, negative_embeddings, contrastive)
+                        
+                        output_probs_pos = output_probs[:divide_num,:,:]
+                        output_probs_pos = output_probs_pos.view(-1,
+                                                         model.config.vocab_size)
+                        output_probs_neg = output_probs[divide_num:,:,:]
+                        output_probs_neg = output_probs_neg.view(-1,
                                                          model.config.vocab_size)
                         
-        
-                        gt_logits = batch['labels'][:2]
+                        gt_logits = batch['labels'][:divide_num]
                         gt_logits = gt_logits.view(-1)
+    
+                        loss_nll, nll = label_smoothed_nll_loss(
+                            output_probs_pos, gt_logits, args.label_smoothing, ignore_index=tokenizer.pad_token_id)
+                        
+                        # (pos, neg, target, ignore_index=-100, ,device)
+                        target_one = torch.ones(gt_logits.shape[0]).to(device)
+                        loss_mr = margin_ranking_loss(output_probs_pos, output_probs_neg, 
+                                                                  gt_logits, target_one, ignore_index=tokenizer.pad_token_id)
+                        # print(f"margin_ranking_loss: {loss_margin_ranking}")
+                        loss = loss_nll + (args.alpha * loss_cs) + (args.alpha * loss_mr)
+                        # loss = loss_nll + (args.alpha * loss_cs)
+                        
                     else:
                         output_probs = output_probs
                         output_probs = output_probs.view(-1,
@@ -217,24 +244,10 @@ def main():
                         gt_logits = batch['labels']
                         gt_logits = gt_logits.view(-1)
                     
-                    loss_nll, nll = label_smoothed_nll_loss(
-                        output_probs, gt_logits, args.label_smoothing, ignore_index=tokenizer.pad_token_id)
-                    
-                    if args.contrastive_loss:
-                        cosine_loss = torch.nn.CosineEmbeddingLoss()
-                    
-                        positive_embeddings_1 = outputs.encoder_last_hidden_state[0]
-                        positive_embeddings_2 = outputs.encoder_last_hidden_state[1]
-                        negative_embeddings_1 = outputs.encoder_last_hidden_state[2]
-                        negative_embeddings_2 = outputs.encoder_last_hidden_state[3]
-
-                        loss_1 = cosine_loss(positive_embeddings_1, negative_embeddings_1, -1 * torch.ones(positive_embeddings_1.size(dim=0)).to(device))
-                        loss_2 = cosine_loss(positive_embeddings_2, negative_embeddings_2, -1 * torch.ones(positive_embeddings_2.size(dim=0)).to(device))
-                        loss_cs = (loss_1 + loss_2) / 2
-                    else:
-                        loss_cs = 0
-                    
-                    loss = loss_nll + args.alpha * loss_cs
+                        loss_nll, nll = label_smoothed_nll_loss(
+                            output_probs, gt_logits, args.label_smoothing, ignore_index=tokenizer.pad_token_id)
+        
+                        loss = loss_nll      
 
 
             acc_losses.append(loss.item())
