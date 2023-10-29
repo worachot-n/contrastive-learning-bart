@@ -217,9 +217,9 @@ def main():
                         output_probs_pos = output_probs[:divide_num,:,:]
                         output_probs_pos = output_probs_pos.view(-1,
                                                          model.config.vocab_size)
-                        output_probs_neg = output_probs[divide_num:,:,:]
-                        output_probs_neg = output_probs_neg.view(-1,
-                                                         model.config.vocab_size)
+                        # output_probs_neg = output_probs[divide_num:,:,:]
+                        # output_probs_neg = output_probs_neg.view(-1,
+                        #                                  model.config.vocab_size)
                         
                         gt_logits = batch['labels'][:divide_num]
                         gt_logits = gt_logits.view(-1)
@@ -228,12 +228,15 @@ def main():
                             output_probs_pos, gt_logits, args.label_smoothing, ignore_index=tokenizer.pad_token_id)
                         
                         # (pos, neg, target, ignore_index=-100, ,device)
-                        target_one = torch.ones(gt_logits.shape[0]).to(device)
-                        loss_mr = margin_ranking_loss(output_probs_pos, output_probs_neg, 
-                                                                  gt_logits, target_one, ignore_index=tokenizer.pad_token_id)
+                
+                        # margin ranking loss
+                        # target_one = torch.ones(gt_logits.shape[0]).to(device)
+                        # loss_mr = margin_ranking_loss(output_probs_pos, output_probs_neg, 
+                        #                                           gt_logits, target_one, ignore_index=tokenizer.pad_token_id)
                         # print(f"margin_ranking_loss: {loss_margin_ranking}")
-                        loss = loss_nll + (args.alpha * loss_cs) + (args.alpha * loss_mr)
-                        # loss = loss_nll + (args.alpha * loss_cs)
+                        
+                        loss = loss_nll + (args.alpha * loss_cs)
+                        # loss = loss_nll + (args.alpha * loss_cs) + (args.alpha * loss_mr)
                         
                     else:
                         output_probs = output_probs

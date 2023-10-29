@@ -1,0 +1,191 @@
+= = = = = = = = = = = = = =
+The project is running...
+Sun Oct 29 12:30:54 UTC 2023
+= = = = = = = = = = = = = =
+[nltk_data] Downloading package punkt to /home/nltk_data...
+[nltk_data] Downloading package punkt to /home/nltk_data...
+[nltk_data] Downloading package punkt to /home/nltk_data...
+[nltk_data] Downloading package punkt to /home/nltk_data...
+[nltk_data]   Unzipping tokenizers/punkt.zip.
+[nltk_data]   Unzipping tokenizers/punkt.zip.
+[nltk_data]   Unzipping tokenizers/punkt.zip.
+[nltk_data]   Unzipping tokenizers/punkt.zip.
+[nltk_data] Downloading package averaged_perceptron_tagger to
+[nltk_data]     /home/nltk_data...
+[nltk_data] Downloading package averaged_perceptron_tagger to
+[nltk_data]     /home/nltk_data...[nltk_data] Downloading package averaged_perceptron_tagger to
+[nltk_data]     /home/nltk_data...
+
+Traceback (most recent call last):
+  File "/home/contrastive-learning-bart/train.py", line 21, in <module>
+    from data_loader import raw_data_loader, data_processor
+  File "/home/contrastive-learning-bart/data_loader.py", line 13, in <module>
+    from topic_tagger import simple_tokenize, lemmatize_text, build_tagger
+  File "/home/contrastive-learning-bart/topic_tagger.py", line 3, in <module>
+    nltk.download('averaged_perceptron_tagger')
+  File "/opt/conda/lib/python3.10/site-packages/nltk/downloader.py", line 777, in download
+    for msg in self.incr_download(info_or_id, download_dir, force):
+  File "/opt/conda/lib/python3.10/site-packages/nltk/downloader.py", line 642, in incr_download
+    yield from self._download_package(info, download_dir, force)
+  File "/opt/conda/lib/python3.10/site-packages/nltk/downloader.py", line 695, in _download_package
+    os.remove(filepath)
+FileNotFoundError: [Errno 2] No such file or directory: '/home/nltk_data/taggers/averaged_perceptron_tagger.zip'
+[nltk_data] Downloading package averaged_perceptron_tagger to
+[nltk_data]     /home/nltk_data...
+[nltk_data]   Unzipping taggers/averaged_perceptron_tagger.zip.
+[nltk_data] [Errno 2] No such file or directory:
+[nltk_data]     '/home/nltk_data/taggers/averaged_perceptron_tagger.zi
+[nltk_data]     p'
+[nltk_data] Downloading package wordnet to /home/nltk_data...
+[nltk_data]   Unzipping taggers/averaged_perceptron_tagger.zip.
+[nltk_data] Downloading package wordnet to /home/nltk_data...
+[nltk_data]   Unzipping taggers/averaged_perceptron_tagger.zip.
+[nltk_data] Downloading package wordnet to /home/nltk_data...
+[nltk_data] Downloading package stopwords to /home/nltk_data...
+[nltk_data] Downloading package stopwords to /home/nltk_data...
+[nltk_data]   Unzipping corpora/stopwords.zip.
+[nltk_data] Error with downloaded zip file
+[nltk_data]   Unzipping corpora/stopwords.zip.
+10/29/2023 12:31:02 - INFO - root - *** Parameters ***
+10/29/2023 12:31:02 - INFO - root - len_input: topic-length
+10/29/2023 12:31:02 - INFO - root - len_output: no
+10/29/2023 12:31:02 - INFO - root - output_dir: ./output/bart-topic-length-cosine-negative-prompt-tagger-accelerate
+10/29/2023 12:31:02 - INFO - root - train_file: ./data/dialogsum/dialogsum.train.jsonl
+10/29/2023 12:31:02 - INFO - root - validation_file: ./data/dialogsum/dialogsum.dev.jsonl
+10/29/2023 12:31:02 - INFO - root - test_file: ./data/dialogsum/dialogsum.test.jsonl
+10/29/2023 12:31:02 - INFO - root - ignore_pad_token_for_loss: True
+10/29/2023 12:31:02 - INFO - root - text_column: dialogue
+10/29/2023 12:31:02 - INFO - root - summary_column: summary
+10/29/2023 12:31:02 - INFO - root - model_name_or_path: facebook/bart-large
+10/29/2023 12:31:02 - INFO - root - model_type: bart
+10/29/2023 12:31:02 - INFO - root - max_source_length: 1024
+10/29/2023 12:31:02 - INFO - root - source_prefix: None
+10/29/2023 12:31:02 - INFO - root - preprocessing_num_workers: None
+10/29/2023 12:31:02 - INFO - root - overwrite_cache: True
+10/29/2023 12:31:02 - INFO - root - min_target_length: 1
+10/29/2023 12:31:02 - INFO - root - max_target_length: 128
+10/29/2023 12:31:02 - INFO - root - num_beams: 4
+10/29/2023 12:31:02 - INFO - root - learning_rate: 5e-05
+10/29/2023 12:31:02 - INFO - root - pad_to_max_length: False
+10/29/2023 12:31:02 - INFO - root - weight_decay: 0.001
+10/29/2023 12:31:02 - INFO - root - label_smoothing: 0.1
+10/29/2023 12:31:02 - INFO - root - length_penalty: 1.0
+10/29/2023 12:31:02 - INFO - root - num_train_epochs: 15
+10/29/2023 12:31:02 - INFO - root - per_device_train_batch_size: 2
+10/29/2023 12:31:02 - INFO - root - gradient_accumulation_steps: 64
+10/29/2023 12:31:02 - INFO - root - per_device_eval_batch_size: 8
+10/29/2023 12:31:02 - INFO - root - per_device_test_batch_size: 8
+10/29/2023 12:31:02 - INFO - root - num_warmup_steps: 0
+10/29/2023 12:31:02 - INFO - root - cache_dir: ./output/cache
+10/29/2023 12:31:02 - INFO - root - seed: 12345
+10/29/2023 12:31:02 - INFO - root - config_name: None
+10/29/2023 12:31:02 - INFO - root - ctrlen_model: False
+10/29/2023 12:31:02 - INFO - root - tokenizer_name: None
+10/29/2023 12:31:02 - INFO - root - use_slow_tokenizer: False
+10/29/2023 12:31:02 - INFO - root - max_train_steps: None
+10/29/2023 12:31:02 - INFO - root - lr_scheduler_type: linear
+10/29/2023 12:31:02 - INFO - root - special_len_token_init: None
+10/29/2023 12:31:02 - INFO - root - embedding_lr: 5e-05
+10/29/2023 12:31:02 - INFO - root - len_start: 1
+10/29/2023 12:31:02 - INFO - root - len_end: 100
+10/29/2023 12:31:02 - INFO - root - data_aug: False
+10/29/2023 12:31:02 - INFO - root - pred_len: False
+10/29/2023 12:31:02 - INFO - root - shuffle: False
+10/29/2023 12:31:02 - INFO - root - topic_tagger: True
+10/29/2023 12:31:02 - INFO - root - decoder_topic_tagger: False
+10/29/2023 12:31:02 - INFO - root - contrastive_loss: True
+10/29/2023 12:31:02 - INFO - root - alpha: 0.5
+10/29/2023 12:31:02 - INFO - root - debug: False
+10/29/2023 12:31:02 - INFO - root - 
+10/29/2023 12:31:02 - INFO - root - *** Parameters ***
+10/29/2023 12:31:02 - INFO - root - len_input: topic-length
+10/29/2023 12:31:02 - INFO - root - len_output: no
+10/29/2023 12:31:02 - INFO - root - output_dir: ./output/bart-topic-length-cosine-negative-prompt-tagger-accelerate
+10/29/2023 12:31:02 - INFO - root - train_file: ./data/dialogsum/dialogsum.train.jsonl
+10/29/2023 12:31:02 - INFO - root - validation_file: ./data/dialogsum/dialogsum.dev.jsonl
+10/29/2023 12:31:02 - INFO - root - test_file: ./data/dialogsum/dialogsum.test.jsonl
+10/29/2023 12:31:02 - INFO - root - ignore_pad_token_for_loss: True
+10/29/2023 12:31:02 - INFO - root - text_column: dialogue
+10/29/2023 12:31:02 - INFO - root - summary_column: summary
+10/29/2023 12:31:02 - INFO - root - model_name_or_path: facebook/bart-large
+10/29/2023 12:31:02 - INFO - root - model_type: bart
+10/29/2023 12:31:02 - INFO - root - max_source_length: 1024
+10/29/2023 12:31:02 - INFO - root - source_prefix: None
+10/29/2023 12:31:02 - INFO - root - preprocessing_num_workers: None
+10/29/2023 12:31:02 - INFO - root - overwrite_cache: True
+10/29/2023 12:31:02 - INFO - root - min_target_length: 1
+10/29/2023 12:31:02 - INFO - root - max_target_length: 128
+10/29/2023 12:31:02 - INFO - root - num_beams: 4
+10/29/2023 12:31:02 - INFO - root - learning_rate: 5e-05
+10/29/2023 12:31:02 - INFO - root - pad_to_max_length: False
+10/29/2023 12:31:02 - INFO - root - weight_decay: 0.001
+10/29/2023 12:31:02 - INFO - root - label_smoothing: 0.1
+10/29/2023 12:31:02 - INFO - root - length_penalty: 1.0
+10/29/2023 12:31:02 - INFO - root - num_train_epochs: 15
+10/29/2023 12:31:02 - INFO - root - per_device_train_batch_size: 2
+10/29/2023 12:31:02 - INFO - root - gradient_accumulation_steps: 64
+10/29/2023 12:31:02 - INFO - root - per_device_eval_batch_size: 8
+10/29/2023 12:31:02 - INFO - root - per_device_test_batch_size: 8
+10/29/2023 12:31:02 - INFO - root - num_warmup_steps: 0
+10/29/2023 12:31:02 - INFO - root - cache_dir: ./output/cache
+10/29/2023 12:31:02 - INFO - root - seed: 12345
+10/29/2023 12:31:02 - INFO - root - config_name: None
+10/29/2023 12:31:02 - INFO - root - ctrlen_model: False
+10/29/2023 12:31:02 - INFO - root - tokenizer_name: None
+10/29/2023 12:31:02 - INFO - root - use_slow_tokenizer: False
+10/29/2023 12:31:02 - INFO - root - max_train_steps: None
+10/29/2023 12:31:02 - INFO - root - lr_scheduler_type: linear
+10/29/2023 12:31:02 - INFO - root - special_len_token_init: None
+10/29/2023 12:31:02 - INFO - root - embedding_lr: 5e-05
+10/29/2023 12:31:02 - INFO - root - len_start: 1
+10/29/2023 12:31:02 - INFO - root - len_end: 100
+10/29/2023 12:31:02 - INFO - root - data_aug: False
+10/29/2023 12:31:02 - INFO - root - pred_len: False
+10/29/2023 12:31:02 - INFO - root - shuffle: False
+10/29/2023 12:31:02 - INFO - root - topic_tagger: True
+10/29/2023 12:31:02 - INFO - root - decoder_topic_tagger: False
+10/29/2023 12:31:02 - INFO - root - contrastive_loss: True
+10/29/2023 12:31:02 - INFO - root - alpha: 0.5
+10/29/2023 12:31:02 - INFO - root - debug: False
+10/29/2023 12:31:02 - INFO - root - 
+10/29/2023 12:31:03 - INFO - torch.distributed.distributed_c10d - Added key: store_based_barrier_key:1 to store for rank: 1
+10/29/2023 12:31:03 - INFO - torch.distributed.distributed_c10d - Added key: store_based_barrier_key:1 to store for rank: 3
+WARNING:torch.distributed.elastic.multiprocessing.api:Sending process 342 closing signal SIGTERM
+WARNING:torch.distributed.elastic.multiprocessing.api:Sending process 343 closing signal SIGTERM
+WARNING:torch.distributed.elastic.multiprocessing.api:Sending process 344 closing signal SIGTERM
+ERROR:torch.distributed.elastic.multiprocessing.api:failed (exitcode: 1) local_rank: 0 (pid: 341) of binary: /opt/conda/bin/python
+Traceback (most recent call last):
+  File "/opt/conda/bin/accelerate", line 8, in <module>
+    sys.exit(main())
+  File "/opt/conda/lib/python3.10/site-packages/accelerate/commands/accelerate_cli.py", line 47, in main
+    args.func(args)
+  File "/opt/conda/lib/python3.10/site-packages/accelerate/commands/launch.py", line 977, in launch_command
+    multi_gpu_launcher(args)
+  File "/opt/conda/lib/python3.10/site-packages/accelerate/commands/launch.py", line 646, in multi_gpu_launcher
+    distrib_run.run(args)
+  File "/opt/conda/lib/python3.10/site-packages/torch/distributed/run.py", line 785, in run
+    elastic_launch(
+  File "/opt/conda/lib/python3.10/site-packages/torch/distributed/launcher/api.py", line 134, in __call__
+    return launch_agent(self._config, self._entrypoint, list(args))
+  File "/opt/conda/lib/python3.10/site-packages/torch/distributed/launcher/api.py", line 250, in launch_agent
+    raise ChildFailedError(
+torch.distributed.elastic.multiprocessing.errors.ChildFailedError: 
+============================================================
+train.py FAILED
+------------------------------------------------------------
+Failures:
+  <NO_OTHER_FAILURES>
+------------------------------------------------------------
+Root Cause (first observed failure):
+[0]:
+  time      : 2023-10-29_12:31:06
+  host      : f707f9f5e13f
+  rank      : 0 (local_rank: 0)
+  exitcode  : 1 (pid: 341)
+  error_file: <N/A>
+  traceback : To enable traceback see: https://pytorch.org/docs/stable/elastic/errors.html
+============================================================
+= = = = = = = = = = = = = =
+The project is Finished...
+The program takes '0' minutes.
+= = = = = = = = = = = = = =
