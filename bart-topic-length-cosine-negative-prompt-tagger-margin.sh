@@ -5,10 +5,10 @@ echo $currentDate
 start=`date +%s`
 echo "= = = = = = = = = = = = = ="
 
-accelerate launch train.py \
+python3 train.py \
     --len_input 'topic-length' \
     --len_output 'no' \
-    --output_dir ./output/bart-topic-length-cosine-negative-prompt-tagger-accelerate \
+    --output_dir ./output/bart-topic-length-cosine-negative-prompt-tagger-margin \
     --train_file ./data/dialogsum/dialogsum.train.jsonl \
     --validation_file ./data/dialogsum/dialogsum.dev.jsonl \
     --test_file ./data/dialogsum/dialogsum.test.jsonl \

@@ -1,0 +1,1381 @@
+= = = = = = = = = = = = = =
+The project is running...
+Sun Oct 29 17:42:58 UTC 2023
+= = = = = = = = = = = = = =
+[nltk_data] Downloading package punkt to /home/nltk_data...
+[nltk_data]   Unzipping tokenizers/punkt.zip.
+[nltk_data] Downloading package averaged_perceptron_tagger to
+[nltk_data]     /home/nltk_data...
+[nltk_data]   Unzipping taggers/averaged_perceptron_tagger.zip.
+[nltk_data] Downloading package wordnet to /home/nltk_data...
+[nltk_data] Downloading package stopwords to /home/nltk_data...
+[nltk_data]   Unzipping corpora/stopwords.zip.
+10/29/2023 17:43:02 - INFO - root - *** Parameters ***
+10/29/2023 17:43:02 - INFO - root - len_input: topic-length
+10/29/2023 17:43:02 - INFO - root - len_output: no
+10/29/2023 17:43:02 - INFO - root - output_dir: ./output/bart-topic-length-cosine-negative-prompt-tagger-margin
+10/29/2023 17:43:02 - INFO - root - train_file: ./data/dialogsum/dialogsum.train.jsonl
+10/29/2023 17:43:02 - INFO - root - validation_file: ./data/dialogsum/dialogsum.dev.jsonl
+10/29/2023 17:43:02 - INFO - root - test_file: ./data/dialogsum/dialogsum.test.jsonl
+10/29/2023 17:43:02 - INFO - root - ignore_pad_token_for_loss: True
+10/29/2023 17:43:02 - INFO - root - text_column: dialogue
+10/29/2023 17:43:02 - INFO - root - summary_column: summary
+10/29/2023 17:43:02 - INFO - root - model_name_or_path: facebook/bart-large
+10/29/2023 17:43:02 - INFO - root - model_type: bart
+10/29/2023 17:43:02 - INFO - root - max_source_length: 1024
+10/29/2023 17:43:02 - INFO - root - source_prefix: None
+10/29/2023 17:43:02 - INFO - root - preprocessing_num_workers: None
+10/29/2023 17:43:02 - INFO - root - overwrite_cache: True
+10/29/2023 17:43:02 - INFO - root - min_target_length: 1
+10/29/2023 17:43:02 - INFO - root - max_target_length: 128
+10/29/2023 17:43:02 - INFO - root - num_beams: 4
+10/29/2023 17:43:02 - INFO - root - learning_rate: 5e-05
+10/29/2023 17:43:02 - INFO - root - pad_to_max_length: False
+10/29/2023 17:43:02 - INFO - root - weight_decay: 0.001
+10/29/2023 17:43:02 - INFO - root - label_smoothing: 0.1
+10/29/2023 17:43:02 - INFO - root - length_penalty: 1.0
+10/29/2023 17:43:02 - INFO - root - num_train_epochs: 15
+10/29/2023 17:43:02 - INFO - root - per_device_train_batch_size: 2
+10/29/2023 17:43:02 - INFO - root - gradient_accumulation_steps: 64
+10/29/2023 17:43:02 - INFO - root - per_device_eval_batch_size: 8
+10/29/2023 17:43:02 - INFO - root - per_device_test_batch_size: 8
+10/29/2023 17:43:02 - INFO - root - num_warmup_steps: 0
+10/29/2023 17:43:02 - INFO - root - cache_dir: ./output/cache
+10/29/2023 17:43:02 - INFO - root - seed: 12345
+10/29/2023 17:43:02 - INFO - root - config_name: None
+10/29/2023 17:43:02 - INFO - root - ctrlen_model: False
+10/29/2023 17:43:02 - INFO - root - tokenizer_name: None
+10/29/2023 17:43:02 - INFO - root - use_slow_tokenizer: False
+10/29/2023 17:43:02 - INFO - root - max_train_steps: None
+10/29/2023 17:43:02 - INFO - root - lr_scheduler_type: linear
+10/29/2023 17:43:02 - INFO - root - special_len_token_init: None
+10/29/2023 17:43:02 - INFO - root - embedding_lr: 5e-05
+10/29/2023 17:43:02 - INFO - root - len_start: 1
+10/29/2023 17:43:02 - INFO - root - len_end: 100
+10/29/2023 17:43:02 - INFO - root - data_aug: False
+10/29/2023 17:43:02 - INFO - root - pred_len: False
+10/29/2023 17:43:02 - INFO - root - shuffle: False
+10/29/2023 17:43:02 - INFO - root - topic_tagger: True
+10/29/2023 17:43:02 - INFO - root - decoder_topic_tagger: False
+10/29/2023 17:43:02 - INFO - root - contrastive_loss: True
+10/29/2023 17:43:02 - INFO - root - alpha: 0.5
+10/29/2023 17:43:02 - INFO - root - debug: False
+10/29/2023 17:43:02 - INFO - root - 
+10/29/2023 17:43:02 - INFO - __main__ - Distributed environment: NO
+Num processes: 1
+Process index: 0
+Local process index: 0
+Device: cuda
+
+Mixed precision type: fp16
+
+Downloading (…)lve/main/config.json:   0%|                                                                                                                | 0.00/1.63k [00:00<?, ?B/s]Downloading (…)lve/main/config.json: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████| 1.63k/1.63k [00:00<00:00, 8.04MB/s]
+loading configuration file config.json from cache at ./output/cache/models--facebook--bart-large/snapshots/cb48c1365bd826bd521f650dc2e0940aee54720c/config.json
+Model config BartConfig {
+  "_name_or_path": "facebook/bart-large",
+  "activation_dropout": 0.1,
+  "activation_function": "gelu",
+  "add_bias_logits": false,
+  "add_final_layer_norm": false,
+  "architectures": [
+    "BartModel"
+  ],
+  "attention_dropout": 0.1,
+  "bos_token_id": 0,
+  "classif_dropout": 0.1,
+  "classifier_dropout": 0.0,
+  "d_model": 1024,
+  "decoder_attention_heads": 16,
+  "decoder_ffn_dim": 4096,
+  "decoder_layerdrop": 0.0,
+  "decoder_layers": 12,
+  "decoder_start_token_id": 2,
+  "dropout": 0.1,
+  "early_stopping": true,
+  "encoder_attention_heads": 16,
+  "encoder_ffn_dim": 4096,
+  "encoder_layerdrop": 0.0,
+  "encoder_layers": 12,
+  "eos_token_id": 2,
+  "forced_bos_token_id": 0,
+  "forced_eos_token_id": 2,
+  "gradient_checkpointing": false,
+  "id2label": {
+    "0": "LABEL_0",
+    "1": "LABEL_1",
+    "2": "LABEL_2"
+  },
+  "init_std": 0.02,
+  "is_encoder_decoder": true,
+  "label2id": {
+    "LABEL_0": 0,
+    "LABEL_1": 1,
+    "LABEL_2": 2
+  },
+  "max_position_embeddings": 1024,
+  "model_type": "bart",
+  "no_repeat_ngram_size": 3,
+  "normalize_before": false,
+  "num_beams": 4,
+  "num_hidden_layers": 12,
+  "pad_token_id": 1,
+  "scale_embedding": false,
+  "task_specific_params": {
+    "summarization": {
+      "length_penalty": 1.0,
+      "max_length": 128,
+      "min_length": 12,
+      "num_beams": 4
+    },
+    "summarization_cnn": {
+      "length_penalty": 2.0,
+      "max_length": 142,
+      "min_length": 56,
+      "num_beams": 4
+    },
+    "summarization_xsum": {
+      "length_penalty": 1.0,
+      "max_length": 62,
+      "min_length": 11,
+      "num_beams": 6
+    }
+  },
+  "transformers_version": "4.33.3",
+  "use_cache": true,
+  "vocab_size": 50265
+}
+
+Downloading (…)okenizer_config.json:   0%|                                                                                                                 | 0.00/26.0 [00:00<?, ?B/s]Downloading (…)okenizer_config.json: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████| 26.0/26.0 [00:00<00:00, 169kB/s]
+loading configuration file config.json from cache at ./output/cache/models--facebook--bart-large/snapshots/cb48c1365bd826bd521f650dc2e0940aee54720c/config.json
+Model config BartConfig {
+  "_name_or_path": "facebook/bart-large",
+  "activation_dropout": 0.1,
+  "activation_function": "gelu",
+  "add_bias_logits": false,
+  "add_final_layer_norm": false,
+  "architectures": [
+    "BartModel"
+  ],
+  "attention_dropout": 0.1,
+  "bos_token_id": 0,
+  "classif_dropout": 0.1,
+  "classifier_dropout": 0.0,
+  "d_model": 1024,
+  "decoder_attention_heads": 16,
+  "decoder_ffn_dim": 4096,
+  "decoder_layerdrop": 0.0,
+  "decoder_layers": 12,
+  "decoder_start_token_id": 2,
+  "dropout": 0.1,
+  "early_stopping": true,
+  "encoder_attention_heads": 16,
+  "encoder_ffn_dim": 4096,
+  "encoder_layerdrop": 0.0,
+  "encoder_layers": 12,
+  "eos_token_id": 2,
+  "forced_bos_token_id": 0,
+  "forced_eos_token_id": 2,
+  "gradient_checkpointing": false,
+  "id2label": {
+    "0": "LABEL_0",
+    "1": "LABEL_1",
+    "2": "LABEL_2"
+  },
+  "init_std": 0.02,
+  "is_encoder_decoder": true,
+  "label2id": {
+    "LABEL_0": 0,
+    "LABEL_1": 1,
+    "LABEL_2": 2
+  },
+  "max_position_embeddings": 1024,
+  "model_type": "bart",
+  "no_repeat_ngram_size": 3,
+  "normalize_before": false,
+  "num_beams": 4,
+  "num_hidden_layers": 12,
+  "pad_token_id": 1,
+  "scale_embedding": false,
+  "task_specific_params": {
+    "summarization": {
+      "length_penalty": 1.0,
+      "max_length": 128,
+      "min_length": 12,
+      "num_beams": 4
+    },
+    "summarization_cnn": {
+      "length_penalty": 2.0,
+      "max_length": 142,
+      "min_length": 56,
+      "num_beams": 4
+    },
+    "summarization_xsum": {
+      "length_penalty": 1.0,
+      "max_length": 62,
+      "min_length": 11,
+      "num_beams": 6
+    }
+  },
+  "transformers_version": "4.33.3",
+  "use_cache": true,
+  "vocab_size": 50265
+}
+
+Downloading (…)olve/main/vocab.json:   0%|                                                                                                                 | 0.00/899k [00:00<?, ?B/s]Downloading (…)olve/main/vocab.json: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████| 899k/899k [00:00<00:00, 1.09MB/s]Downloading (…)olve/main/vocab.json: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████| 899k/899k [00:00<00:00, 1.09MB/s]
+Downloading (…)olve/main/merges.txt:   0%|                                                                                                                 | 0.00/456k [00:00<?, ?B/s]Downloading (…)olve/main/merges.txt: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████| 456k/456k [00:00<00:00, 745kB/s]Downloading (…)olve/main/merges.txt: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████| 456k/456k [00:00<00:00, 744kB/s]
+Downloading (…)/main/tokenizer.json:   0%|                                                                                                                | 0.00/1.36M [00:00<?, ?B/s]Downloading (…)/main/tokenizer.json: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████| 1.36M/1.36M [00:01<00:00, 1.33MB/s]Downloading (…)/main/tokenizer.json: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████| 1.36M/1.36M [00:01<00:00, 1.33MB/s]
+loading file vocab.json from cache at ./output/cache/models--facebook--bart-large/snapshots/cb48c1365bd826bd521f650dc2e0940aee54720c/vocab.json
+loading file merges.txt from cache at ./output/cache/models--facebook--bart-large/snapshots/cb48c1365bd826bd521f650dc2e0940aee54720c/merges.txt
+loading file tokenizer.json from cache at ./output/cache/models--facebook--bart-large/snapshots/cb48c1365bd826bd521f650dc2e0940aee54720c/tokenizer.json
+loading file added_tokens.json from cache at None
+loading file special_tokens_map.json from cache at None
+loading file tokenizer_config.json from cache at ./output/cache/models--facebook--bart-large/snapshots/cb48c1365bd826bd521f650dc2e0940aee54720c/tokenizer_config.json
+loading configuration file config.json from cache at ./output/cache/models--facebook--bart-large/snapshots/cb48c1365bd826bd521f650dc2e0940aee54720c/config.json
+Model config BartConfig {
+  "_name_or_path": "facebook/bart-large",
+  "activation_dropout": 0.1,
+  "activation_function": "gelu",
+  "add_bias_logits": false,
+  "add_final_layer_norm": false,
+  "architectures": [
+    "BartModel"
+  ],
+  "attention_dropout": 0.1,
+  "bos_token_id": 0,
+  "classif_dropout": 0.1,
+  "classifier_dropout": 0.0,
+  "d_model": 1024,
+  "decoder_attention_heads": 16,
+  "decoder_ffn_dim": 4096,
+  "decoder_layerdrop": 0.0,
+  "decoder_layers": 12,
+  "decoder_start_token_id": 2,
+  "dropout": 0.1,
+  "early_stopping": true,
+  "encoder_attention_heads": 16,
+  "encoder_ffn_dim": 4096,
+  "encoder_layerdrop": 0.0,
+  "encoder_layers": 12,
+  "eos_token_id": 2,
+  "forced_bos_token_id": 0,
+  "forced_eos_token_id": 2,
+  "gradient_checkpointing": false,
+  "id2label": {
+    "0": "LABEL_0",
+    "1": "LABEL_1",
+    "2": "LABEL_2"
+  },
+  "init_std": 0.02,
+  "is_encoder_decoder": true,
+  "label2id": {
+    "LABEL_0": 0,
+    "LABEL_1": 1,
+    "LABEL_2": 2
+  },
+  "max_position_embeddings": 1024,
+  "model_type": "bart",
+  "no_repeat_ngram_size": 3,
+  "normalize_before": false,
+  "num_beams": 4,
+  "num_hidden_layers": 12,
+  "pad_token_id": 1,
+  "scale_embedding": false,
+  "task_specific_params": {
+    "summarization": {
+      "length_penalty": 1.0,
+      "max_length": 128,
+      "min_length": 12,
+      "num_beams": 4
+    },
+    "summarization_cnn": {
+      "length_penalty": 2.0,
+      "max_length": 142,
+      "min_length": 56,
+      "num_beams": 4
+    },
+    "summarization_xsum": {
+      "length_penalty": 1.0,
+      "max_length": 62,
+      "min_length": 11,
+      "num_beams": 6
+    }
+  },
+  "transformers_version": "4.33.3",
+  "use_cache": true,
+  "vocab_size": 50265
+}
+
+Assigning ['<TAG>', '</TAG>'] to the additional_special_tokens key of the tokenizer
+Downloading pytorch_model.bin:   0%|                                                                                                                      | 0.00/1.02G [00:00<?, ?B/s]Downloading pytorch_model.bin:   1%|█                                                                                                            | 10.5M/1.02G [00:00<00:26, 38.5MB/s]Downloading pytorch_model.bin:   2%|██▏                                                                                                          | 21.0M/1.02G [00:00<00:16, 60.1MB/s]Downloading pytorch_model.bin:   3%|███▎                                                                                                         | 31.5M/1.02G [00:00<00:13, 73.1MB/s]Downloading pytorch_model.bin:   4%|████▍                                                                                                        | 41.9M/1.02G [00:00<00:11, 82.0MB/s]Downloading pytorch_model.bin:   5%|█████▌                                                                                                       | 52.4M/1.02G [00:00<00:10, 88.1MB/s]Downloading pytorch_model.bin:   6%|██████▋                                                                                                      | 62.9M/1.02G [00:00<00:10, 92.3MB/s]Downloading pytorch_model.bin:   7%|███████▊                                                                                                     | 73.4M/1.02G [00:00<00:09, 94.9MB/s]Downloading pytorch_model.bin:   8%|████████▉                                                                                                    | 83.9M/1.02G [00:01<00:09, 96.8MB/s]Downloading pytorch_model.bin:   9%|██████████                                                                                                   | 94.4M/1.02G [00:01<00:09, 98.2MB/s]Downloading pytorch_model.bin:  10%|███████████▎                                                                                                  | 105M/1.02G [00:01<00:09, 99.5MB/s]Downloading pytorch_model.bin:  11%|████████████▍                                                                                                 | 115M/1.02G [00:01<00:09, 99.9MB/s]Downloading pytorch_model.bin:  12%|█████████████▋                                                                                                 | 126M/1.02G [00:01<00:08, 100MB/s]Downloading pytorch_model.bin:  13%|██████████████▊                                                                                                | 136M/1.02G [00:01<00:08, 100MB/s]Downloading pytorch_model.bin:  14%|███████████████▉                                                                                               | 147M/1.02G [00:01<00:08, 100MB/s]Downloading pytorch_model.bin:  15%|█████████████████▏                                                                                             | 157M/1.02G [00:01<00:08, 100MB/s]Downloading pytorch_model.bin:  16%|██████████████████▎                                                                                            | 168M/1.02G [00:01<00:08, 101MB/s]Downloading pytorch_model.bin:  18%|███████████████████▍                                                                                           | 178M/1.02G [00:01<00:08, 101MB/s]Downloading pytorch_model.bin:  19%|████████████████████▌                                                                                          | 189M/1.02G [00:02<00:08, 101MB/s]Downloading pytorch_model.bin:  20%|█████████████████████▋                                                                                         | 199M/1.02G [00:02<00:08, 101MB/s]Downloading pytorch_model.bin:  21%|██████████████████████▊                                                                                        | 210M/1.02G [00:02<00:08, 101MB/s]Downloading pytorch_model.bin:  22%|███████████████████████▉                                                                                       | 220M/1.02G [00:02<00:07, 101MB/s]Downloading pytorch_model.bin:  23%|█████████████████████████▏                                                                                     | 231M/1.02G [00:02<00:07, 101MB/s]Downloading pytorch_model.bin:  24%|██████████████████████████▎                                                                                    | 241M/1.02G [00:02<00:07, 101MB/s]Downloading pytorch_model.bin:  25%|███████████████████████████▍                                                                                   | 252M/1.02G [00:02<00:07, 101MB/s]Downloading pytorch_model.bin:  26%|████████████████████████████▌                                                                                  | 262M/1.02G [00:02<00:07, 102MB/s]Downloading pytorch_model.bin:  27%|█████████████████████████████▋                                                                                 | 273M/1.02G [00:02<00:07, 101MB/s]Downloading pytorch_model.bin:  28%|██████████████████████████████▊                                                                                | 283M/1.02G [00:02<00:07, 101MB/s]Downloading pytorch_model.bin:  29%|███████████████████████████████▉                                                                               | 294M/1.02G [00:03<00:07, 101MB/s]Downloading pytorch_model.bin:  30%|█████████████████████████████████▏                                                                             | 304M/1.02G [00:03<00:07, 102MB/s]Downloading pytorch_model.bin:  31%|██████████████████████████████████▎                                                                            | 315M/1.02G [00:03<00:06, 102MB/s]Downloading pytorch_model.bin:  32%|███████████████████████████████████▍                                                                           | 325M/1.02G [00:03<00:06, 101MB/s]Downloading pytorch_model.bin:  33%|████████████████████████████████████▌                                                                          | 336M/1.02G [00:03<00:06, 101MB/s]Downloading pytorch_model.bin:  34%|█████████████████████████████████████▋                                                                         | 346M/1.02G [00:03<00:06, 101MB/s]Downloading pytorch_model.bin:  35%|██████████████████████████████████████▊                                                                        | 357M/1.02G [00:03<00:06, 101MB/s]Downloading pytorch_model.bin:  36%|███████████████████████████████████████▉                                                                       | 367M/1.02G [00:03<00:06, 102MB/s]Downloading pytorch_model.bin:  37%|█████████████████████████████████████████▏                                                                     | 377M/1.02G [00:03<00:06, 102MB/s]Downloading pytorch_model.bin:  38%|██████████████████████████████████████████▎                                                                    | 388M/1.02G [00:04<00:06, 102MB/s]Downloading pytorch_model.bin:  39%|███████████████████████████████████████████▍                                                                   | 398M/1.02G [00:04<00:06, 102MB/s]Downloading pytorch_model.bin:  40%|████████████████████████████████████████████▌                                                                  | 409M/1.02G [00:04<00:06, 101MB/s]Downloading pytorch_model.bin:  41%|█████████████████████████████████████████████▋                                                                 | 419M/1.02G [00:04<00:05, 101MB/s]Downloading pytorch_model.bin:  42%|██████████████████████████████████████████████▊                                                                | 430M/1.02G [00:04<00:05, 101MB/s]Downloading pytorch_model.bin:  43%|███████████████████████████████████████████████▉                                                               | 440M/1.02G [00:04<00:05, 101MB/s]Downloading pytorch_model.bin:  44%|█████████████████████████████████████████████████▏                                                             | 451M/1.02G [00:04<00:05, 101MB/s]Downloading pytorch_model.bin:  45%|██████████████████████████████████████████████████▎                                                            | 461M/1.02G [00:04<00:05, 101MB/s]Downloading pytorch_model.bin:  46%|███████████████████████████████████████████████████▍                                                           | 472M/1.02G [00:04<00:05, 101MB/s]Downloading pytorch_model.bin:  47%|████████████████████████████████████████████████████▌                                                          | 482M/1.02G [00:04<00:05, 101MB/s]Downloading pytorch_model.bin:  48%|█████████████████████████████████████████████████████▋                                                         | 493M/1.02G [00:05<00:05, 101MB/s]Downloading pytorch_model.bin:  49%|██████████████████████████████████████████████████████▊                                                        | 503M/1.02G [00:05<00:05, 101MB/s]Downloading pytorch_model.bin:  50%|███████████████████████████████████████████████████████▉                                                       | 514M/1.02G [00:05<00:04, 102MB/s]Downloading pytorch_model.bin:  51%|█████████████████████████████████████████████████████████▏                                                     | 524M/1.02G [00:05<00:04, 101MB/s]Downloading pytorch_model.bin:  53%|██████████████████████████████████████████████████████████▎                                                    | 535M/1.02G [00:05<00:04, 101MB/s]Downloading pytorch_model.bin:  54%|███████████████████████████████████████████████████████████▍                                                   | 545M/1.02G [00:05<00:04, 101MB/s]Downloading pytorch_model.bin:  55%|████████████████████████████████████████████████████████████▌                                                  | 556M/1.02G [00:05<00:04, 101MB/s]Downloading pytorch_model.bin:  56%|█████████████████████████████████████████████████████████████▋                                                 | 566M/1.02G [00:05<00:04, 102MB/s]Downloading pytorch_model.bin:  57%|██████████████████████████████████████████████████████████████▊                                                | 577M/1.02G [00:05<00:04, 102MB/s]Downloading pytorch_model.bin:  58%|███████████████████████████████████████████████████████████████▉                                               | 587M/1.02G [00:05<00:04, 102MB/s]Downloading pytorch_model.bin:  59%|█████████████████████████████████████████████████████████████████▏                                             | 598M/1.02G [00:06<00:04, 101MB/s]Downloading pytorch_model.bin:  60%|██████████████████████████████████████████████████████████████████▎                                            | 608M/1.02G [00:06<00:04, 101MB/s]Downloading pytorch_model.bin:  61%|███████████████████████████████████████████████████████████████████▍                                           | 619M/1.02G [00:06<00:03, 101MB/s]Downloading pytorch_model.bin:  62%|████████████████████████████████████████████████████████████████████▌                                          | 629M/1.02G [00:06<00:03, 101MB/s]Downloading pytorch_model.bin:  63%|█████████████████████████████████████████████████████████████████████▋                                         | 640M/1.02G [00:06<00:03, 101MB/s]Downloading pytorch_model.bin:  64%|██████████████████████████████████████████████████████████████████████▊                                        | 650M/1.02G [00:06<00:03, 101MB/s]Downloading pytorch_model.bin:  65%|███████████████████████████████████████████████████████████████████████▉                                       | 661M/1.02G [00:06<00:03, 101MB/s]Downloading pytorch_model.bin:  66%|█████████████████████████████████████████████████████████████████████████▏                                     | 671M/1.02G [00:06<00:03, 102MB/s]Downloading pytorch_model.bin:  67%|██████████████████████████████████████████████████████████████████████████▎                                    | 682M/1.02G [00:06<00:03, 101MB/s]Downloading pytorch_model.bin:  68%|███████████████████████████████████████████████████████████████████████████▍                                   | 692M/1.02G [00:07<00:03, 101MB/s]Downloading pytorch_model.bin:  69%|████████████████████████████████████████████████████████████████████████████▌                                  | 703M/1.02G [00:07<00:03, 101MB/s]Downloading pytorch_model.bin:  70%|█████████████████████████████████████████████████████████████████████████████▋                                 | 713M/1.02G [00:07<00:03, 101MB/s]Downloading pytorch_model.bin:  71%|██████████████████████████████████████████████████████████████████████████████▊                                | 724M/1.02G [00:07<00:02, 101MB/s]Downloading pytorch_model.bin:  72%|███████████████████████████████████████████████████████████████████████████████▉                               | 734M/1.02G [00:07<00:02, 101MB/s]Downloading pytorch_model.bin:  73%|█████████████████████████████████████████████████████████████████████████████████▏                             | 744M/1.02G [00:07<00:02, 102MB/s]Downloading pytorch_model.bin:  74%|██████████████████████████████████████████████████████████████████████████████████▎                            | 755M/1.02G [00:07<00:02, 102MB/s]Downloading pytorch_model.bin:  75%|███████████████████████████████████████████████████████████████████████████████████▍                           | 765M/1.02G [00:07<00:02, 101MB/s]Downloading pytorch_model.bin:  76%|████████████████████████████████████████████████████████████████████████████████████▌                          | 776M/1.02G [00:07<00:02, 101MB/s]Downloading pytorch_model.bin:  77%|█████████████████████████████████████████████████████████████████████████████████████▋                         | 786M/1.02G [00:07<00:02, 102MB/s]Downloading pytorch_model.bin:  78%|██████████████████████████████████████████████████████████████████████████████████████▊                        | 797M/1.02G [00:08<00:02, 101MB/s]Downloading pytorch_model.bin:  79%|███████████████████████████████████████████████████████████████████████████████████████▉                       | 807M/1.02G [00:08<00:02, 101MB/s]Downloading pytorch_model.bin:  80%|█████████████████████████████████████████████████████████████████████████████████████████▏                     | 818M/1.02G [00:08<00:01, 101MB/s]Downloading pytorch_model.bin:  81%|██████████████████████████████████████████████████████████████████████████████████████████▎                    | 828M/1.02G [00:08<00:01, 101MB/s]Downloading pytorch_model.bin:  82%|███████████████████████████████████████████████████████████████████████████████████████████▍                   | 839M/1.02G [00:08<00:01, 101MB/s]Downloading pytorch_model.bin:  83%|████████████████████████████████████████████████████████████████████████████████████████████▌                  | 849M/1.02G [00:08<00:01, 101MB/s]Downloading pytorch_model.bin:  84%|█████████████████████████████████████████████████████████████████████████████████████████████▋                 | 860M/1.02G [00:08<00:01, 101MB/s]Downloading pytorch_model.bin:  85%|██████████████████████████████████████████████████████████████████████████████████████████████▊                | 870M/1.02G [00:08<00:01, 101MB/s]Downloading pytorch_model.bin:  86%|███████████████████████████████████████████████████████████████████████████████████████████████▉               | 881M/1.02G [00:08<00:01, 101MB/s]Downloading pytorch_model.bin:  88%|█████████████████████████████████████████████████████████████████████████████████████████████████▏             | 891M/1.02G [00:08<00:01, 101MB/s]Downloading pytorch_model.bin:  89%|██████████████████████████████████████████████████████████████████████████████████████████████████▎            | 902M/1.02G [00:09<00:01, 101MB/s]Downloading pytorch_model.bin:  90%|███████████████████████████████████████████████████████████████████████████████████████████████████▍           | 912M/1.02G [00:09<00:01, 101MB/s]Downloading pytorch_model.bin:  91%|████████████████████████████████████████████████████████████████████████████████████████████████████▌          | 923M/1.02G [00:09<00:00, 101MB/s]Downloading pytorch_model.bin:  92%|█████████████████████████████████████████████████████████████████████████████████████████████████████▋         | 933M/1.02G [00:09<00:00, 101MB/s]Downloading pytorch_model.bin:  93%|██████████████████████████████████████████████████████████████████████████████████████████████████████▊        | 944M/1.02G [00:09<00:00, 101MB/s]Downloading pytorch_model.bin:  94%|███████████████████████████████████████████████████████████████████████████████████████████████████████▉       | 954M/1.02G [00:09<00:00, 101MB/s]Downloading pytorch_model.bin:  95%|█████████████████████████████████████████████████████████████████████████████████████████████████████████▏     | 965M/1.02G [00:09<00:00, 101MB/s]Downloading pytorch_model.bin:  96%|██████████████████████████████████████████████████████████████████████████████████████████████████████████▎    | 975M/1.02G [00:09<00:00, 101MB/s]Downloading pytorch_model.bin:  97%|███████████████████████████████████████████████████████████████████████████████████████████████████████████▍   | 986M/1.02G [00:09<00:00, 102MB/s]Downloading pytorch_model.bin:  98%|████████████████████████████████████████████████████████████████████████████████████████████████████████████▌  | 996M/1.02G [00:10<00:00, 102MB/s]Downloading pytorch_model.bin:  99%|████████████████████████████████████████████████████████████████████████████████████████████████████████████▋ | 1.01G/1.02G [00:10<00:00, 102MB/s]Downloading pytorch_model.bin: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████▊| 1.02G/1.02G [00:10<00:00, 102MB/s]Downloading pytorch_model.bin: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1.02G/1.02G [00:10<00:00, 99.6MB/s]
+loading weights file pytorch_model.bin from cache at ./output/cache/models--facebook--bart-large/snapshots/cb48c1365bd826bd521f650dc2e0940aee54720c/pytorch_model.bin
+Generate config GenerationConfig {
+  "_from_model_config": true,
+  "bos_token_id": 0,
+  "decoder_start_token_id": 2,
+  "early_stopping": true,
+  "eos_token_id": 2,
+  "forced_bos_token_id": 0,
+  "forced_eos_token_id": 2,
+  "no_repeat_ngram_size": 3,
+  "num_beams": 4,
+  "pad_token_id": 1,
+  "transformers_version": "4.33.3"
+}
+
+All model checkpoint weights were used when initializing BartForConditionalGeneration.
+
+All the weights of BartForConditionalGeneration were initialized from the model checkpoint at facebook/bart-large.
+If your task is similar to the task the model of the checkpoint was trained on, you can already use BartForConditionalGeneration for predictions without further training.
+Generation config file not found, using a generation config created from the model config.
+You are resizing the embedding layer without providing a `pad_to_multiple_of` parameter. This means that the new embedding dimension will be 50267. This might induce some performance reduction as *Tensor Cores* will not be available. For more details about this, or help on choosing the correct value for resizing, refer to this guide: https://docs.nvidia.com/deeplearning/performance/dl-performance-matrix-multiplication/index.html#requirements-tc
+Configuration saved in ./output/bart-topic-length-cosine-negative-prompt-tagger-margin/start/config.json
+Configuration saved in ./output/bart-topic-length-cosine-negative-prompt-tagger-margin/start/generation_config.json
+Model weights saved in ./output/bart-topic-length-cosine-negative-prompt-tagger-margin/start/pytorch_model.bin
+tokenizer config file saved in ./output/bart-topic-length-cosine-negative-prompt-tagger-margin/start/tokenizer_config.json
+Special tokens file saved in ./output/bart-topic-length-cosine-negative-prompt-tagger-margin/start/special_tokens_map.json
+Running tokenizer on dataset:   0%|                                                                                                                  | 0/12460 [00:00<?, ? examples/s]/opt/conda/lib/python3.10/site-packages/transformers/tokenization_utils_base.py:3660: UserWarning: `as_target_tokenizer` is deprecated and will be removed in v5 of Transformers. You can tokenize your labels by using the argument `text_target` of the regular `__call__` method (either in the same call as your input texts if you use the same keyword arguments, or in a separate call.
+  warnings.warn(
+Running tokenizer on dataset:   8%|████████                                                                                             | 1000/12460 [00:00<00:05, 2225.58 examples/s]Running tokenizer on dataset:  16%|████████████████▏                                                                                    | 2000/12460 [00:00<00:04, 2378.62 examples/s]Running tokenizer on dataset:  24%|████████████████████████▎                                                                            | 3000/12460 [00:01<00:03, 2553.61 examples/s]Running tokenizer on dataset:  32%|████████████████████████████████▍                                                                    | 4000/12460 [00:01<00:03, 2607.41 examples/s]Running tokenizer on dataset:  40%|████████████████████████████████████████▌                                                            | 5000/12460 [00:01<00:02, 2544.74 examples/s]Running tokenizer on dataset:  48%|████████████████████████████████████████████████▋                                                    | 6000/12460 [00:02<00:02, 2560.91 examples/s]Running tokenizer on dataset:  56%|████████████████████████████████████████████████████████▋                                            | 7000/12460 [00:02<00:02, 2609.03 examples/s]Running tokenizer on dataset:  64%|████████████████████████████████████████████████████████████████▊                                    | 8000/12460 [00:03<00:01, 2664.60 examples/s]Running tokenizer on dataset:  72%|████████████████████████████████████████████████████████████████████████▉                            | 9000/12460 [00:03<00:01, 2212.54 examples/s]Running tokenizer on dataset:  80%|████████████████████████████████████████████████████████████████████████████████▎                   | 10000/12460 [00:04<00:01, 2281.97 examples/s]Running tokenizer on dataset:  88%|████████████████████████████████████████████████████████████████████████████████████████▎           | 11000/12460 [00:04<00:00, 2402.45 examples/s]Running tokenizer on dataset:  96%|████████████████████████████████████████████████████████████████████████████████████████████████▎   | 12000/12460 [00:04<00:00, 2458.45 examples/s]Running tokenizer on dataset: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████| 12460/12460 [00:05<00:00, 2487.13 examples/s]Running tokenizer on dataset: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████| 12460/12460 [00:05<00:00, 2463.29 examples/s]
+Running tokenizer on dataset:   0%|                                                                                                                    | 0/500 [00:00<?, ? examples/s]Running tokenizer on dataset: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [00:00<00:00, 2514.01 examples/s]Running tokenizer on dataset: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [00:00<00:00, 2463.74 examples/s]
+Running tokenizer on dataset:   0%|                                                                                                                   | 0/1500 [00:00<?, ? examples/s]Running tokenizer on dataset:  67%|████████████████████████████████████████████████████████████████████                                  | 1000/1500 [00:00<00:00, 2610.88 examples/s]Running tokenizer on dataset: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████| 1500/1500 [00:00<00:00, 2559.28 examples/s]Running tokenizer on dataset: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████| 1500/1500 [00:00<00:00, 2550.65 examples/s]
+/opt/conda/lib/python3.10/site-packages/accelerate/accelerator.py:523: FutureWarning: The `use_fp16` property is deprecated and will be removed in version 1.0 of Accelerate use `Accelerator.mixed_precision == 'fp16'` instead.
+  warnings.warn(
+/opt/conda/lib/python3.10/site-packages/transformers/optimization.py:411: FutureWarning: This implementation of AdamW is deprecated and will be removed in a future version. Use the PyTorch implementation torch.optim.AdamW instead, or set `no_deprecation_warning=True` to disable this warning
+  warnings.warn(
+10/29/2023 17:45:49 - INFO - __main__ - ***** Running training *****
+10/29/2023 17:45:49 - INFO - __main__ -  Num examples = 12460
+10/29/2023 17:45:49 - INFO - __main__ -  Num Epochs = 15
+10/29/2023 17:45:49 - INFO - __main__ -  Instantaneous batch size per device = 2
+10/29/2023 17:45:49 - INFO - __main__ -  Total train batch size (w. parallel, distributed & accumulation) = 128
+10/29/2023 17:45:49 - INFO - __main__ -  Gradient Accumulation steps = 64
+10/29/2023 17:45:49 - INFO - __main__ -  Total optimization steps = 1470
+Training:   0%|                                                                                                                                              | 0/1470 [00:00<?, ?it/s]You're using a BartTokenizerFast tokenizer. Please note that with a fast tokenizer, using the `__call__` method is faster than using a method to encode the text followed by a call to the `pad` method to get a padded encoding.
+Training:   0%|                                                                                                                                      | 1/1470 [00:00<19:52,  1.23it/s]Training:   0%|                                                                                                                  | 1/1470 [00:00<19:52,  1.23it/s, loss=4.71, lr=5e-5]Training:   0%|▏                                                                                                               | 2/1470 [00:06<1:30:00,  3.68s/it, loss=4.71, lr=5e-5]Training:   0%|▏                                                                                                            | 2/1470 [00:06<1:30:00,  3.68s/it, loss=4.35, lr=4.99e-5]Training:   0%|▏                                                                                                            | 3/1470 [00:11<1:50:08,  4.50s/it, loss=4.35, lr=4.99e-5]Training:   0%|▏                                                                                                            | 3/1470 [00:11<1:50:08,  4.50s/it, loss=4.58, lr=4.99e-5]Training:   0%|▎                                                                                                            | 4/1470 [00:17<2:01:07,  4.96s/it, loss=4.58, lr=4.99e-5]Training:   0%|▎                                                                                                            | 4/1470 [00:17<2:01:07,  4.96s/it, loss=4.17, lr=4.99e-5]Training:   0%|▎                                                                                                            | 5/1470 [00:23<2:05:55,  5.16s/it, loss=4.17, lr=4.99e-5]Training:   0%|▎                                                                                                            | 5/1470 [00:23<2:05:55,  5.16s/it, loss=3.73, lr=4.98e-5]Training:   0%|▍                                                                                                            | 6/1470 [00:28<2:08:57,  5.29s/it, loss=3.73, lr=4.98e-5]Training:   0%|▍                                                                                                            | 6/1470 [00:28<2:08:57,  5.29s/it, loss=3.51, lr=4.98e-5]Training:   0%|▌                                                                                                            | 7/1470 [00:34<2:10:26,  5.35s/it, loss=3.51, lr=4.98e-5]Training:   0%|▌                                                                                                            | 7/1470 [00:34<2:10:26,  5.35s/it, loss=3.32, lr=4.98e-5]Training:   1%|▌                                                                                                            | 8/1470 [00:39<2:11:02,  5.38s/it, loss=3.32, lr=4.98e-5]Training:   1%|▌                                                                                                            | 8/1470 [00:39<2:11:02,  5.38s/it, loss=3.18, lr=4.97e-5]Training:   1%|▋                                                                                                            | 9/1470 [00:45<2:11:20,  5.39s/it, loss=3.18, lr=4.97e-5]Training:   1%|▋                                                                                                            | 9/1470 [00:45<2:11:20,  5.39s/it, loss=3.24, lr=4.97e-5]Training:   1%|▋                                                                                                           | 10/1470 [00:50<2:12:11,  5.43s/it, loss=3.24, lr=4.97e-5]Training:   1%|▋                                                                                                           | 10/1470 [00:50<2:12:11,  5.43s/it, loss=3.11, lr=4.97e-5]Training:   1%|▊                                                                                                           | 11/1470 [00:56<2:12:50,  5.46s/it, loss=3.11, lr=4.97e-5]Training:   1%|▊                                                                                                           | 11/1470 [00:56<2:12:50,  5.46s/it, loss=3.12, lr=4.96e-5]Training:   1%|▉                                                                                                           | 12/1470 [01:01<2:12:59,  5.47s/it, loss=3.12, lr=4.96e-5]Training:   1%|▉                                                                                                           | 12/1470 [01:01<2:12:59,  5.47s/it, loss=3.03, lr=4.96e-5]Training:   1%|▉                                                                                                           | 13/1470 [01:07<2:13:06,  5.48s/it, loss=3.03, lr=4.96e-5]Training:   1%|▉                                                                                                           | 13/1470 [01:07<2:13:06,  5.48s/it, loss=3.02, lr=4.96e-5]Training:   1%|█                                                                                                           | 14/1470 [01:12<2:13:08,  5.49s/it, loss=3.02, lr=4.96e-5]Training:   1%|█                                                                                                           | 14/1470 [01:12<2:13:08,  5.49s/it, loss=2.99, lr=4.95e-5]Training:   1%|█                                                                                                           | 15/1470 [01:18<2:13:12,  5.49s/it, loss=2.99, lr=4.95e-5]Training:   1%|█                                                                                                           | 15/1470 [01:18<2:13:12,  5.49s/it, loss=2.93, lr=4.95e-5]Training:   1%|█▏                                                                                                          | 16/1470 [01:23<2:12:37,  5.47s/it, loss=2.93, lr=4.95e-5]Training:   1%|█▏                                                                                                          | 16/1470 [01:23<2:12:37,  5.47s/it, loss=2.89, lr=4.95e-5]Training:   1%|█▏                                                                                                          | 17/1470 [01:28<2:12:06,  5.46s/it, loss=2.89, lr=4.95e-5]Training:   1%|█▏                                                                                                          | 17/1470 [01:28<2:12:06,  5.46s/it, loss=2.92, lr=4.94e-5]Training:   1%|█▎                                                                                                          | 18/1470 [01:34<2:12:21,  5.47s/it, loss=2.92, lr=4.94e-5]Training:   1%|█▎                                                                                                          | 18/1470 [01:34<2:12:21,  5.47s/it, loss=2.92, lr=4.94e-5]Training:   1%|█▍                                                                                                          | 19/1470 [01:39<2:12:45,  5.49s/it, loss=2.92, lr=4.94e-5]Training:   1%|█▍                                                                                                          | 19/1470 [01:39<2:12:45,  5.49s/it, loss=2.87, lr=4.94e-5]Training:   1%|█▍                                                                                                          | 20/1470 [01:45<2:13:06,  5.51s/it, loss=2.87, lr=4.94e-5]Training:   1%|█▍                                                                                                          | 20/1470 [01:45<2:13:06,  5.51s/it, loss=2.89, lr=4.93e-5]Training:   1%|█▌                                                                                                          | 21/1470 [01:50<2:11:56,  5.46s/it, loss=2.89, lr=4.93e-5]Training:   1%|█▌                                                                                                          | 21/1470 [01:50<2:11:56,  5.46s/it, loss=2.75, lr=4.93e-5]Training:   1%|█▌                                                                                                          | 22/1470 [01:56<2:11:19,  5.44s/it, loss=2.75, lr=4.93e-5]Training:   1%|█▌                                                                                                          | 22/1470 [01:56<2:11:19,  5.44s/it, loss=2.75, lr=4.93e-5]Training:   2%|█▋                                                                                                          | 23/1470 [02:01<2:11:28,  5.45s/it, loss=2.75, lr=4.93e-5]Training:   2%|█▋                                                                                                          | 23/1470 [02:01<2:11:28,  5.45s/it, loss=2.88, lr=4.92e-5]Training:   2%|█▊                                                                                                          | 24/1470 [02:07<2:11:17,  5.45s/it, loss=2.88, lr=4.92e-5]Training:   2%|█▊                                                                                                          | 24/1470 [02:07<2:11:17,  5.45s/it, loss=2.81, lr=4.92e-5]Training:   2%|█▊                                                                                                          | 25/1470 [02:12<2:11:09,  5.45s/it, loss=2.81, lr=4.92e-5]Training:   2%|█▊                                                                                                          | 25/1470 [02:12<2:11:09,  5.45s/it, loss=2.75, lr=4.91e-5]Training:   2%|█▉                                                                                                          | 26/1470 [02:18<2:11:32,  5.47s/it, loss=2.75, lr=4.91e-5]Training:   2%|█▉                                                                                                          | 26/1470 [02:18<2:11:32,  5.47s/it, loss=2.81, lr=4.91e-5]Training:   2%|█▉                                                                                                          | 27/1470 [02:23<2:11:19,  5.46s/it, loss=2.81, lr=4.91e-5]Training:   2%|█▉                                                                                                          | 27/1470 [02:23<2:11:19,  5.46s/it, loss=2.79, lr=4.91e-5]Training:   2%|██                                                                                                          | 28/1470 [02:29<2:11:32,  5.47s/it, loss=2.79, lr=4.91e-5]Training:   2%|██                                                                                                           | 28/1470 [02:29<2:11:32,  5.47s/it, loss=2.82, lr=4.9e-5]Training:   2%|██▏                                                                                                          | 29/1470 [02:34<2:11:38,  5.48s/it, loss=2.82, lr=4.9e-5]Training:   2%|██▏                                                                                                          | 29/1470 [02:34<2:11:38,  5.48s/it, loss=2.78, lr=4.9e-5]Training:   2%|██▏                                                                                                          | 30/1470 [02:40<2:11:19,  5.47s/it, loss=2.78, lr=4.9e-5]Training:   2%|██▏                                                                                                          | 30/1470 [02:40<2:11:19,  5.47s/it, loss=2.73, lr=4.9e-5]Training:   2%|██▎                                                                                                          | 31/1470 [02:45<2:10:31,  5.44s/it, loss=2.73, lr=4.9e-5]Training:   2%|██▎                                                                                                          | 31/1470 [02:45<2:10:31,  5.44s/it, loss=2.8, lr=4.89e-5]Training:   2%|██▎                                                                                                          | 32/1470 [02:50<2:10:34,  5.45s/it, loss=2.8, lr=4.89e-5]Training:   2%|██▎                                                                                                         | 32/1470 [02:50<2:10:34,  5.45s/it, loss=2.75, lr=4.89e-5]Training:   2%|██▍                                                                                                         | 33/1470 [02:56<2:10:16,  5.44s/it, loss=2.75, lr=4.89e-5]Training:   2%|██▍                                                                                                         | 33/1470 [02:56<2:10:16,  5.44s/it, loss=2.78, lr=4.89e-5]Training:   2%|██▍                                                                                                         | 34/1470 [03:01<2:10:04,  5.43s/it, loss=2.78, lr=4.89e-5]Training:   2%|██▍                                                                                                         | 34/1470 [03:01<2:10:04,  5.43s/it, loss=2.71, lr=4.88e-5]Training:   2%|██▌                                                                                                         | 35/1470 [03:07<2:10:06,  5.44s/it, loss=2.71, lr=4.88e-5]Training:   2%|██▌                                                                                                         | 35/1470 [03:07<2:10:06,  5.44s/it, loss=2.67, lr=4.88e-5]Training:   2%|██▋                                                                                                         | 36/1470 [03:12<2:10:29,  5.46s/it, loss=2.67, lr=4.88e-5]Training:   2%|██▋                                                                                                         | 36/1470 [03:12<2:10:29,  5.46s/it, loss=2.75, lr=4.88e-5]Training:   3%|██▋                                                                                                         | 37/1470 [03:18<2:09:58,  5.44s/it, loss=2.75, lr=4.88e-5]Training:   3%|██▋                                                                                                         | 37/1470 [03:18<2:09:58,  5.44s/it, loss=2.72, lr=4.87e-5]Training:   3%|██▊                                                                                                         | 38/1470 [03:23<2:10:13,  5.46s/it, loss=2.72, lr=4.87e-5]Training:   3%|██▊                                                                                                         | 38/1470 [03:23<2:10:13,  5.46s/it, loss=2.78, lr=4.87e-5]Training:   3%|██▊                                                                                                         | 39/1470 [03:29<2:10:29,  5.47s/it, loss=2.78, lr=4.87e-5]Training:   3%|██▊                                                                                                         | 39/1470 [03:29<2:10:29,  5.47s/it, loss=2.76, lr=4.87e-5]Training:   3%|██▉                                                                                                         | 40/1470 [03:34<2:10:46,  5.49s/it, loss=2.76, lr=4.87e-5]Training:   3%|██▉                                                                                                         | 40/1470 [03:34<2:10:46,  5.49s/it, loss=2.78, lr=4.86e-5]Training:   3%|███                                                                                                         | 41/1470 [03:39<2:10:04,  5.46s/it, loss=2.78, lr=4.86e-5]Training:   3%|███                                                                                                         | 41/1470 [03:39<2:10:04,  5.46s/it, loss=2.66, lr=4.86e-5]Training:   3%|███                                                                                                         | 42/1470 [03:45<2:10:10,  5.47s/it, loss=2.66, lr=4.86e-5]Training:   3%|███                                                                                                         | 42/1470 [03:45<2:10:10,  5.47s/it, loss=2.84, lr=4.86e-5]Training:   3%|███▏                                                                                                        | 43/1470 [03:50<2:10:15,  5.48s/it, loss=2.84, lr=4.86e-5]Training:   3%|███▏                                                                                                        | 43/1470 [03:50<2:10:15,  5.48s/it, loss=2.66, lr=4.85e-5]Training:   3%|███▏                                                                                                        | 44/1470 [03:56<2:09:18,  5.44s/it, loss=2.66, lr=4.85e-5]Training:   3%|███▏                                                                                                        | 44/1470 [03:56<2:09:18,  5.44s/it, loss=2.66, lr=4.85e-5]Training:   3%|███▎                                                                                                        | 45/1470 [04:01<2:09:08,  5.44s/it, loss=2.66, lr=4.85e-5]Training:   3%|███▎                                                                                                        | 45/1470 [04:01<2:09:08,  5.44s/it, loss=2.75, lr=4.85e-5]Training:   3%|███▍                                                                                                        | 46/1470 [04:07<2:09:26,  5.45s/it, loss=2.75, lr=4.85e-5]Training:   3%|███▍                                                                                                         | 46/1470 [04:07<2:09:26,  5.45s/it, loss=2.7, lr=4.84e-5]Training:   3%|███▍                                                                                                         | 47/1470 [04:12<2:09:29,  5.46s/it, loss=2.7, lr=4.84e-5]Training:   3%|███▍                                                                                                         | 47/1470 [04:12<2:09:29,  5.46s/it, loss=2.7, lr=4.84e-5]Training:   3%|███▌                                                                                                         | 48/1470 [04:18<2:09:09,  5.45s/it, loss=2.7, lr=4.84e-5]Training:   3%|███▌                                                                                                        | 48/1470 [04:18<2:09:09,  5.45s/it, loss=2.74, lr=4.84e-5]Training:   3%|███▌                                                                                                        | 49/1470 [04:23<2:08:38,  5.43s/it, loss=2.74, lr=4.84e-5]Training:   3%|███▌                                                                                                        | 49/1470 [04:23<2:08:38,  5.43s/it, loss=2.66, lr=4.83e-5]Training:   3%|███▋                                                                                                        | 50/1470 [04:28<2:08:13,  5.42s/it, loss=2.66, lr=4.83e-5]Training:   3%|███▋                                                                                                        | 50/1470 [04:28<2:08:13,  5.42s/it, loss=2.68, lr=4.83e-5]Training:   3%|███▋                                                                                                        | 51/1470 [04:34<2:08:17,  5.42s/it, loss=2.68, lr=4.83e-5]Training:   3%|███▋                                                                                                        | 51/1470 [04:34<2:08:17,  5.42s/it, loss=2.65, lr=4.83e-5]Training:   4%|███▊                                                                                                        | 52/1470 [04:39<2:08:11,  5.42s/it, loss=2.65, lr=4.83e-5]Training:   4%|███▊                                                                                                        | 52/1470 [04:39<2:08:11,  5.42s/it, loss=2.61, lr=4.82e-5]Training:   4%|███▉                                                                                                        | 53/1470 [04:45<2:08:04,  5.42s/it, loss=2.61, lr=4.82e-5]Training:   4%|███▉                                                                                                        | 53/1470 [04:45<2:08:04,  5.42s/it, loss=2.69, lr=4.82e-5]Training:   4%|███▉                                                                                                        | 54/1470 [04:50<2:08:06,  5.43s/it, loss=2.69, lr=4.82e-5]Training:   4%|███▉                                                                                                        | 54/1470 [04:50<2:08:06,  5.43s/it, loss=2.66, lr=4.82e-5]Training:   4%|████                                                                                                        | 55/1470 [04:56<2:07:55,  5.42s/it, loss=2.66, lr=4.82e-5]Training:   4%|████                                                                                                        | 55/1470 [04:56<2:07:55,  5.42s/it, loss=2.71, lr=4.81e-5]Training:   4%|████                                                                                                        | 56/1470 [05:01<2:08:51,  5.47s/it, loss=2.71, lr=4.81e-5]Training:   4%|████▏                                                                                                        | 56/1470 [05:01<2:08:51,  5.47s/it, loss=2.7, lr=4.81e-5]Training:   4%|████▏                                                                                                        | 57/1470 [05:07<2:08:31,  5.46s/it, loss=2.7, lr=4.81e-5]Training:   4%|████▏                                                                                                       | 57/1470 [05:07<2:08:31,  5.46s/it, loss=2.62, lr=4.81e-5]Training:   4%|████▎                                                                                                       | 58/1470 [05:12<2:08:06,  5.44s/it, loss=2.62, lr=4.81e-5]Training:   4%|████▎                                                                                                         | 58/1470 [05:12<2:08:06,  5.44s/it, loss=2.7, lr=4.8e-5]Training:   4%|████▍                                                                                                         | 59/1470 [05:17<2:08:11,  5.45s/it, loss=2.7, lr=4.8e-5]Training:   4%|████▎                                                                                                        | 59/1470 [05:17<2:08:11,  5.45s/it, loss=2.64, lr=4.8e-5]Training:   4%|████▍                                                                                                        | 60/1470 [05:23<2:08:35,  5.47s/it, loss=2.64, lr=4.8e-5]Training:   4%|████▍                                                                                                        | 60/1470 [05:23<2:08:35,  5.47s/it, loss=2.71, lr=4.8e-5]Training:   4%|████▌                                                                                                        | 61/1470 [05:28<2:08:39,  5.48s/it, loss=2.71, lr=4.8e-5]Training:   4%|████▍                                                                                                       | 61/1470 [05:28<2:08:39,  5.48s/it, loss=2.65, lr=4.79e-5]Training:   4%|████▌                                                                                                       | 62/1470 [05:34<2:08:05,  5.46s/it, loss=2.65, lr=4.79e-5]Training:   4%|████▌                                                                                                       | 62/1470 [05:34<2:08:05,  5.46s/it, loss=2.63, lr=4.79e-5]Training:   4%|████▋                                                                                                       | 63/1470 [05:39<2:08:00,  5.46s/it, loss=2.63, lr=4.79e-5]Training:   4%|████▋                                                                                                       | 63/1470 [05:39<2:08:00,  5.46s/it, loss=2.61, lr=4.79e-5]Training:   4%|████▋                                                                                                       | 64/1470 [05:45<2:07:41,  5.45s/it, loss=2.61, lr=4.79e-5]Training:   4%|████▋                                                                                                        | 64/1470 [05:45<2:07:41,  5.45s/it, loss=2.6, lr=4.78e-5]Training:   4%|████▊                                                                                                        | 65/1470 [05:50<2:07:52,  5.46s/it, loss=2.6, lr=4.78e-5]Training:   4%|████▊                                                                                                       | 65/1470 [05:50<2:07:52,  5.46s/it, loss=2.73, lr=4.78e-5]Training:   4%|████▊                                                                                                       | 66/1470 [05:56<2:07:24,  5.44s/it, loss=2.73, lr=4.78e-5]Training:   4%|████▊                                                                                                       | 66/1470 [05:56<2:07:24,  5.44s/it, loss=2.69, lr=4.78e-5]Training:   5%|████▉                                                                                                       | 67/1470 [06:01<2:07:25,  5.45s/it, loss=2.69, lr=4.78e-5]Training:   5%|████▉                                                                                                       | 67/1470 [06:01<2:07:25,  5.45s/it, loss=2.66, lr=4.77e-5]Training:   5%|████▉                                                                                                       | 68/1470 [06:07<2:07:25,  5.45s/it, loss=2.66, lr=4.77e-5]Training:   5%|████▉                                                                                                       | 68/1470 [06:07<2:07:25,  5.45s/it, loss=2.63, lr=4.77e-5]Training:   5%|█████                                                                                                       | 69/1470 [06:12<2:07:57,  5.48s/it, loss=2.63, lr=4.77e-5]Training:   5%|█████                                                                                                       | 69/1470 [06:12<2:07:57,  5.48s/it, loss=2.72, lr=4.77e-5]Training:   5%|█████▏                                                                                                      | 70/1470 [06:18<2:07:39,  5.47s/it, loss=2.72, lr=4.77e-5]Training:   5%|█████▏                                                                                                       | 70/1470 [06:18<2:07:39,  5.47s/it, loss=2.6, lr=4.76e-5]Training:   5%|█████▎                                                                                                       | 71/1470 [06:23<2:07:26,  5.47s/it, loss=2.6, lr=4.76e-5]Training:   5%|█████▏                                                                                                      | 71/1470 [06:23<2:07:26,  5.47s/it, loss=2.66, lr=4.76e-5]Training:   5%|█████▎                                                                                                      | 72/1470 [06:28<2:07:03,  5.45s/it, loss=2.66, lr=4.76e-5]Training:   5%|█████▎                                                                                                      | 72/1470 [06:28<2:07:03,  5.45s/it, loss=2.64, lr=4.76e-5]Training:   5%|█████▎                                                                                                      | 73/1470 [06:34<2:07:21,  5.47s/it, loss=2.64, lr=4.76e-5]Training:   5%|█████▎                                                                                                      | 73/1470 [06:34<2:07:21,  5.47s/it, loss=2.61, lr=4.75e-5]Training:   5%|█████▍                                                                                                      | 74/1470 [06:39<2:07:04,  5.46s/it, loss=2.61, lr=4.75e-5]Training:   5%|█████▍                                                                                                      | 74/1470 [06:39<2:07:04,  5.46s/it, loss=2.59, lr=4.75e-5]Training:   5%|█████▌                                                                                                      | 75/1470 [06:45<2:06:33,  5.44s/it, loss=2.59, lr=4.75e-5]Training:   5%|█████▌                                                                                                      | 75/1470 [06:45<2:06:33,  5.44s/it, loss=2.58, lr=4.74e-5]Training:   5%|█████▌                                                                                                      | 76/1470 [06:50<2:06:51,  5.46s/it, loss=2.58, lr=4.74e-5]Training:   5%|█████▌                                                                                                      | 76/1470 [06:50<2:06:51,  5.46s/it, loss=2.58, lr=4.74e-5]Training:   5%|█████▋                                                                                                      | 77/1470 [06:56<2:07:02,  5.47s/it, loss=2.58, lr=4.74e-5]Training:   5%|█████▋                                                                                                      | 77/1470 [06:56<2:07:02,  5.47s/it, loss=2.61, lr=4.74e-5]Training:   5%|█████▋                                                                                                      | 78/1470 [07:01<2:06:48,  5.47s/it, loss=2.61, lr=4.74e-5]Training:   5%|█████▋                                                                                                      | 78/1470 [07:01<2:06:48,  5.47s/it, loss=2.62, lr=4.73e-5]Training:   5%|█████▊                                                                                                      | 79/1470 [07:07<2:06:31,  5.46s/it, loss=2.62, lr=4.73e-5]Training:   5%|█████▊                                                                                                      | 79/1470 [07:07<2:06:31,  5.46s/it, loss=2.65, lr=4.73e-5]Training:   5%|█████▉                                                                                                      | 80/1470 [07:12<2:06:18,  5.45s/it, loss=2.65, lr=4.73e-5]Training:   5%|█████▉                                                                                                      | 80/1470 [07:12<2:06:18,  5.45s/it, loss=2.59, lr=4.73e-5]Training:   6%|█████▉                                                                                                      | 81/1470 [07:18<2:06:19,  5.46s/it, loss=2.59, lr=4.73e-5]Training:   6%|█████▉                                                                                                      | 81/1470 [07:18<2:06:19,  5.46s/it, loss=2.63, lr=4.72e-5]Training:   6%|██████                                                                                                      | 82/1470 [07:23<2:06:05,  5.45s/it, loss=2.63, lr=4.72e-5]Training:   6%|██████                                                                                                      | 82/1470 [07:23<2:06:05,  5.45s/it, loss=2.62, lr=4.72e-5]Training:   6%|██████                                                                                                      | 83/1470 [07:29<2:06:53,  5.49s/it, loss=2.62, lr=4.72e-5]Training:   6%|██████                                                                                                      | 83/1470 [07:29<2:06:53,  5.49s/it, loss=2.65, lr=4.72e-5]Training:   6%|██████▏                                                                                                     | 84/1470 [07:34<2:07:03,  5.50s/it, loss=2.65, lr=4.72e-5]Training:   6%|██████▏                                                                                                     | 84/1470 [07:34<2:07:03,  5.50s/it, loss=2.68, lr=4.71e-5]Training:   6%|██████▏                                                                                                     | 85/1470 [07:40<2:06:58,  5.50s/it, loss=2.68, lr=4.71e-5]Training:   6%|██████▏                                                                                                     | 85/1470 [07:40<2:06:58,  5.50s/it, loss=2.57, lr=4.71e-5]Training:   6%|██████▎                                                                                                     | 86/1470 [07:45<2:06:26,  5.48s/it, loss=2.57, lr=4.71e-5]Training:   6%|██████▎                                                                                                     | 86/1470 [07:45<2:06:26,  5.48s/it, loss=2.58, lr=4.71e-5]Training:   6%|██████▍                                                                                                     | 87/1470 [07:51<2:06:07,  5.47s/it, loss=2.58, lr=4.71e-5]Training:   6%|██████▍                                                                                                      | 87/1470 [07:51<2:06:07,  5.47s/it, loss=2.56, lr=4.7e-5]Training:   6%|██████▌                                                                                                      | 88/1470 [07:56<2:06:44,  5.50s/it, loss=2.56, lr=4.7e-5]Training:   6%|██████▌                                                                                                      | 88/1470 [07:56<2:06:44,  5.50s/it, loss=2.64, lr=4.7e-5]Training:   6%|██████▌                                                                                                      | 89/1470 [08:02<2:05:55,  5.47s/it, loss=2.64, lr=4.7e-5]Training:   6%|██████▌                                                                                                      | 89/1470 [08:02<2:05:55,  5.47s/it, loss=2.59, lr=4.7e-5]Training:   6%|██████▋                                                                                                      | 90/1470 [08:07<2:05:38,  5.46s/it, loss=2.59, lr=4.7e-5]Training:   6%|██████▋                                                                                                      | 90/1470 [08:07<2:05:38,  5.46s/it, loss=2.7, lr=4.69e-5]Training:   6%|██████▋                                                                                                      | 91/1470 [08:12<2:05:24,  5.46s/it, loss=2.7, lr=4.69e-5]Training:   6%|██████▋                                                                                                     | 91/1470 [08:12<2:05:24,  5.46s/it, loss=2.63, lr=4.69e-5]Training:   6%|██████▊                                                                                                     | 92/1470 [08:18<2:05:14,  5.45s/it, loss=2.63, lr=4.69e-5]Training:   6%|██████▊                                                                                                     | 92/1470 [08:18<2:05:14,  5.45s/it, loss=2.59, lr=4.69e-5]Training:   6%|██████▊                                                                                                     | 93/1470 [08:23<2:05:48,  5.48s/it, loss=2.59, lr=4.69e-5]Training:   6%|██████▊                                                                                                     | 93/1470 [08:23<2:05:48,  5.48s/it, loss=2.62, lr=4.68e-5]Training:   6%|██████▉                                                                                                     | 94/1470 [08:29<2:05:33,  5.48s/it, loss=2.62, lr=4.68e-5]Training:   6%|██████▉                                                                                                     | 94/1470 [08:29<2:05:33,  5.48s/it, loss=2.65, lr=4.68e-5]Training:   6%|██████▉                                                                                                     | 95/1470 [08:34<2:04:55,  5.45s/it, loss=2.65, lr=4.68e-5]Training:   6%|██████▉                                                                                                     | 95/1470 [08:34<2:04:55,  5.45s/it, loss=2.62, lr=4.68e-5]Training:   7%|███████                                                                                                     | 96/1470 [08:40<2:04:30,  5.44s/it, loss=2.62, lr=4.68e-5]Training:   7%|███████                                                                                                     | 96/1470 [08:40<2:04:30,  5.44s/it, loss=2.52, lr=4.67e-5]Training:   7%|███████▏                                                                                                    | 97/1470 [08:45<2:04:50,  5.46s/it, loss=2.52, lr=4.67e-5]Training:   7%|███████▏                                                                                                    | 97/1470 [08:45<2:04:50,  5.46s/it, loss=2.67, lr=4.67e-5]Training:   7%|███████▏                                                                                                    | 98/1470 [08:51<2:04:47,  5.46s/it, loss=2.67, lr=4.67e-5]Training:   7%|███████▏                                                                                                    | 98/1470 [08:51<2:04:47,  5.46s/it, loss=2.57, lr=4.67e-5]Training:   7%|███████▎                                                                                                    | 99/1470 [08:53<1:40:21,  4.39s/it, loss=2.57, lr=4.67e-5]Training:   7%|███████▎                                                                                                    | 99/1470 [08:53<1:40:21,  4.39s/it, loss=2.58, lr=4.66e-5]Generate config GenerationConfig {
+  "_from_model_config": true,
+  "bos_token_id": 0,
+  "decoder_start_token_id": 2,
+  "early_stopping": true,
+  "eos_token_id": 2,
+  "forced_bos_token_id": 0,
+  "forced_eos_token_id": 2,
+  "max_length": 128,
+  "min_length": 1,
+  "no_repeat_ngram_size": 3,
+  "num_beams": 4,
+  "pad_token_id": 1,
+  "transformers_version": "4.33.3"
+}
+
+/opt/conda/lib/python3.10/site-packages/transformers/generation/utils.py:1417: UserWarning: You have modified the pretrained model configuration to control generation. This is a deprecated strategy to control generation and will be removed soon, in a future version. Please use a generation configuration file (see https://huggingface.co/docs/transformers/main_classes/text_generation )
+  warnings.warn(
+Generate config GenerationConfig {
+  "_from_model_config": true,
+  "bos_token_id": 0,
+  "decoder_start_token_id": 2,
+  "early_stopping": true,
+  "eos_token_id": 2,
+  "forced_bos_token_id": 0,
+  "forced_eos_token_id": 2,
+  "max_length": 128,
+  "min_length": 1,
+  "no_repeat_ngram_size": 3,
+  "num_beams": 4,
+  "pad_token_id": 1,
+  "transformers_version": "4.33.3"
+}
+
+Generate config GenerationConfig {
+  "_from_model_config": true,
+  "bos_token_id": 0,
+  "decoder_start_token_id": 2,
+  "early_stopping": true,
+  "eos_token_id": 2,
+  "forced_bos_token_id": 0,
+  "forced_eos_token_id": 2,
+  "max_length": 128,
+  "min_length": 1,
+  "no_repeat_ngram_size": 3,
+  "num_beams": 4,
+  "pad_token_id": 1,
+  "transformers_version": "4.33.3"
+}
+
+Generate config GenerationConfig {
+  "_from_model_config": true,
+  "bos_token_id": 0,
+  "decoder_start_token_id": 2,
+  "early_stopping": true,
+  "eos_token_id": 2,
+  "forced_bos_token_id": 0,
+  "forced_eos_token_id": 2,
+  "max_length": 128,
+  "min_length": 1,
+  "no_repeat_ngram_size": 3,
+  "num_beams": 4,
+  "pad_token_id": 1,
+  "transformers_version": "4.33.3"
+}
+
+Generate config GenerationConfig {
+  "_from_model_config": true,
+  "bos_token_id": 0,
+  "decoder_start_token_id": 2,
+  "early_stopping": true,
+  "eos_token_id": 2,
+  "forced_bos_token_id": 0,
+  "forced_eos_token_id": 2,
+  "max_length": 128,
+  "min_length": 1,
+  "no_repeat_ngram_size": 3,
+  "num_beams": 4,
+  "pad_token_id": 1,
+  "transformers_version": "4.33.3"
+}
+
+Generate config GenerationConfig {
+  "_from_model_config": true,
+  "bos_token_id": 0,
+  "decoder_start_token_id": 2,
+  "early_stopping": true,
+  "eos_token_id": 2,
+  "forced_bos_token_id": 0,
+  "forced_eos_token_id": 2,
+  "max_length": 128,
+  "min_length": 1,
+  "no_repeat_ngram_size": 3,
+  "num_beams": 4,
+  "pad_token_id": 1,
+  "transformers_version": "4.33.3"
+}
+
+Generate config GenerationConfig {
+  "_from_model_config": true,
+  "bos_token_id": 0,
+  "decoder_start_token_id": 2,
+  "early_stopping": true,
+  "eos_token_id": 2,
+  "forced_bos_token_id": 0,
+  "forced_eos_token_id": 2,
+  "max_length": 128,
+  "min_length": 1,
+  "no_repeat_ngram_size": 3,
+  "num_beams": 4,
+  "pad_token_id": 1,
+  "transformers_version": "4.33.3"
+}
+
+Generate config GenerationConfig {
+  "_from_model_config": true,
+  "bos_token_id": 0,
+  "decoder_start_token_id": 2,
+  "early_stopping": true,
+  "eos_token_id": 2,
+  "forced_bos_token_id": 0,
+  "forced_eos_token_id": 2,
+  "max_length": 128,
+  "min_length": 1,
+  "no_repeat_ngram_size": 3,
+  "num_beams": 4,
+  "pad_token_id": 1,
+  "transformers_version": "4.33.3"
+}
+
+Generate config GenerationConfig {
+  "_from_model_config": true,
+  "bos_token_id": 0,
+  "decoder_start_token_id": 2,
+  "early_stopping": true,
+  "eos_token_id": 2,
+  "forced_bos_token_id": 0,
+  "forced_eos_token_id": 2,
+  "max_length": 128,
+  "min_length": 1,
+  "no_repeat_ngram_size": 3,
+  "num_beams": 4,
+  "pad_token_id": 1,
+  "transformers_version": "4.33.3"
+}
+
+Generate config GenerationConfig {
+  "_from_model_config": true,
+  "bos_token_id": 0,
+  "decoder_start_token_id": 2,
+  "early_stopping": true,
+  "eos_token_id": 2,
+  "forced_bos_token_id": 0,
+  "forced_eos_token_id": 2,
+  "max_length": 128,
+  "min_length": 1,
+  "no_repeat_ngram_size": 3,
+  "num_beams": 4,
+  "pad_token_id": 1,
+  "transformers_version": "4.33.3"
+}
+
+Generate config GenerationConfig {
+  "_from_model_config": true,
+  "bos_token_id": 0,
+  "decoder_start_token_id": 2,
+  "early_stopping": true,
+  "eos_token_id": 2,
+  "forced_bos_token_id": 0,
+  "forced_eos_token_id": 2,
+  "max_length": 128,
+  "min_length": 1,
+  "no_repeat_ngram_size": 3,
+  "num_beams": 4,
+  "pad_token_id": 1,
+  "transformers_version": "4.33.3"
+}
+
+Generate config GenerationConfig {
+  "_from_model_config": true,
+  "bos_token_id": 0,
+  "decoder_start_token_id": 2,
+  "early_stopping": true,
+  "eos_token_id": 2,
+  "forced_bos_token_id": 0,
+  "forced_eos_token_id": 2,
+  "max_length": 128,
+  "min_length": 1,
+  "no_repeat_ngram_size": 3,
+  "num_beams": 4,
+  "pad_token_id": 1,
+  "transformers_version": "4.33.3"
+}
+
+Generate config GenerationConfig {
+  "_from_model_config": true,
+  "bos_token_id": 0,
+  "decoder_start_token_id": 2,
+  "early_stopping": true,
+  "eos_token_id": 2,
+  "forced_bos_token_id": 0,
+  "forced_eos_token_id": 2,
+  "max_length": 128,
+  "min_length": 1,
+  "no_repeat_ngram_size": 3,
+  "num_beams": 4,
+  "pad_token_id": 1,
+  "transformers_version": "4.33.3"
+}
+
+Generate config GenerationConfig {
+  "_from_model_config": true,
+  "bos_token_id": 0,
+  "decoder_start_token_id": 2,
+  "early_stopping": true,
+  "eos_token_id": 2,
+  "forced_bos_token_id": 0,
+  "forced_eos_token_id": 2,
+  "max_length": 128,
+  "min_length": 1,
+  "no_repeat_ngram_size": 3,
+  "num_beams": 4,
+  "pad_token_id": 1,
+  "transformers_version": "4.33.3"
+}
+
+Generate config GenerationConfig {
+  "_from_model_config": true,
+  "bos_token_id": 0,
+  "decoder_start_token_id": 2,
+  "early_stopping": true,
+  "eos_token_id": 2,
+  "forced_bos_token_id": 0,
+  "forced_eos_token_id": 2,
+  "max_length": 128,
+  "min_length": 1,
+  "no_repeat_ngram_size": 3,
+  "num_beams": 4,
+  "pad_token_id": 1,
+  "transformers_version": "4.33.3"
+}
+
+Generate config GenerationConfig {
+  "_from_model_config": true,
+  "bos_token_id": 0,
+  "decoder_start_token_id": 2,
+  "early_stopping": true,
+  "eos_token_id": 2,
+  "forced_bos_token_id": 0,
+  "forced_eos_token_id": 2,
+  "max_length": 128,
+  "min_length": 1,
+  "no_repeat_ngram_size": 3,
+  "num_beams": 4,
+  "pad_token_id": 1,
+  "transformers_version": "4.33.3"
+}
+
+Generate config GenerationConfig {
+  "_from_model_config": true,
+  "bos_token_id": 0,
+  "decoder_start_token_id": 2,
+  "early_stopping": true,
+  "eos_token_id": 2,
+  "forced_bos_token_id": 0,
+  "forced_eos_token_id": 2,
+  "max_length": 128,
+  "min_length": 1,
+  "no_repeat_ngram_size": 3,
+  "num_beams": 4,
+  "pad_token_id": 1,
+  "transformers_version": "4.33.3"
+}
+
+Generate config GenerationConfig {
+  "_from_model_config": true,
+  "bos_token_id": 0,
+  "decoder_start_token_id": 2,
+  "early_stopping": true,
+  "eos_token_id": 2,
+  "forced_bos_token_id": 0,
+  "forced_eos_token_id": 2,
+  "max_length": 128,
+  "min_length": 1,
+  "no_repeat_ngram_size": 3,
+  "num_beams": 4,
+  "pad_token_id": 1,
+  "transformers_version": "4.33.3"
+}
+
+Generate config GenerationConfig {
+  "_from_model_config": true,
+  "bos_token_id": 0,
+  "decoder_start_token_id": 2,
+  "early_stopping": true,
+  "eos_token_id": 2,
+  "forced_bos_token_id": 0,
+  "forced_eos_token_id": 2,
+  "max_length": 128,
+  "min_length": 1,
+  "no_repeat_ngram_size": 3,
+  "num_beams": 4,
+  "pad_token_id": 1,
+  "transformers_version": "4.33.3"
+}
+
+Generate config GenerationConfig {
+  "_from_model_config": true,
+  "bos_token_id": 0,
+  "decoder_start_token_id": 2,
+  "early_stopping": true,
+  "eos_token_id": 2,
+  "forced_bos_token_id": 0,
+  "forced_eos_token_id": 2,
+  "max_length": 128,
+  "min_length": 1,
+  "no_repeat_ngram_size": 3,
+  "num_beams": 4,
+  "pad_token_id": 1,
+  "transformers_version": "4.33.3"
+}
+
+Generate config GenerationConfig {
+  "_from_model_config": true,
+  "bos_token_id": 0,
+  "decoder_start_token_id": 2,
+  "early_stopping": true,
+  "eos_token_id": 2,
+  "forced_bos_token_id": 0,
+  "forced_eos_token_id": 2,
+  "max_length": 128,
+  "min_length": 1,
+  "no_repeat_ngram_size": 3,
+  "num_beams": 4,
+  "pad_token_id": 1,
+  "transformers_version": "4.33.3"
+}
+
+Generate config GenerationConfig {
+  "_from_model_config": true,
+  "bos_token_id": 0,
+  "decoder_start_token_id": 2,
+  "early_stopping": true,
+  "eos_token_id": 2,
+  "forced_bos_token_id": 0,
+  "forced_eos_token_id": 2,
+  "max_length": 128,
+  "min_length": 1,
+  "no_repeat_ngram_size": 3,
+  "num_beams": 4,
+  "pad_token_id": 1,
+  "transformers_version": "4.33.3"
+}
+
+Generate config GenerationConfig {
+  "_from_model_config": true,
+  "bos_token_id": 0,
+  "decoder_start_token_id": 2,
+  "early_stopping": true,
+  "eos_token_id": 2,
+  "forced_bos_token_id": 0,
+  "forced_eos_token_id": 2,
+  "max_length": 128,
+  "min_length": 1,
+  "no_repeat_ngram_size": 3,
+  "num_beams": 4,
+  "pad_token_id": 1,
+  "transformers_version": "4.33.3"
+}
+
+Generate config GenerationConfig {
+  "_from_model_config": true,
+  "bos_token_id": 0,
+  "decoder_start_token_id": 2,
+  "early_stopping": true,
+  "eos_token_id": 2,
+  "forced_bos_token_id": 0,
+  "forced_eos_token_id": 2,
+  "max_length": 128,
+  "min_length": 1,
+  "no_repeat_ngram_size": 3,
+  "num_beams": 4,
+  "pad_token_id": 1,
+  "transformers_version": "4.33.3"
+}
+
+Generate config GenerationConfig {
+  "_from_model_config": true,
+  "bos_token_id": 0,
+  "decoder_start_token_id": 2,
+  "early_stopping": true,
+  "eos_token_id": 2,
+  "forced_bos_token_id": 0,
+  "forced_eos_token_id": 2,
+  "max_length": 128,
+  "min_length": 1,
+  "no_repeat_ngram_size": 3,
+  "num_beams": 4,
+  "pad_token_id": 1,
+  "transformers_version": "4.33.3"
+}
+
+Generate config GenerationConfig {
+  "_from_model_config": true,
+  "bos_token_id": 0,
+  "decoder_start_token_id": 2,
+  "early_stopping": true,
+  "eos_token_id": 2,
+  "forced_bos_token_id": 0,
+  "forced_eos_token_id": 2,
+  "max_length": 128,
+  "min_length": 1,
+  "no_repeat_ngram_size": 3,
+  "num_beams": 4,
+  "pad_token_id": 1,
+  "transformers_version": "4.33.3"
+}
+
+Generate config GenerationConfig {
+  "_from_model_config": true,
+  "bos_token_id": 0,
+  "decoder_start_token_id": 2,
+  "early_stopping": true,
+  "eos_token_id": 2,
+  "forced_bos_token_id": 0,
+  "forced_eos_token_id": 2,
+  "max_length": 128,
+  "min_length": 1,
+  "no_repeat_ngram_size": 3,
+  "num_beams": 4,
+  "pad_token_id": 1,
+  "transformers_version": "4.33.3"
+}
+
+Generate config GenerationConfig {
+  "_from_model_config": true,
+  "bos_token_id": 0,
+  "decoder_start_token_id": 2,
+  "early_stopping": true,
+  "eos_token_id": 2,
+  "forced_bos_token_id": 0,
+  "forced_eos_token_id": 2,
+  "max_length": 128,
+  "min_length": 1,
+  "no_repeat_ngram_size": 3,
+  "num_beams": 4,
+  "pad_token_id": 1,
+  "transformers_version": "4.33.3"
+}
+
+Generate config GenerationConfig {
+  "_from_model_config": true,
+  "bos_token_id": 0,
+  "decoder_start_token_id": 2,
+  "early_stopping": true,
+  "eos_token_id": 2,
+  "forced_bos_token_id": 0,
+  "forced_eos_token_id": 2,
+  "max_length": 128,
+  "min_length": 1,
+  "no_repeat_ngram_size": 3,
+  "num_beams": 4,
+  "pad_token_id": 1,
+  "transformers_version": "4.33.3"
+}
+
+Generate config GenerationConfig {
+  "_from_model_config": true,
+  "bos_token_id": 0,
+  "decoder_start_token_id": 2,
+  "early_stopping": true,
+  "eos_token_id": 2,
+  "forced_bos_token_id": 0,
+  "forced_eos_token_id": 2,
+  "max_length": 128,
+  "min_length": 1,
+  "no_repeat_ngram_size": 3,
+  "num_beams": 4,
+  "pad_token_id": 1,
+  "transformers_version": "4.33.3"
+}
+
+Generate config GenerationConfig {
+  "_from_model_config": true,
+  "bos_token_id": 0,
+  "decoder_start_token_id": 2,
+  "early_stopping": true,
+  "eos_token_id": 2,
+  "forced_bos_token_id": 0,
+  "forced_eos_token_id": 2,
+  "max_length": 128,
+  "min_length": 1,
+  "no_repeat_ngram_size": 3,
+  "num_beams": 4,
+  "pad_token_id": 1,
+  "transformers_version": "4.33.3"
+}
+
+Generate config GenerationConfig {
+  "_from_model_config": true,
+  "bos_token_id": 0,
+  "decoder_start_token_id": 2,
+  "early_stopping": true,
+  "eos_token_id": 2,
+  "forced_bos_token_id": 0,
+  "forced_eos_token_id": 2,
+  "max_length": 128,
+  "min_length": 1,
+  "no_repeat_ngram_size": 3,
+  "num_beams": 4,
+  "pad_token_id": 1,
+  "transformers_version": "4.33.3"
+}
+
+Generate config GenerationConfig {
+  "_from_model_config": true,
+  "bos_token_id": 0,
+  "decoder_start_token_id": 2,
+  "early_stopping": true,
+  "eos_token_id": 2,
+  "forced_bos_token_id": 0,
+  "forced_eos_token_id": 2,
+  "max_length": 128,
+  "min_length": 1,
+  "no_repeat_ngram_size": 3,
+  "num_beams": 4,
+  "pad_token_id": 1,
+  "transformers_version": "4.33.3"
+}
+
+Generate config GenerationConfig {
+  "_from_model_config": true,
+  "bos_token_id": 0,
+  "decoder_start_token_id": 2,
+  "early_stopping": true,
+  "eos_token_id": 2,
+  "forced_bos_token_id": 0,
+  "forced_eos_token_id": 2,
+  "max_length": 128,
+  "min_length": 1,
+  "no_repeat_ngram_size": 3,
+  "num_beams": 4,
+  "pad_token_id": 1,
+  "transformers_version": "4.33.3"
+}
+
+Generate config GenerationConfig {
+  "_from_model_config": true,
+  "bos_token_id": 0,
+  "decoder_start_token_id": 2,
+  "early_stopping": true,
+  "eos_token_id": 2,
+  "forced_bos_token_id": 0,
+  "forced_eos_token_id": 2,
+  "max_length": 128,
+  "min_length": 1,
+  "no_repeat_ngram_size": 3,
+  "num_beams": 4,
+  "pad_token_id": 1,
+  "transformers_version": "4.33.3"
+}
+
+Generate config GenerationConfig {
+  "_from_model_config": true,
+  "bos_token_id": 0,
+  "decoder_start_token_id": 2,
+  "early_stopping": true,
+  "eos_token_id": 2,
+  "forced_bos_token_id": 0,
+  "forced_eos_token_id": 2,
+  "max_length": 128,
+  "min_length": 1,
+  "no_repeat_ngram_size": 3,
+  "num_beams": 4,
+  "pad_token_id": 1,
+  "transformers_version": "4.33.3"
+}
+
+Generate config GenerationConfig {
+  "_from_model_config": true,
+  "bos_token_id": 0,
+  "decoder_start_token_id": 2,
+  "early_stopping": true,
+  "eos_token_id": 2,
+  "forced_bos_token_id": 0,
+  "forced_eos_token_id": 2,
+  "max_length": 128,
+  "min_length": 1,
+  "no_repeat_ngram_size": 3,
+  "num_beams": 4,
+  "pad_token_id": 1,
+  "transformers_version": "4.33.3"
+}
+
+Generate config GenerationConfig {
+  "_from_model_config": true,
+  "bos_token_id": 0,
+  "decoder_start_token_id": 2,
+  "early_stopping": true,
+  "eos_token_id": 2,
+  "forced_bos_token_id": 0,
+  "forced_eos_token_id": 2,
+  "max_length": 128,
+  "min_length": 1,
+  "no_repeat_ngram_size": 3,
+  "num_beams": 4,
+  "pad_token_id": 1,
+  "transformers_version": "4.33.3"
+}
+
+Generate config GenerationConfig {
+  "_from_model_config": true,
+  "bos_token_id": 0,
+  "decoder_start_token_id": 2,
+  "early_stopping": true,
+  "eos_token_id": 2,
+  "forced_bos_token_id": 0,
+  "forced_eos_token_id": 2,
+  "max_length": 128,
+  "min_length": 1,
+  "no_repeat_ngram_size": 3,
+  "num_beams": 4,
+  "pad_token_id": 1,
+  "transformers_version": "4.33.3"
+}
+
+Generate config GenerationConfig {
+  "_from_model_config": true,
+  "bos_token_id": 0,
+  "decoder_start_token_id": 2,
+  "early_stopping": true,
+  "eos_token_id": 2,
+  "forced_bos_token_id": 0,
+  "forced_eos_token_id": 2,
+  "max_length": 128,
+  "min_length": 1,
+  "no_repeat_ngram_size": 3,
+  "num_beams": 4,
+  "pad_token_id": 1,
+  "transformers_version": "4.33.3"
+}
+
+Generate config GenerationConfig {
+  "_from_model_config": true,
+  "bos_token_id": 0,
+  "decoder_start_token_id": 2,
+  "early_stopping": true,
+  "eos_token_id": 2,
+  "forced_bos_token_id": 0,
+  "forced_eos_token_id": 2,
+  "max_length": 128,
+  "min_length": 1,
+  "no_repeat_ngram_size": 3,
+  "num_beams": 4,
+  "pad_token_id": 1,
+  "transformers_version": "4.33.3"
+}
+
+Generate config GenerationConfig {
+  "_from_model_config": true,
+  "bos_token_id": 0,
+  "decoder_start_token_id": 2,
+  "early_stopping": true,
+  "eos_token_id": 2,
+  "forced_bos_token_id": 0,
+  "forced_eos_token_id": 2,
+  "max_length": 128,
+  "min_length": 1,
+  "no_repeat_ngram_size": 3,
+  "num_beams": 4,
+  "pad_token_id": 1,
+  "transformers_version": "4.33.3"
+}
+
+Generate config GenerationConfig {
+  "_from_model_config": true,
+  "bos_token_id": 0,
+  "decoder_start_token_id": 2,
+  "early_stopping": true,
+  "eos_token_id": 2,
+  "forced_bos_token_id": 0,
+  "forced_eos_token_id": 2,
+  "max_length": 128,
+  "min_length": 1,
+  "no_repeat_ngram_size": 3,
+  "num_beams": 4,
+  "pad_token_id": 1,
+  "transformers_version": "4.33.3"
+}
+
+Generate config GenerationConfig {
+  "_from_model_config": true,
+  "bos_token_id": 0,
+  "decoder_start_token_id": 2,
+  "early_stopping": true,
+  "eos_token_id": 2,
+  "forced_bos_token_id": 0,
+  "forced_eos_token_id": 2,
+  "max_length": 128,
+  "min_length": 1,
+  "no_repeat_ngram_size": 3,
+  "num_beams": 4,
+  "pad_token_id": 1,
+  "transformers_version": "4.33.3"
+}
+
+Generate config GenerationConfig {
+  "_from_model_config": true,
+  "bos_token_id": 0,
+  "decoder_start_token_id": 2,
+  "early_stopping": true,
+  "eos_token_id": 2,
+  "forced_bos_token_id": 0,
+  "forced_eos_token_id": 2,
+  "max_length": 128,
+  "min_length": 1,
+  "no_repeat_ngram_size": 3,
+  "num_beams": 4,
+  "pad_token_id": 1,
+  "transformers_version": "4.33.3"
+}
+
+Generate config GenerationConfig {
+  "_from_model_config": true,
+  "bos_token_id": 0,
+  "decoder_start_token_id": 2,
+  "early_stopping": true,
+  "eos_token_id": 2,
+  "forced_bos_token_id": 0,
+  "forced_eos_token_id": 2,
+  "max_length": 128,
+  "min_length": 1,
+  "no_repeat_ngram_size": 3,
+  "num_beams": 4,
+  "pad_token_id": 1,
+  "transformers_version": "4.33.3"
+}
+
+Generate config GenerationConfig {
+  "_from_model_config": true,
+  "bos_token_id": 0,
+  "decoder_start_token_id": 2,
+  "early_stopping": true,
+  "eos_token_id": 2,
+  "forced_bos_token_id": 0,
+  "forced_eos_token_id": 2,
+  "max_length": 128,
+  "min_length": 1,
+  "no_repeat_ngram_size": 3,
+  "num_beams": 4,
+  "pad_token_id": 1,
+  "transformers_version": "4.33.3"
+}
+
+Generate config GenerationConfig {
+  "_from_model_config": true,
+  "bos_token_id": 0,
+  "decoder_start_token_id": 2,
+  "early_stopping": true,
+  "eos_token_id": 2,
+  "forced_bos_token_id": 0,
+  "forced_eos_token_id": 2,
+  "max_length": 128,
+  "min_length": 1,
+  "no_repeat_ngram_size": 3,
+  "num_beams": 4,
+  "pad_token_id": 1,
+  "transformers_version": "4.33.3"
+}
+
+Generate config GenerationConfig {
+  "_from_model_config": true,
+  "bos_token_id": 0,
+  "decoder_start_token_id": 2,
+  "early_stopping": true,
+  "eos_token_id": 2,
+  "forced_bos_token_id": 0,
+  "forced_eos_token_id": 2,
+  "max_length": 128,
+  "min_length": 1,
+  "no_repeat_ngram_size": 3,
+  "num_beams": 4,
+  "pad_token_id": 1,
+  "transformers_version": "4.33.3"
+}
+
+Generate config GenerationConfig {
+  "_from_model_config": true,
+  "bos_token_id": 0,
+  "decoder_start_token_id": 2,
+  "early_stopping": true,
+  "eos_token_id": 2,
+  "forced_bos_token_id": 0,
+  "forced_eos_token_id": 2,
+  "max_length": 128,
+  "min_length": 1,
+  "no_repeat_ngram_size": 3,
+  "num_beams": 4,
+  "pad_token_id": 1,
+  "transformers_version": "4.33.3"
+}
+
+Generate config GenerationConfig {
+  "_from_model_config": true,
+  "bos_token_id": 0,
+  "decoder_start_token_id": 2,
+  "early_stopping": true,
+  "eos_token_id": 2,
+  "forced_bos_token_id": 0,
+  "forced_eos_token_id": 2,
+  "max_length": 128,
+  "min_length": 1,
+  "no_repeat_ngram_size": 3,
+  "num_beams": 4,
+  "pad_token_id": 1,
+  "transformers_version": "4.33.3"
+}
+
+Generate config GenerationConfig {
+  "_from_model_config": true,
+  "bos_token_id": 0,
+  "decoder_start_token_id": 2,
+  "early_stopping": true,
+  "eos_token_id": 2,
+  "forced_bos_token_id": 0,
+  "forced_eos_token_id": 2,
+  "max_length": 128,
+  "min_length": 1,
+  "no_repeat_ngram_size": 3,
+  "num_beams": 4,
+  "pad_token_id": 1,
+  "transformers_version": "4.33.3"
+}
+
+Generate config GenerationConfig {
+  "_from_model_config": true,
+  "bos_token_id": 0,
+  "decoder_start_token_id": 2,
+  "early_stopping": true,
+  "eos_token_id": 2,
+  "forced_bos_token_id": 0,
+  "forced_eos_token_id": 2,
+  "max_length": 128,
+  "min_length": 1,
+  "no_repeat_ngram_size": 3,
+  "num_beams": 4,
+  "pad_token_id": 1,
+  "transformers_version": "4.33.3"
+}
+
+Generate config GenerationConfig {
+  "_from_model_config": true,
+  "bos_token_id": 0,
+  "decoder_start_token_id": 2,
+  "early_stopping": true,
+  "eos_token_id": 2,
+  "forced_bos_token_id": 0,
+  "forced_eos_token_id": 2,
+  "max_length": 128,
+  "min_length": 1,
+  "no_repeat_ngram_size": 3,
+  "num_beams": 4,
+  "pad_token_id": 1,
+  "transformers_version": "4.33.3"
+}
+
+Generate config GenerationConfig {
+  "_from_model_config": true,
+  "bos_token_id": 0,
+  "decoder_start_token_id": 2,
+  "early_stopping": true,
+  "eos_token_id": 2,
+  "forced_bos_token_id": 0,
+  "forced_eos_token_id": 2,
+  "max_length": 128,
+  "min_length": 1,
+  "no_repeat_ngram_size": 3,
+  "num_beams": 4,
+  "pad_token_id": 1,
+  "transformers_version": "4.33.3"
+}
+
+Generate config GenerationConfig {
+  "_from_model_config": true,
+  "bos_token_id": 0,
+  "decoder_start_token_id": 2,
+  "early_stopping": true,
+  "eos_token_id": 2,
+  "forced_bos_token_id": 0,
+  "forced_eos_token_id": 2,
+  "max_length": 128,
+  "min_length": 1,
+  "no_repeat_ngram_size": 3,
+  "num_beams": 4,
+  "pad_token_id": 1,
+  "transformers_version": "4.33.3"
+}
+
+Generate config GenerationConfig {
+  "_from_model_config": true,
+  "bos_token_id": 0,
+  "decoder_start_token_id": 2,
+  "early_stopping": true,
+  "eos_token_id": 2,
+  "forced_bos_token_id": 0,
+  "forced_eos_token_id": 2,
+  "max_length": 128,
+  "min_length": 1,
+  "no_repeat_ngram_size": 3,
+  "num_beams": 4,
+  "pad_token_id": 1,
+  "transformers_version": "4.33.3"
+}
+
+Generate config GenerationConfig {
+  "_from_model_config": true,
+  "bos_token_id": 0,
+  "decoder_start_token_id": 2,
+  "early_stopping": true,
+  "eos_token_id": 2,
+  "forced_bos_token_id": 0,
+  "forced_eos_token_id": 2,
+  "max_length": 128,
+  "min_length": 1,
+  "no_repeat_ngram_size": 3,
+  "num_beams": 4,
+  "pad_token_id": 1,
+  "transformers_version": "4.33.3"
+}
+
+Generate config GenerationConfig {
+  "_from_model_config": true,
+  "bos_token_id": 0,
+  "decoder_start_token_id": 2,
+  "early_stopping": true,
+  "eos_token_id": 2,
+  "forced_bos_token_id": 0,
+  "forced_eos_token_id": 2,
+  "max_length": 128,
+  "min_length": 1,
+  "no_repeat_ngram_size": 3,
+  "num_beams": 4,
+  "pad_token_id": 1,
+  "transformers_version": "4.33.3"
+}
+
+Generate config GenerationConfig {
+  "_from_model_config": true,
+  "bos_token_id": 0,
+  "decoder_start_token_id": 2,
+  "early_stopping": true,
+  "eos_token_id": 2,
+  "forced_bos_token_id": 0,
+  "forced_eos_token_id": 2,
+  "max_length": 128,
+  "min_length": 1,
+  "no_repeat_ngram_size": 3,
+  "num_beams": 4,
+  "pad_token_id": 1,
+  "transformers_version": "4.33.3"
+}
+
+Generate config GenerationConfig {
+  "_from_model_config": true,
+  "bos_token_id": 0,
+  "decoder_start_token_id": 2,
+  "early_stopping": true,
+  "eos_token_id": 2,
+  "forced_bos_token_id": 0,
+  "forced_eos_token_id": 2,
+  "max_length": 128,
+  "min_length": 1,
+  "no_repeat_ngram_size": 3,
+  "num_beams": 4,
+  "pad_token_id": 1,
+  "transformers_version": "4.33.3"
+}
+
+Generate config GenerationConfig {
+  "_from_model_config": true,
+  "bos_token_id": 0,
+  "decoder_start_token_id": 2,
+  "early_stopping": true,
+  "eos_token_id": 2,
+  "forced_bos_token_id": 0,
+  "forced_eos_token_id": 2,
+  "max_length": 128,
+  "min_length": 1,
+  "no_repeat_ngram_size": 3,
+  "num_beams": 4,
+  "pad_token_id": 1,
+  "transformers_version": "4.33.3"
+}
+
+Generate config GenerationConfig {
+  "_from_model_config": true,
+  "bos_token_id": 0,
+  "decoder_start_token_id": 2,
+  "early_stopping": true,
+  "eos_token_id": 2,
+  "forced_bos_token_id": 0,
+  "forced_eos_token_id": 2,
+  "max_length": 128,
+  "min_length": 1,
+  "no_repeat_ngram_size": 3,
+  "num_beams": 4,
+  "pad_token_id": 1,
+  "transformers_version": "4.33.3"
+}
+
+10/29/2023 17:56:08 - INFO - __main__ - 
+10/29/2023 17:56:08 - INFO - __main__ - Rouge score on val set after epoch 1
+10/29/2023 17:56:09 - INFO - root - 
+10/29/2023 17:56:09 - INFO - root - 	rouge-1:	P: 47.69	R: 51.25	F1: 48.06
+10/29/2023 17:56:09 - INFO - root - 	rouge-2:	P: 23.68	R: 25.25	F1: 23.69
+10/29/2023 17:56:09 - INFO - root - 	rouge-l:	P: 49.00	R: 52.06	F1: 49.51
+10/29/2023 17:56:09 - INFO - root - 
+Configuration saved in ./output/bart-topic-length-cosine-negative-prompt-tagger-margin/best/config.json
+Configuration saved in ./output/bart-topic-length-cosine-negative-prompt-tagger-margin/best/generation_config.json
+Model weights saved in ./output/bart-topic-length-cosine-negative-prompt-tagger-margin/best/pytorch_model.bin
+tokenizer config file saved in ./output/bart-topic-length-cosine-negative-prompt-tagger-margin/best/tokenizer_config.json
+Special tokens file saved in ./output/bart-topic-length-cosine-negative-prompt-tagger-margin/best/special_tokens_map.json
+10/29/2023 17:56:11 - INFO - __main__ - Current Best Validation Result is at epoch 1
+10/29/2023 17:56:11 - INFO - root - 
+10/29/2023 17:56:11 - INFO - root - 	rouge-1:	P: 47.69	R: 51.25	F1: 48.06
+10/29/2023 17:56:11 - INFO - root - 	rouge-2:	P: 23.68	R: 25.25	F1: 23.69
+10/29/2023 17:56:11 - INFO - root - 	rouge-l:	P: 49.00	R: 52.06	F1: 49.51
+10/29/2023 17:56:11 - INFO - root - 
+Training:   7%|███████▏                                                                                                  | 100/1470 [10:21<11:17:09, 29.66s/it, loss=2.58, lr=4.66e-5]Training:   7%|███████▏                                                                                                  | 100/1470 [10:21<11:17:09, 29.66s/it, loss=2.58, lr=4.66e-5]Training:   7%|███████▎                                                                                                   | 101/1470 [10:27<8:31:09, 22.40s/it, loss=2.58, lr=4.66e-5]Training:   7%|███████▎                                                                                                   | 101/1470 [10:27<8:31:09, 22.40s/it, loss=2.58, lr=4.66e-5]Training:   7%|███████▍                                                                                                   | 102/1470 [10:32<6:34:55, 17.32s/it, loss=2.58, lr=4.66e-5]Training:   7%|███████▍                                                                                                   | 102/1470 [10:32<6:34:55, 17.32s/it, loss=2.62, lr=4.65e-5]Training:   7%|███████▍                                                                                                   | 103/1470 [10:37<5:13:11, 13.75s/it, loss=2.62, lr=4.65e-5]Training:   7%|███████▍                                                                                                   | 103/1470 [10:37<5:13:11, 13.75s/it, loss=2.52, lr=4.65e-5]Training:   7%|███████▌                                                                                                   | 104/1470 [10:43<4:16:23, 11.26s/it, loss=2.52, lr=4.65e-5]Training:   7%|███████▌                                                                                                   | 104/1470 [10:43<4:16:23, 11.26s/it, loss=2.52, lr=4.65e-5]Training:   7%|███████▋                                                                                                   | 105/1470 [10:48<3:36:28,  9.52s/it, loss=2.52, lr=4.65e-5]Training:   7%|███████▋                                                                                                   | 105/1470 [10:48<3:36:28,  9.52s/it, loss=2.56, lr=4.64e-5]Training:   7%|███████▋                                                                                                   | 106/1470 [10:54<3:08:46,  8.30s/it, loss=2.56, lr=4.64e-5]Training:   7%|███████▋                                                                                                   | 106/1470 [10:54<3:08:46,  8.30s/it, loss=2.49, lr=4.64e-5]Training:   7%|███████▊                                                                                                   | 107/1470 [10:59<2:49:08,  7.45s/it, loss=2.49, lr=4.64e-5]Training:   7%|███████▊                                                                                                    | 107/1470 [10:59<2:49:08,  7.45s/it, loss=2.5, lr=4.64e-5]Training:   7%|███████▉                                                                                                    | 108/1470 [11:05<2:36:06,  6.88s/it, loss=2.5, lr=4.64e-5]Training:   7%|███████▊                                                                                                   | 108/1470 [11:05<2:36:06,  6.88s/it, loss=2.57, lr=4.63e-5]Training:   7%|███████▉                                                                                                   | 109/1470 [11:10<2:26:44,  6.47s/it, loss=2.57, lr=4.63e-5]Training:   7%|███████▉                                                                                                   | 109/1470 [11:10<2:26:44,  6.47s/it, loss=2.52, lr=4.63e-5]Training:   7%|████████                                                                                                   | 110/1470 [11:16<2:19:51,  6.17s/it, loss=2.52, lr=4.63e-5]Training:   7%|████████                                                                                                   | 110/1470 [11:16<2:19:51,  6.17s/it, loss=2.48, lr=4.63e-5]Training:   8%|████████                                                                                                   | 111/1470 [11:21<2:14:40,  5.95s/it, loss=2.48, lr=4.63e-5]Training:   8%|████████                                                                                                   | 111/1470 [11:21<2:14:40,  5.95s/it, loss=2.46, lr=4.62e-5]Training:   8%|████████▏                                                                                                  | 112/1470 [11:27<2:11:01,  5.79s/it, loss=2.46, lr=4.62e-5]Training:   8%|████████▏                                                                                                  | 112/1470 [11:27<2:11:01,  5.79s/it, loss=2.56, lr=4.62e-5]Training:   8%|████████▏                                                                                                  | 113/1470 [11:32<2:09:31,  5.73s/it, loss=2.56, lr=4.62e-5]Training:   8%|████████▏                                                                                                  | 113/1470 [11:32<2:09:31,  5.73s/it, loss=2.59, lr=4.62e-5]Training:   8%|████████▎                                                                                                  | 114/1470 [11:38<2:08:36,  5.69s/it, loss=2.59, lr=4.62e-5]Training:   8%|████████▎                                                                                                  | 114/1470 [11:38<2:08:36,  5.69s/it, loss=2.54, lr=4.61e-5]Training:   8%|████████▎                                                                                                  | 115/1470 [11:43<2:06:38,  5.61s/it, loss=2.54, lr=4.61e-5]Training:   8%|████████▎                                                                                                  | 115/1470 [11:43<2:06:38,  5.61s/it, loss=2.51, lr=4.61e-5]Training:   8%|████████▍                                                                                                  | 116/1470 [11:49<2:05:41,  5.57s/it, loss=2.51, lr=4.61e-5]Training:   8%|████████▍                                                                                                  | 116/1470 [11:49<2:05:41,  5.57s/it, loss=2.61, lr=4.61e-5]Training:   8%|████████▌                                                                                                  | 117/1470 [11:54<2:04:49,  5.54s/it, loss=2.61, lr=4.61e-5]Training:   8%|████████▌                                                                                                   | 117/1470 [11:54<2:04:49,  5.54s/it, loss=2.53, lr=4.6e-5]Training:   8%|████████▋                                                                                                   | 118/1470 [12:00<2:04:28,  5.52s/it, loss=2.53, lr=4.6e-5]Training:   8%|████████▋                                                                                                   | 118/1470 [12:00<2:04:28,  5.52s/it, loss=2.53, lr=4.6e-5]Training:   8%|████████▋                                                                                                   | 119/1470 [12:05<2:03:51,  5.50s/it, loss=2.53, lr=4.6e-5]Training:   8%|████████▋                                                                                                   | 119/1470 [12:05<2:03:51,  5.50s/it, loss=2.53, lr=4.6e-5]Training:   8%|████████▊                                                                                                   | 120/1470 [12:11<2:03:46,  5.50s/it, loss=2.53, lr=4.6e-5]Training:   8%|████████▋                                                                                                  | 120/1470 [12:11<2:03:46,  5.50s/it, loss=2.59, lr=4.59e-5]Training:   8%|████████▊                                                                                                  | 121/1470 [12:16<2:04:19,  5.53s/it, loss=2.59, lr=4.59e-5]Training:   8%|████████▊                                                                                                  | 121/1470 [12:16<2:04:19,  5.53s/it, loss=2.52, lr=4.59e-5]Training:   8%|████████▉                                                                                                  | 122/1470 [12:22<2:04:13,  5.53s/it, loss=2.52, lr=4.59e-5]Training:   8%|████████▉                                                                                                  | 122/1470 [12:22<2:04:13,  5.53s/it, loss=2.54, lr=4.59e-5]Training:   8%|████████▉                                                                                                  | 123/1470 [12:27<2:03:54,  5.52s/it, loss=2.54, lr=4.59e-5]Training:   8%|████████▉                                                                                                  | 123/1470 [12:27<2:03:54,  5.52s/it, loss=2.46, lr=4.58e-5]Training:   8%|█████████                                                                                                  | 124/1470 [12:33<2:03:22,  5.50s/it, loss=2.46, lr=4.58e-5]Training:   8%|█████████                                                                                                  | 124/1470 [12:33<2:03:22,  5.50s/it, loss=2.53, lr=4.58e-5]Training:   9%|█████████                                                                                                  | 125/1470 [12:38<2:02:56,  5.48s/it, loss=2.53, lr=4.58e-5]Training:   9%|█████████                                                                                                  | 125/1470 [12:38<2:02:56,  5.48s/it, loss=2.56, lr=4.57e-5]Training:   9%|█████████▏                                                                                                 | 126/1470 [12:44<2:02:38,  5.47s/it, loss=2.56, lr=4.57e-5]Training:   9%|█████████▏                                                                                                 | 126/1470 [12:44<2:02:38,  5.47s/it, loss=2.48, lr=4.57e-5]Training:   9%|█████████▏                                                                                                 | 127/1470 [12:49<2:02:11,  5.46s/it, loss=2.48, lr=4.57e-5]Training:   9%|█████████▏                                                                                                 | 127/1470 [12:49<2:02:11,  5.46s/it, loss=2.52, lr=4.57e-5]Training:   9%|█████████▎                                                                                                 | 128/1470 [12:54<2:01:55,  5.45s/it, loss=2.52, lr=4.57e-5]Training:   9%|█████████▎                                                                                                 | 128/1470 [12:54<2:01:55,  5.45s/it, loss=2.55, lr=4.56e-5]Training:   9%|█████████▍                                                                                                 | 129/1470 [13:00<2:02:00,  5.46s/it, loss=2.55, lr=4.56e-5]Training:   9%|█████████▍                                                                                                  | 129/1470 [13:00<2:02:00,  5.46s/it, loss=2.5, lr=4.56e-5]Training:   9%|█████████▌                                                                                                  | 130/1470 [13:06<2:02:27,  5.48s/it, loss=2.5, lr=4.56e-5]Training:   9%|█████████▍                                                                                                 | 130/1470 [13:06<2:02:27,  5.48s/it, loss=2.55, lr=4.56e-5]Training:   9%|█████████▌                                                                                                 | 131/1470 [13:11<2:02:27,  5.49s/it, loss=2.55, lr=4.56e-5]Training:   9%|█████████▌                                                                                                 | 131/1470 [13:11<2:02:27,  5.49s/it, loss=2.56, lr=4.55e-5]Training:   9%|█████████▌                                                                                                 | 132/1470 [13:17<2:02:48,  5.51s/it, loss=2.56, lr=4.55e-5]Training:   9%|█████████▌                                                                                                 | 132/1470 [13:17<2:02:48,  5.51s/it, loss=2.54, lr=4.55e-5]Training:   9%|█████████▋                                                                                                 | 133/1470 [13:22<2:02:27,  5.50s/it, loss=2.54, lr=4.55e-5]Training:   9%|█████████▊                                                                                                  | 133/1470 [13:22<2:02:27,  5.50s/it, loss=2.6, lr=4.55e-5]Training:   9%|█████████▊                                                                                                  | 134/1470 [13:28<2:02:24,  5.50s/it, loss=2.6, lr=4.55e-5]Training:   9%|█████████▊                                                                                                 | 134/1470 [13:28<2:02:24,  5.50s/it, loss=2.53, lr=4.54e-5]Training:   9%|█████████▊                                                                                                 | 135/1470 [13:33<2:02:04,  5.49s/it, loss=2.53, lr=4.54e-5]Training:   9%|█████████▊                                                                                                 | 135/1470 [13:33<2:02:04,  5.49s/it, loss=2.52, lr=4.54e-5]Training:   9%|█████████▉                                                                                                 | 136/1470 [13:38<2:01:47,  5.48s/it, loss=2.52, lr=4.54e-5]Training:   9%|█████████▉                                                                                                 | 136/1470 [13:38<2:01:47,  5.48s/it, loss=2.49, lr=4.54e-5]Training:   9%|█████████▉                                                                                                 | 137/1470 [13:44<2:01:48,  5.48s/it, loss=2.49, lr=4.54e-5]Training:   9%|█████████▉                                                                                                 | 137/1470 [13:44<2:01:48,  5.48s/it, loss=2.52, lr=4.53e-5]Training:   9%|██████████                                                                                                 | 138/1470 [13:49<2:01:29,  5.47s/it, loss=2.52, lr=4.53e-5]Training:   9%|██████████                                                                                                 | 138/1470 [13:49<2:01:29,  5.47s/it, loss=2.55, lr=4.53e-5]Training:   9%|██████████                                                                                                 | 139/1470 [13:55<2:01:16,  5.47s/it, loss=2.55, lr=4.53e-5]Training:   9%|██████████                                                                                                 | 139/1470 [13:55<2:01:16,  5.47s/it, loss=2.57, lr=4.53e-5]Training:  10%|██████████▏                                                                                                | 140/1470 [14:00<2:01:08,  5.46s/it, loss=2.57, lr=4.53e-5]Training:  10%|██████████▏                                                                                                | 140/1470 [14:00<2:01:08,  5.46s/it, loss=2.54, lr=4.52e-5]Training:  10%|██████████▎                                                                                                | 141/1470 [14:06<2:00:59,  5.46s/it, loss=2.54, lr=4.52e-5]Training:  10%|██████████▎                                                                                                | 141/1470 [14:06<2:00:59,  5.46s/it, loss=2.48, lr=4.52e-5]Training:  10%|██████████▎                                                                                                | 142/1470 [14:11<2:00:43,  5.45s/it, loss=2.48, lr=4.52e-5]Training:  10%|██████████▎                                                                                                | 142/1470 [14:11<2:00:43,  5.45s/it, loss=2.49, lr=4.52e-5]Training:  10%|██████████▍                                                                                                | 143/1470 [14:17<2:01:04,  5.47s/it, loss=2.49, lr=4.52e-5]Training:  10%|██████████▍                                                                                                | 143/1470 [14:17<2:01:04,  5.47s/it, loss=2.57, lr=4.51e-5]Training:  10%|██████████▍                                                                                                | 144/1470 [14:22<2:00:39,  5.46s/it, loss=2.57, lr=4.51e-5]Training:  10%|██████████▍                                                                                                | 144/1470 [14:22<2:00:39,  5.46s/it, loss=2.54, lr=4.51e-5]Training:  10%|██████████▌                                                                                                | 145/1470 [14:28<2:00:28,  5.46s/it, loss=2.54, lr=4.51e-5]Training:  10%|██████████▌                                                                                                | 145/1470 [14:28<2:00:28,  5.46s/it, loss=2.44, lr=4.51e-5]Training:  10%|██████████▋                                                                                                | 146/1470 [14:33<2:00:04,  5.44s/it, loss=2.44, lr=4.51e-5]Training:  10%|██████████▋                                                                                                 | 146/1470 [14:33<2:00:04,  5.44s/it, loss=2.47, lr=4.5e-5]Training:  10%|██████████▊                                                                                                 | 147/1470 [14:38<1:59:52,  5.44s/it, loss=2.47, lr=4.5e-5]Training:  10%|██████████▊                                                                                                 | 147/1470 [14:38<1:59:52,  5.44s/it, loss=2.57, lr=4.5e-5]Training:  10%|██████████▊                                                                                                 | 148/1470 [14:44<2:00:01,  5.45s/it, loss=2.57, lr=4.5e-5]Training:  10%|██████████▊                                                                                                 | 148/1470 [14:44<2:00:01,  5.45s/it, loss=2.57, lr=4.5e-5]Training:  10%|██████████▉                                                                                                 | 149/1470 [14:49<2:00:16,  5.46s/it, loss=2.57, lr=4.5e-5]Training:  10%|██████████▊                                                                                                | 149/1470 [14:49<2:00:16,  5.46s/it, loss=2.49, lr=4.49e-5]Training:  10%|██████████▉                                                                                                | 150/1470 [14:55<2:00:20,  5.47s/it, loss=2.49, lr=4.49e-5]Training:  10%|██████████▉                                                                                                | 150/1470 [14:55<2:00:20,  5.47s/it, loss=2.55, lr=4.49e-5]Training:  10%|██████████▉                                                                                                | 151/1470 [15:00<2:00:19,  5.47s/it, loss=2.55, lr=4.49e-5]Training:  10%|██████████▉                                                                                                | 151/1470 [15:00<2:00:19,  5.47s/it, loss=2.54, lr=4.49e-5]Training:  10%|███████████                                                                                                | 152/1470 [15:06<1:59:59,  5.46s/it, loss=2.54, lr=4.49e-5]Training:  10%|███████████                                                                                                | 152/1470 [15:06<1:59:59,  5.46s/it, loss=2.47, lr=4.48e-5]Training:  10%|███████████▏                                                                                               | 153/1470 [15:11<2:00:07,  5.47s/it, loss=2.47, lr=4.48e-5]Training:  10%|███████████▏                                                                                               | 153/1470 [15:11<2:00:07,  5.47s/it, loss=2.49, lr=4.48e-5]Training:  10%|███████████▏                                                                                               | 154/1470 [15:17<1:59:35,  5.45s/it, loss=2.49, lr=4.48e-5]Training:  10%|███████████▏                                                                                               | 154/1470 [15:17<1:59:35,  5.45s/it, loss=2.46, lr=4.48e-5]Training:  11%|███████████▎                                                                                               | 155/1470 [15:22<1:59:21,  5.45s/it, loss=2.46, lr=4.48e-5]Training:  11%|███████████▎                                                                                               | 155/1470 [15:22<1:59:21,  5.45s/it, loss=2.57, lr=4.47e-5]Training:  11%|███████████▎                                                                                               | 156/1470 [15:28<1:59:40,  5.46s/it, loss=2.57, lr=4.47e-5]Training:  11%|███████████▎                                                                                               | 156/1470 [15:28<1:59:40,  5.46s/it, loss=2.51, lr=4.47e-5]Training:  11%|███████████▍                                                                                               | 157/1470 [15:33<1:59:51,  5.48s/it, loss=2.51, lr=4.47e-5]Training:  11%|███████████▍                                                                                               | 157/1470 [15:33<1:59:51,  5.48s/it, loss=2.56, lr=4.47e-5]Training:  11%|███████████▌                                                                                               | 158/1470 [15:39<1:59:44,  5.48s/it, loss=2.56, lr=4.47e-5]Training:  11%|███████████▌                                                                                               | 158/1470 [15:39<1:59:44,  5.48s/it, loss=2.46, lr=4.46e-5]Training:  11%|███████████▌                                                                                               | 159/1470 [15:44<1:59:19,  5.46s/it, loss=2.46, lr=4.46e-5]Training:  11%|███████████▌                                                                                               | 159/1470 [15:44<1:59:19,  5.46s/it, loss=2.58, lr=4.46e-5]Training:  11%|███████████▋                                                                                               | 160/1470 [15:49<1:59:07,  5.46s/it, loss=2.58, lr=4.46e-5]Training:  11%|███████████▋                                                                                               | 160/1470 [15:49<1:59:07,  5.46s/it, loss=2.47, lr=4.46e-5]Training:  11%|███████████▋                                                                                               | 161/1470 [15:55<1:58:56,  5.45s/it, loss=2.47, lr=4.46e-5]Training:  11%|███████████▋                                                                                               | 161/1470 [15:55<1:58:56,  5.45s/it, loss=2.51, lr=4.45e-5]Training:  11%|███████████▊                                                                                               | 162/1470 [16:00<1:58:39,  5.44s/it, loss=2.51, lr=4.45e-5]Training:  11%|███████████▊                                                                                               | 162/1470 [16:00<1:58:39,  5.44s/it, loss=2.44, lr=4.45e-5]Training:  11%|███████████▊                                                                                               | 163/1470 [16:06<1:59:30,  5.49s/it, loss=2.44, lr=4.45e-5]Training:  11%|███████████▊                                                                                               | 163/1470 [16:06<1:59:30,  5.49s/it, loss=2.54, lr=4.45e-5]Training:  11%|███████████▉                                                                                               | 164/1470 [16:11<1:59:40,  5.50s/it, loss=2.54, lr=4.45e-5]Training:  11%|███████████▉                                                                                               | 164/1470 [16:11<1:59:40,  5.50s/it, loss=2.53, lr=4.44e-5]Training:  11%|████████████                                                                                               | 165/1470 [16:17<2:00:07,  5.52s/it, loss=2.53, lr=4.44e-5]Training:  11%|████████████                                                                                               | 165/1470 [16:17<2:00:07,  5.52s/it, loss=2.52, lr=4.44e-5]Training:  11%|████████████                                                                                               | 166/1470 [16:23<1:59:37,  5.50s/it, loss=2.52, lr=4.44e-5]Training:  11%|████████████                                                                                               | 166/1470 [16:23<1:59:37,  5.50s/it, loss=2.46, lr=4.44e-5]Training:  11%|████████████▏                                                                                              | 167/1470 [16:28<1:59:01,  5.48s/it, loss=2.46, lr=4.44e-5]Training:  11%|████████████▏                                                                                              | 167/1470 [16:28<1:59:01,  5.48s/it, loss=2.46, lr=4.43e-5]Training:  11%|████████████▏                                                                                              | 168/1470 [16:33<1:58:34,  5.46s/it, loss=2.46, lr=4.43e-5]Training:  11%|████████████▏                                                                                              | 168/1470 [16:33<1:58:34,  5.46s/it, loss=2.49, lr=4.43e-5]Training:  11%|████████████▎                                                                                              | 169/1470 [16:39<1:57:50,  5.43s/it, loss=2.49, lr=4.43e-5]Training:  11%|████████████▍                                                                                               | 169/1470 [16:39<1:57:50,  5.43s/it, loss=2.5, lr=4.43e-5]Training:  12%|████████████▍                                                                                               | 170/1470 [16:44<1:58:41,  5.48s/it, loss=2.5, lr=4.43e-5]Training:  12%|████████████▎                                                                                              | 170/1470 [16:44<1:58:41,  5.48s/it, loss=2.42, lr=4.42e-5]Training:  12%|████████████▍                                                                                              | 171/1470 [16:50<1:58:40,  5.48s/it, loss=2.42, lr=4.42e-5]Training:  12%|████████████▌                                                                                               | 171/1470 [16:50<1:58:40,  5.48s/it, loss=2.5, lr=4.42e-5]Training:  12%|████████████▋                                                                                               | 172/1470 [16:55<1:59:09,  5.51s/it, loss=2.5, lr=4.42e-5]Training:  12%|████████████▌                                                                                              | 172/1470 [16:55<1:59:09,  5.51s/it, loss=2.47, lr=4.41e-5]Training:  12%|████████████▌                                                                                              | 173/1470 [17:01<1:59:19,  5.52s/it, loss=2.47, lr=4.41e-5]Training:  12%|████████████▌                                                                                              | 173/1470 [17:01<1:59:19,  5.52s/it, loss=2.55, lr=4.41e-5]Training:  12%|████████████▋                                                                                              | 174/1470 [17:06<1:58:32,  5.49s/it, loss=2.55, lr=4.41e-5]Training:  12%|████████████▋                                                                                              | 174/1470 [17:06<1:58:32,  5.49s/it, loss=2.54, lr=4.41e-5]Training:  12%|████████████▋                                                                                              | 175/1470 [17:12<1:58:04,  5.47s/it, loss=2.54, lr=4.41e-5]Training:  12%|████████████▊                                                                                               | 175/1470 [17:12<1:58:04,  5.47s/it, loss=2.53, lr=4.4e-5]Training:  12%|████████████▉                                                                                               | 176/1470 [17:17<1:57:53,  5.47s/it, loss=2.53, lr=4.4e-5]Training:  12%|████████████▉                                                                                               | 176/1470 [17:17<1:57:53,  5.47s/it, loss=2.43, lr=4.4e-5]Training:  12%|█████████████                                                                                               | 177/1470 [17:23<1:57:40,  5.46s/it, loss=2.43, lr=4.4e-5]Training:  12%|█████████████                                                                                               | 177/1470 [17:23<1:57:40,  5.46s/it, loss=2.43, lr=4.4e-5]Training:  12%|█████████████                                                                                               | 178/1470 [17:28<1:57:58,  5.48s/it, loss=2.43, lr=4.4e-5]Training:  12%|█████████████                                                                                               | 178/1470 [17:28<1:57:58,  5.48s/it, loss=2.5, lr=4.39e-5]Training:  12%|█████████████▏                                                                                              | 179/1470 [17:34<1:57:17,  5.45s/it, loss=2.5, lr=4.39e-5]Training:  12%|█████████████                                                                                              | 179/1470 [17:34<1:57:17,  5.45s/it, loss=2.49, lr=4.39e-5]Training:  12%|█████████████                                                                                              | 180/1470 [17:39<1:57:07,  5.45s/it, loss=2.49, lr=4.39e-5]Training:  12%|█████████████                                                                                              | 180/1470 [17:39<1:57:07,  5.45s/it, loss=2.45, lr=4.39e-5]Training:  12%|█████████████▏                                                                                             | 181/1470 [17:44<1:57:00,  5.45s/it, loss=2.45, lr=4.39e-5]Training:  12%|█████████████▏                                                                                             | 181/1470 [17:44<1:57:00,  5.45s/it, loss=2.42, lr=4.38e-5]Training:  12%|█████████████▏                                                                                             | 182/1470 [17:50<1:57:16,  5.46s/it, loss=2.42, lr=4.38e-5]Training:  12%|█████████████▎                                                                                              | 182/1470 [17:50<1:57:16,  5.46s/it, loss=2.5, lr=4.38e-5]Training:  12%|█████████████▍                                                                                              | 183/1470 [17:55<1:57:26,  5.48s/it, loss=2.5, lr=4.38e-5]Training:  12%|█████████████▎                                                                                             | 183/1470 [17:55<1:57:26,  5.48s/it, loss=2.42, lr=4.38e-5]
