@@ -5,7 +5,11 @@ echo $currentDate
 start=`date +%s`
 echo "= = = = = = = = = = = = = ="
 
+<<<<<<< HEAD
 CUDA_VISIBLE_DEVICES=1 python3 train.py \
+=======
+python3 train.py \
+>>>>>>> 6e853645852d57b863d5a943603a6d2790272d61
     --len_input 'topic-length' \
     --len_output 'no' \
     --output_dir ./output/bart-topic-length-cosine-negative-prompt-tagger-margin \
