@@ -384,10 +384,10 @@ def data_processor(logger, args, accelerator, raw_datasets, tokenizer, model):
         # summary - target
         if args.contrastive_loss:
             targets = examples[summary_column]
-            # negative_decoders = examples['negative_summary']
+            negative_decoders = examples['negative_summary']
             with tokenizer.as_target_tokenizer():
                 labels = tokenizer(targets, max_length=max_target_length, padding=padding, truncation=True)
-                # negative_model_decoders = tokenizer(negative_decoders, max_length=max_target_length, padding=padding, truncation=True)
+                negative_model_decoders = tokenizer(negative_decoders, max_length=max_target_length, padding=padding, truncation=True)
         else:
             targets = examples[summary_column]
             with tokenizer.as_target_tokenizer():
@@ -410,9 +410,9 @@ def data_processor(logger, args, accelerator, raw_datasets, tokenizer, model):
                 labels["input_ids"] = [
                     [(l if l != tokenizer.pad_token_id else -100) for l in label] for label in labels["input_ids"]
                 ]
-                # negative_model_decoders["input_ids"] = [
-                #     [(l if l != tokenizer.pad_token_id else -100) for l in negative_model_decoder] for negative_model_decoder in negative_model_decoders["input_ids"]
-                # ]
+                negative_model_decoders["input_ids"] = [
+                    [(l if l != tokenizer.pad_token_id else -100) for l in negative_model_decoder] for negative_model_decoder in negative_model_decoders["input_ids"]
+                ]
         else:
             if padding == "max_length" and args.ignore_pad_token_for_loss:
                 labels["input_ids"] = [
@@ -421,7 +421,7 @@ def data_processor(logger, args, accelerator, raw_datasets, tokenizer, model):
         if args.contrastive_loss:
             model_inputs["negative_input_ids"] = negative_model_inputs["input_ids"]
             model_inputs["labels"] = labels["input_ids"]
-            # model_inputs["negative_labels"] = negative_model_decoders["input_ids"]
+            model_inputs["negative_labels"] = negative_model_decoders["input_ids"]
         else: 
             model_inputs["labels"] = labels["input_ids"]
 
@@ -485,8 +485,8 @@ def data_processor(logger, args, accelerator, raw_datasets, tokenizer, model):
         #     train_dataloader = DataLoader(train_dataset, shuffle=True, collate_fn=decoder_data_collator, batch_size=args.per_device_train_batch_size)
         # else:
         #     train_dataloader = DataLoader(train_dataset, shuffle=True, collate_fn=data_collator, batch_size=args.per_device_train_batch_size)
-        # train_dataloader = DataLoader(train_dataset, shuffle=True, collate_fn=decoder_data_collator, batch_size=args.per_device_train_batch_size)
-        train_dataloader = DataLoader(train_dataset, shuffle=True, collate_fn=data_collator, batch_size=args.per_device_train_batch_size)
+        train_dataloader = DataLoader(train_dataset, shuffle=True, collate_fn=decoder_data_collator, batch_size=args.per_device_train_batch_size)
+        # train_dataloader = DataLoader(train_dataset, shuffle=True, collate_fn=data_collator, batch_size=args.per_device_train_batch_size)
         eval_dataloader = DataLoader(eval_dataset, collate_fn=valid_data_collator, batch_size=args.per_device_eval_batch_size)
         test_dataloader = DataLoader(test_dataset, collate_fn=valid_data_collator, batch_size=args.per_device_test_batch_size)
     else:

@@ -201,18 +201,25 @@ def main():
                     
                     if args.contrastive_loss:
 
-                        max_encoder_token = batch['input_ids'].shape[1]
+                        # max_encoder_token = batch['input_ids'].shape[1]
+                        max_encoder_token = model.module.config.max_position_embeddings
                         divide_num = int(output_probs.shape[0] / 2)
                         
-                        positive_embeddings = outputs.encoder_last_hidden_state[:divide_num,:,:max_encoder_token]
-                        negative_embeddings = outputs.encoder_last_hidden_state[divide_num:,:,:max_encoder_token]
-                        positive_embeddings = positive_embeddings.view(-1, max_encoder_token)
-                        negative_embeddings = negative_embeddings.view(-1, max_encoder_token)
-                        contrastive = -1 * torch.ones(positive_embeddings.size(dim=0)).to(device)
+                        # positive_embeddings = outputs.encoder_last_hidden_state[:divide_num,:,:max_encoder_token]
+                        # negative_embeddings = outputs.encoder_last_hidden_state[divide_num:,:,:max_encoder_token]
+                        positive_embeddings_encoder = outputs.encoder_last_hidden_state[:divide_num,:,:]
+                        negative_embeddings_encoder = outputs.encoder_last_hidden_state[divide_num:,:,:]
+                        positive_embeddings_encoder = positive_embeddings_encoder.view(-1, max_encoder_token)
+                        negative_embeddings_encoder = negative_embeddings_encoder.view(-1, max_encoder_token)
+                        positive_embeddings_decoder = outputs.decoder_hidden_states [-1][:divide_num,:,:]
+                        negative_embeddings_decoder = outputs.decoder_hidden_states [-1][divide_num:,:,:]
+                        positive_embeddings_decoder = positive_embeddings_decoder.view(-1, max_encoder_token)
+                        negative_embeddings_decoder = negative_embeddings_decoder.view(-1, max_encoder_token)
+                        contrastive_encoder = -1 * torch.ones(positive_embeddings_encoder.size(dim=0)).to(device)
+                        contrastive_decoder = -1 * torch.ones(positive_embeddings_decoder.size(dim=0)).to(device)
     
-                        model.module.config.max_position_embeddings
-    
-                        loss_cs = cosine_embedding_loss(positive_embeddings, negative_embeddings, contrastive)
+                        loss_cs_encoder = cosine_embedding_loss(positive_embeddings_encoder, negative_embeddings_encoder, contrastive_encoder)
+                        loss_cs_decoder = cosine_embedding_loss(positive_embeddings_decoder, negative_embeddings_decoder, contrastive_decoder)
                         
                         output_probs_pos = output_probs[:divide_num,:,:]
                         output_probs_pos = output_probs_pos.view(-1,
@@ -235,7 +242,7 @@ def main():
                         #                                           gt_logits, target_one, ignore_index=tokenizer.pad_token_id)
                         # print(f"margin_ranking_loss: {loss_margin_ranking}")
                         
-                        loss = loss_nll + (args.alpha * loss_cs)
+                        loss = loss_nll + (args.alpha * loss_cs_encoder) + (args.alpha * loss_cs_decoder)
                         # loss = loss_nll + (args.alpha * loss_cs) + (args.alpha * loss_mr)
                         
                     else:

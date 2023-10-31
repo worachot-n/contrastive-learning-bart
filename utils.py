@@ -231,7 +231,7 @@ def len_adjust(args, split_dict, split_type=None):
             'dialogue': new_dialogue_list,
             'negative_dialogue': new_negative_dialogue_list,
             'summary': new_summary_list,
-            # 'negative_summary': new_negative_summary_list,
+            'negative_summary': new_negative_summary_list,
             'topic': topic_list,
             'negative_topic': negative_topic_list,
         }

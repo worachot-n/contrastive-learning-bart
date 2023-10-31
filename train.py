@@ -201,16 +201,17 @@ def main():
                     
                     if args.contrastive_loss:
 
-                        max_encoder_token = batch['input_ids'].shape[1]
+                        # max_encoder_token = batch['input_ids'].shape[1]
+                        max_encoder_token = model.config.max_position_embeddings
                         divide_num = int(output_probs.shape[0] / 2)
                         
-                        positive_embeddings = outputs.encoder_last_hidden_state[:divide_num,:,:max_encoder_token]
-                        negative_embeddings = outputs.encoder_last_hidden_state[divide_num:,:,:max_encoder_token]
+                        # positive_embeddings = outputs.encoder_last_hidden_state[:divide_num,:,:max_encoder_token]
+                        # negative_embeddings = outputs.encoder_last_hidden_state[divide_num:,:,:max_encoder_token]
+                        positive_embeddings = outputs.encoder_last_hidden_state[:divide_num,:,:]
+                        negative_embeddings = outputs.encoder_last_hidden_state[divide_num:,:,:]
                         positive_embeddings = positive_embeddings.view(-1, max_encoder_token)
                         negative_embeddings = negative_embeddings.view(-1, max_encoder_token)
                         contrastive = -1 * torch.ones(positive_embeddings.size(dim=0)).to(device)
-    
-                        model.config.max_position_embeddings
     
                         loss_cs = cosine_embedding_loss(positive_embeddings, negative_embeddings, contrastive)
                         
