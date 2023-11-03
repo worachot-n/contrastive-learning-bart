@@ -91,9 +91,9 @@ def load_from_dialogsum(args, file_path, split_type=None):
                     positive_topic_list.append(' '.join(positive_topic))
                 if args.negative_gen:
                     random_topic = topic_set.difference(set([topic]))
-                    negative_topic = random.sample(list(random_topic), args.negative_sample)
+                    # negative_topic = random.sample(list(random_topic), args.negative_sample)
+                    negative_topic = random.choice(list(random_topic))
                     negative_topic_list.append(negative_topic)
-                    data_dict['negative_topic'] = negative_topic_list
             if args.postive_gen:
                 data_dict['positive_topic'] = positive_topic_list
             if args.negative_gen:
@@ -124,12 +124,9 @@ def load_from_dialogsum(args, file_path, split_type=None):
                 data_dict['positive_dialogue'] = positive_topic_tagger        
             if args.negative_gen:
                 for i in range(len(lemmatized_tokens)):
-                    negative_tagger_list = []
-                    for j in range(len(negative_topic_list)):
-                        tagger = build_tagger(original_tokens, lemmatized_tokens, negative_topic_list[i][j], i)
-                        negative_tagger_list.extend(tagger)
-                negative_topic_tagger.append(negative_tagger_list)
-                data_dict['negative_dialogue'] = negative_topic_tagger
+                    tagger = build_tagger(original_tokens, lemmatized_tokens, negative_topic_list[i], i)
+                    negative_tagger_list.extend(tagger)
+                data_dict['negative_dialogue'] = negative_topic_tagger   
         else:
             # data_dict['dialogue'] = dialogue_list
             data_dict['dialogue'] = []
@@ -184,18 +181,20 @@ class CustomWithNegativeDataCollator:
             negative_labels = [feature['negative_labels'] for feature in features]
         else: 
             None
-        if "negative_labels_0" in features[0].keys():
-            negative_labels_dict = {}
-            negative_labels = [feature['negative_labels'] for feature in features]
+        # if "negative_labels_0" in features[0].keys():
+        #     negative_labels_dict = {}
+        #     negative_labels = [feature['negative_labels'] for feature in features]
             
+        # else: 
+        #     None
+        if "positive_inputs" in features[0].keys():
+            positive_inputs = [np.array(feature['positive_inputs']) for feature in features]
         else: 
             None
-
-        positive_inputs = [np.array(feature['positive_inputs']) for feature in features] if "positive_inputs" in features[0].keys() else None
-
-        
-        
-        negative_input_0 = [np.array(feature['negative_input_ids_0']) for feature in features]
+        if "negative_inputs" in features[0].keys():
+            negative_inputs = [np.array(feature['negative_inputs']) for feature in features]
+        else: 
+            None
         # negative_input_1 = [np.array(feature['negative_input_ids_1']) for feature in features]
         # negative_input_2 = [np.array(feature['negative_input_ids_2']) for feature in features]
         
@@ -212,33 +211,108 @@ class CustomWithNegativeDataCollator:
             for feature in features:
                 
                 remainder = [self.label_pad_token_id] * (max_label_length - len(feature["labels"]))
+                if "positive_labels" in features[0].keys():
+                    remainder_positive = [self.label_pad_token_id] * (max_label_length - len(feature["positive_labels"]))
+                if "negative_labels" in features[0].keys():
+                    remainder_negative = [self.label_pad_token_id] * (max_label_length - len(feature["negative_labels"]))
                 if isinstance(feature["labels"], list):
                     feature["labels"] = (
                         feature["labels"] + remainder if padding_side == "right" else remainder + feature["labels"]
                     )
+                    if "positive_labels" in features[0].keys():
+                        feature["positive_labels"] = (
+                            feature["positive_labels"] + remainder_positive if padding_side == "right" else remainder_positive + feature["positive_labels"]
+                        )
+                    if "negative_labels" in features[0].keys():
+                        feature["negative_labels"] = (
+                            feature["negative_labels"] + remainder_negative if padding_side == "right" else remainder_negative + feature["negative_labels"]
+                        )
                 elif padding_side == "right":
                     feature["labels"] = np.concatenate([feature["labels"], remainder]).astype(np.int64)
+                    if "positive_labels" in features[0].keys():
+                        feature["positive_labels"] = np.concatenate([feature["positive_labels"], remainder_positive]).astype(np.int64)
+                    if "negative_labels" in features[0].keys():
+                        feature["negative_labels"] = np.concatenate([feature["negative_labels"], remainder_negative]).astype(np.int64)
                 else:
                     feature["labels"] = np.concatenate([remainder, feature["labels"]]).astype(np.int64)
+                    if "positive_labels" in features[0].keys():
+                        feature["positive_labels"] = np.concatenate([remainder_positive, feature["positive_labels"]]).astype(np.int64)
+                    if "negative_labels" in features[0].keys():
+                        feature["negative_labels"] = np.concatenate([remainder_negative, feature["negative_labels"]]).astype(np.int64)
         
         new_labels = [feature["labels"] for feature in features]
-        
+        if "positive_labels" in features[0].keys():
+            new_positive_labels = [feature["positive_labels"] for feature in features]
+        if "negative_labels" in features[0].keys():
+            new_negative_labels = [feature["negative_labels"] for feature in features]
         # print(len(features))
-        stack_features = self.tokenizer.pad(
-            {"input_ids": input+positive_input+negative_input_0},
-            padding=self.padding,
-            max_length=self.max_length,
-            pad_to_multiple_of=self.pad_to_multiple_of,
-            return_tensors=return_tensors,
-        )
-        
-        stack_features["labels"] = self.tokenizer.pad(
-            {"input_ids": new_labels+new_labels+new_labels},
-            padding=self.padding,
-            max_length=self.max_length,
-            pad_to_multiple_of=self.pad_to_multiple_of,
-            return_tensors=return_tensors,
-        )["input_ids"]
+
+        if "positive_inputs" in features[0].keys() and "negative_inputs" not in features[0].keys():
+            stack_features = self.tokenizer.pad(
+                {"input_ids": input+positive_inputs},
+                padding=self.padding,
+                max_length=self.max_length,
+                pad_to_multiple_of=self.pad_to_multiple_of,
+                return_tensors=return_tensors,
+            )
+        elif "positive_inputs" not in features[0].keys() and "negative_inputs" in features[0].keys():
+            stack_features = self.tokenizer.pad(
+                {"input_ids": input+negative_inputs},
+                padding=self.padding,
+                max_length=self.max_length,
+                pad_to_multiple_of=self.pad_to_multiple_of,
+                return_tensors=return_tensors,
+            )
+        elif "positive_inputs" in features[0].keys() and "negative_inputs" in features[0].keys():
+            stack_features = self.tokenizer.pad(
+                {"input_ids": input+positive_inputs+negative_inputs},
+                padding=self.padding,
+                max_length=self.max_length,
+                pad_to_multiple_of=self.pad_to_multiple_of,
+                return_tensors=return_tensors,
+            )
+        else:
+            stack_features = self.tokenizer.pad(
+                {"input_ids": input},
+                padding=self.padding,
+                max_length=self.max_length,
+                pad_to_multiple_of=self.pad_to_multiple_of,
+                return_tensors=return_tensors,
+            )
+
+        if "positive_labels" in features[0].keys() and "negative_labels" not in features[0].keys():
+            stack_features["labels"] = self.tokenizer.pad(
+                {"input_ids": new_labels+positive_labels},
+                padding=self.padding,
+                max_length=self.max_length,
+                pad_to_multiple_of=self.pad_to_multiple_of,
+                return_tensors=return_tensors,
+            )["input_ids"]
+        elif "positive_labels" not in features[0].keys() and "negative_labels" in features[0].keys():
+            stack_features["labels"] = self.tokenizer.pad(
+                {"input_ids": new_labels+negative_labels},
+                padding=self.padding,
+                max_length=self.max_length,
+                pad_to_multiple_of=self.pad_to_multiple_of,
+                return_tensors=return_tensors,
+            )["input_ids"]
+        elif "positive_labels" in features[0].keys() and "negative_labels" in features[0].keys():
+            stack_features["labels"] = self.tokenizer.pad(
+                {"input_ids": new_labels+positive_labels+negative_labels},
+                padding=self.padding,
+                max_length=self.max_length,
+                pad_to_multiple_of=self.pad_to_multiple_of,
+                return_tensors=return_tensors,
+            )["input_ids"]
+        else:
+            
+            stack_features["labels"] = self.tokenizer.pad(
+                {"input_ids": new_labels},
+                padding=self.padding,
+                max_length=self.max_length,
+                pad_to_multiple_of=self.pad_to_multiple_of,
+                return_tensors=return_tensors,
+            )["input_ids"]
         
         # prepare decoder_input_ids
         if (
@@ -295,7 +369,7 @@ class CustomDataCollator:
         
         # print(len(features))
         stack_features = self.tokenizer.pad(
-            {"input_ids": positive_input},
+            {"input_ids": input},
             padding=self.padding,
             max_length=self.max_length,
             pad_to_multiple_of=self.pad_to_multiple_of,
@@ -337,17 +411,17 @@ def data_processor(logger, args, accelerator, raw_datasets, tokenizer, model):
                         labels_postive = tokenizer(targets_postive, max_length=max_target_length, padding=padding, truncation=True)
                 if args.negative_gen:
                     targets_negative = examples['negative_prompt']
-                    if args.negative_sample == 1:
-                        with tokenizer.as_target_tokenizer():
-                            labels_negative = tokenizer(targets_negative, max_length=max_target_length, padding=padding, truncation=True)
-                    else:
-                        labels_negative_list = []
-                        for num in range(args.negative_sample):
-                            key_summary_name = 'negative_summary_' + str(num)
-                            targets_negative = examples[key_summary_name]
-                            with tokenizer.as_target_tokenizer():
-                                labels_negative = tokenizer(targets_negative, max_length=max_target_length, padding=padding, truncation=True)
-                            labels_negative_list.append(labels_negative)
+                    # if args.negative_sample == 1:
+                    with tokenizer.as_target_tokenizer():
+                        labels_negative = tokenizer(targets_negative, max_length=max_target_length, padding=padding, truncation=True)
+                    # else:
+                    #     labels_negative_list = []
+                    #     for num in range(args.negative_sample):
+                    #         key_summary_name = 'negative_summary_' + str(num)
+                    #         targets_negative = examples[key_summary_name]
+                    #         with tokenizer.as_target_tokenizer():
+                    #             labels_negative = tokenizer(targets_negative, max_length=max_target_length, padding=padding, truncation=True)
+                    #         labels_negative_list.append(labels_negative)
 
         else:
             targets = examples[summary_column]
@@ -363,16 +437,16 @@ def data_processor(logger, args, accelerator, raw_datasets, tokenizer, model):
                 positive_inputs = examples['positive_prompt']
                 positive_model_inputs = tokenizer(positive_inputs, max_length=args.max_source_length, padding=padding, truncation=True)
             if args.negative_gen:
-                if args.negative_sample == 1:
-                    negative_inputs = examples['negative_prompt']
-                    negative_model_inputs = tokenizer(negative_inputs, max_length=args.max_source_length, padding=padding, truncation=True)
-                else:
-                    negative_model_inputs_list = []
-                    for num in range(args.negative_sample):
-                        key_prompt_name = 'negative_prompt_' + str(num)
-                        negative_inputs = examples[key_prompt_name]
-                        negative_model_inputs = tokenizer(negative_inputs, max_length=args.max_source_length, padding=padding, truncation=True)
-                        negative_model_inputs_list.append(negative_model_inputs)
+                # if args.negative_sample == 1:
+                negative_inputs = examples['negative_prompt']
+                negative_model_inputs = tokenizer(negative_inputs, max_length=args.max_source_length, padding=padding, truncation=True)
+                # else:
+                #     negative_model_inputs_list = []
+                #     for num in range(args.negative_sample):
+                #         key_prompt_name = 'negative_prompt_' + str(num)
+                #         negative_inputs = examples[key_prompt_name]
+                #         negative_model_inputs = tokenizer(negative_inputs, max_length=args.max_source_length, padding=padding, truncation=True)
+                #         negative_model_inputs_list.append(negative_model_inputs)
 
         # If we are padding here, replace all tokenizer.pad_token_id in the labels by -100 when we want to ignore
         # padding in the loss.
@@ -383,11 +457,11 @@ def data_processor(logger, args, accelerator, raw_datasets, tokenizer, model):
                     if args.postive_gen:
                         labels_postive["input_ids"] = [[(l if l != tokenizer.pad_token_id else -100) for l in label] for label in labels_postive["input_ids"]]
                     if args.negative_gen:
-                        if args.negative_sample == 1:
-                            labels_negative["input_ids"] = [[(l if l != tokenizer.pad_token_id else -100) for l in label] for label in labels_negative["input_ids"]]
-                        else:
-                            for num in range(args.negative_sample):
-                                labels_negative_list[num]["input_ids"] = [[(l if l != tokenizer.pad_token_id else -100) for l in label] for label in labels_negative_list[num]["input_ids"]]
+                        # if args.negative_sample == 1:
+                        labels_negative["input_ids"] = [[(l if l != tokenizer.pad_token_id else -100) for l in label] for label in labels_negative["input_ids"]]
+                        # else:
+                        #     for num in range(args.negative_sample):
+                        #         labels_negative_list[num]["input_ids"] = [[(l if l != tokenizer.pad_token_id else -100) for l in label] for label in labels_negative_list[num]["input_ids"]]
         else:
             if padding == "max_length" and args.ignore_pad_token_for_loss:
                 labels["input_ids"] = [
@@ -401,17 +475,17 @@ def data_processor(logger, args, accelerator, raw_datasets, tokenizer, model):
                 if args.topic_prompt_output or args.length_prompt_output:
                     model_inputs["positive_labels"] = labels_postive["input_ids"]
             if args.negative_gen:
-                if args.negative_sample == 1:
-                    model_inputs["negative_inputs"] = negative_model_inputs["input_ids"]
-                    if args.topic_prompt_output or args.length_prompt_output:
-                        model_inputs["negative_labels"] = labels_negative["input_ids"]
-                else:
-                    for num in range(args.negative_sample):
-                        key_model_inputs = 'negative_inputs_ids_' + str(num)
-                        model_inputs[key_model_inputs] = negative_model_inputs_list[num]["input_ids"]
-                        if args.topic_prompt_output or args.length_prompt_output:
-                            key_model_inputs_labels = 'negative_labels_ids_' + str(num)
-                            model_inputs[key_model_inputs_labels] = labels_negative_list[num]["input_ids"]
+                # if args.negative_sample == 1:
+                model_inputs["negative_inputs"] = negative_model_inputs["input_ids"]
+                if args.topic_prompt_output or args.length_prompt_output:
+                    model_inputs["negative_labels"] = labels_negative["input_ids"]
+                # else:
+                #     for num in range(args.negative_sample):
+                #         key_model_inputs = 'negative_inputs_ids_' + str(num)
+                #         model_inputs[key_model_inputs] = negative_model_inputs_list[num]["input_ids"]
+                #         if args.topic_prompt_output or args.length_prompt_output:
+                #             key_model_inputs_labels = 'negative_labels_ids_' + str(num)
+                #             model_inputs[key_model_inputs_labels] = labels_negative_list[num]["input_ids"]
         else: 
             model_inputs["labels"] = labels["input_ids"]
 

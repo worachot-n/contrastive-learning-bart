@@ -67,9 +67,7 @@ def len_adjust(args, split_dict, split_type=None):
                 negative_dialogue_list = split_dict['negative_dialogue']
             else:
                 negative_dialogue_list = dialogue_list
-                negative_dialogue_list = dialogue_list
         else:
-            negative_topic_list = topic_list
             negative_topic_list = topic_list
     
     new_prompt_list = []
@@ -175,20 +173,20 @@ def len_adjust(args, split_dict, split_type=None):
             split_dict['positive_summary'] = new_positive_summary_list
     
     if args.negative_gen:
-        if args.negative_sample == 1:
-            split_dict['negative_prompt'] = new_negative_prompt_list[0]
-            split_dict['negative_topic'] = negative_topic_list[0]
-            if args.topic_prompt_output or args.length_prompt_output:
-                split_dict['negative_summary'] = new_negative_summary_list
-        else:
-            for num in range(args.negative_sample):
-                key_prompt_name = 'negative_prompt_' + str(num)
-                key_topic_name = 'negative_topic_' + str(num)
-                split_dict[key_prompt_name] = [prompt[num] for prompt in new_negative_prompt_lists]
-                split_dict[key_topic_name] = [topic[num] for topic in negative_topic_list]
-                if args.topic_prompt_output or args.length_prompt_output:
-                    key_summary_name = 'negative_summary_' + str(num)
-                    split_dict[key_summary_name] = [summary[num] for summary in new_negative_summary_lists]
+        # if args.negative_sample == 1:
+        split_dict['negative_prompt'] = new_negative_prompt_list
+        split_dict['negative_topic'] = negative_topic_list
+        if args.topic_prompt_output or args.length_prompt_output:
+            split_dict['negative_summary'] = new_negative_summary_list
+        # else:
+        #     for num in range(args.negative_sample):
+        #         key_prompt_name = 'negative_prompt_' + str(num)
+        #         key_topic_name = 'negative_topic_' + str(num)
+        #         split_dict[key_prompt_name] = [prompt[num] for prompt in new_negative_prompt_lists]
+        #         split_dict[key_topic_name] = [topic[num] for topic in negative_topic_list]
+        #         if args.topic_prompt_output or args.length_prompt_output:
+        #             key_summary_name = 'negative_summary_' + str(num)
+        #             split_dict[key_summary_name] = [summary[num] for summary in new_negative_summary_lists]
 
     split_dict = Dataset.from_dict(split_dict)
 

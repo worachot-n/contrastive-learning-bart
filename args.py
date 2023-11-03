@@ -108,8 +108,8 @@ def parse_args():
                             default=False, help="Generate positive topic")
     arg_parser.add_argument("--negative_gen", dest="negative_gen", type=bool,
                             default=False, help="Generate negative topic")
-    arg_parser.add_argument("--negative_sample", dest="negative_sample", type=int,
-                            default=1, help="The number of negative sample")
+    # arg_parser.add_argument("--negative_sample", dest="negative_sample", type=int,
+    #                         default=1, help="The number of negative sample")
     arg_parser.add_argument("--alpha", dest="alpha", type=float,
                             default=0.5, help="ration of computation loss in encoder")
     arg_parser.add_argument("--beta", dest="alpha", type=float,
