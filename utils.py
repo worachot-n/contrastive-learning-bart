@@ -2,13 +2,12 @@ import json
 import math
 
 from tqdm import tqdm
+from datasets import Dataset
 from collections import Counter
 
 import nltk
 from nltk.util import ngrams
 from nltk import word_tokenize, sent_tokenize
-
-from datasets import Dataset
 
 
 def label_smoothed_nll_loss(lprobs, target, epsilon, ignore_index=-100):
@@ -16,7 +15,6 @@ def label_smoothed_nll_loss(lprobs, target, epsilon, ignore_index=-100):
         loss with label smoothing
         from fairseq, edit by Bin
     '''
-
     lprobs = lprobs[~target.eq(-100)]
     target = target[~target.eq(-100)]
 
@@ -50,199 +48,147 @@ def postprocess_text(preds, labels):
 
 
 def len_adjust(args, split_dict, split_type=None):
-    ''' add length to the input '''
-
     id_list = split_dict['id']
     dialogue_list = split_dict['dialogue']
     summary_list = split_dict['summary']
     topic_list = split_dict['topic']
-    if args.contrastive_loss and not args.topic_tagger:
-        negative_topic_list = split_dict['negative_topic']
-    elif args.contrastive_loss and args.topic_tagger:
-        negative_dialogue_list = split_dict['negative_dialogue']
-        negative_topic_list = split_dict['negative_topic']
-
-    if args.len_input == 'no':
-        new_dialogue_list = dialogue_list
-
-    elif args.len_input == 'length':
-        new_dialogue_list = []
-        for dialogue, summary in zip(dialogue_list, summary_list):
-            sum_len = len(summary.split(' '))
-            new_dialogue = 'Length of Summary: {}. Dialogue: '.format(
-                sum_len) + dialogue
-            new_dialogue_list.append(new_dialogue)
-
-    elif args.len_input == 'topic':
-        new_dialogue_list = []
-        for dialogue, summary, topic in zip(dialogue_list, summary_list, topic_list):
-            topic_keyword = topic
-            new_dialogue = 'Topic of Summary: {}. Dialogue: '.format(
-                topic_keyword) + dialogue
-            new_dialogue_list.append(new_dialogue)
-
-    elif args.len_input == 'topic-length':
-        if args.contrastive_loss and not args.topic_tagger:
-            new_dialogue_list = []
-            new_negative_dialogue_list = []
-            for dialogue, summary, topic, negative_topic in zip(dialogue_list, summary_list, topic_list, negative_topic_list):
-                sum_len = len(summary.split(' '))
-                new_dialogue = 'Topic of Summary: {}. Length of Summary: {}. Dialogue: '.format(
-                    topic, sum_len) + dialogue
-                new_dialogue_list.append(new_dialogue)
-                new_negative_dialogue = 'Topic of Summary: {}. Length of Summary: {}. Dialogue: '.format(
-                    negative_topic, sum_len) + dialogue
-                new_negative_dialogue_list.append(new_negative_dialogue)
-        elif args.contrastive_loss and args.topic_tagger:
-            new_dialogue_list = []
-            new_negative_dialogue_list = []
-            for dialogue, negative_dialogue, summary, topic, negative_topic in zip(dialogue_list, negative_dialogue_list, summary_list, topic_list, negative_topic_list):
-                sum_len = len(summary.split(' '))
-                new_dialogue = '<TAG>Topic of Summary: {}</TAG>. Length of Summary: {}. Dialogue: '.format(
-                    topic, sum_len) + dialogue
-                new_dialogue_list.append(new_dialogue)
-                new_negative_dialogue = '<TAG>Topic of Summary: {}</TAG>. Length of Summary: {}. Dialogue: '.format(
-                    negative_topic, sum_len) + negative_dialogue
-                new_negative_dialogue_list.append(new_negative_dialogue)
-        else:
-            new_dialogue_list = []
-            for dialogue, summary, topic in zip(dialogue_list, summary_list, topic_list):
-                topic_keyword = topic
-                sum_len = len(summary.split(' '))
-                new_dialogue = 'Topic of Summary: {}. Length of Summary: {}. Dialogue: '.format(
-                    topic_keyword, sum_len) + dialogue
-                new_dialogue_list.append(new_dialogue)
-
-    elif args.len_input == 'length-topic':
-        new_dialogue_list = []
-        for dialogue, summary, topic in zip(dialogue_list, summary_list, topic_list):
-            topic_keyword = topic
-            sum_len = len(summary.split(' '))
-            new_dialogue = 'Length of Summary: {}. Topic of Summary: {}. Dialogue: '.format(
-                sum_len, topic_keyword) + dialogue
-            new_dialogue_list.append(new_dialogue)
-
-    elif args.len_input == 'simple':
-        new_dialogue_list = []
-        for dialogue, summary in zip(dialogue_list, summary_list):
-            sum_len = len(summary.split(' '))
-            new_dialogue = 'Summary Length: {}. Dialogue: '.format(
-                sum_len) + dialogue
-            new_dialogue_list.append(new_dialogue)
-
-    elif args.len_input == 'simple-topic':
-        new_dialogue_list = []
-        for dialogue, summary, topic in zip(dialogue_list, summary_list, topic_list):
-            topic_keyword = topic
-            sum_len = len(summary.split(' '))
-            new_dialogue = 'Summary Length: {}. {}. Dialogue: '.format(
-                sum_len, topic_keyword) + dialogue
-            new_dialogue_list.append(new_dialogue)
-
-    elif args.len_input == 'topic-simple':
-        new_dialogue_list = []
-        for dialogue, summary, topic in zip(dialogue_list, summary_list, topic_list):
-            topic_keyword = topic
-            sum_len = len(summary.split(' '))
-            new_dialogue = '{}. Summary Length: {}. Dialogue: '.format(
-                topic_keyword, sum_len) + dialogue
-            new_dialogue_list.append(new_dialogue)
-
-    elif args.len_input == 'topic-word':
-        new_dialogue_list = []
-        for dialogue, summary, topic in zip(dialogue_list, summary_list, topic_list):
-            topic_keyword = topic
-            new_dialogue = '{}. Dialogue: '.format(
-                topic_keyword) + dialogue
-            new_dialogue_list.append(new_dialogue)
-
-    elif args.len_input == 'topic-last-length':
-        new_dialogue_list = []
-        for dialogue, summary, topic in zip(dialogue_list, summary_list, topic_list):
-            topic_keyword = topic
-            sum_len = len(summary.split(' '))
-            new_dialogue = 'Topic of Summary: {}. Dialogue: {} Length of Summary: {}'.format(
-                topic_keyword, dialogue, sum_len)
-            new_dialogue_list.append(new_dialogue)
-
-    # if args.len_output == 'no' or split_type == 'val' or split_type == 'test':
-    if args.len_output == 'no':
-        new_summary_list = summary_list
-        # new_negative_summary_list = []
-
-    elif args.len_output == 'length':
-        new_summary_list = []
-        for summary in summary_list:
-            sum_len = len(summary.split(' '))
-            new_summary = 'Length of Summary: {}. Summary: '.format(
-                sum_len) + summary
-            new_summary_list.append(new_summary)
-
-    elif args.len_output == 'topic':
-        if args.contrastive_loss and not args.topic_tagger:
-            new_summary_list = []
-            new_negative_summary_list = []
-            for summary, topic, negative_topic in zip(summary_list, topic_list, negative_topic_list):
-                new_summary = 'Topic of Summary: {}. Summary: '.format(
-                    topic) + summary
-                new_summary_list.append(new_summary)
-                new_negative_summary = 'Topic of Summary: {}. Summary: '.format(
-                    negative_topic) + summary
-                new_negative_summary_list.append(new_negative_summary)
-        elif args.contrastive_loss and args.topic_tagger:
-            new_summary_list = []
-            new_negative_summary_list = []
-            for summary, topic, negative_topic in zip(summary_list, topic_list, negative_topic_list):
-                new_summary = '<TAG>Topic of Summary: {}</TAG>. Summary: '.format(
-                    topic) + summary
-                new_summary_list.append(new_summary)
-                new_negative_summary = '<TAG>Topic of Summary: {}</TAG>. Summary: '.format(
-                    negative_topic) + summary
-                new_negative_summary_list.append(new_negative_summary)
-        else:
-            new_summary_list = []
-            for summary, topic in zip(summary_list, topic_list):
-                topic_keyword = topic
-                new_summary = 'Topic of Summary: {}. Summary: '.format(
-                    topic_keyword) + summary
-                new_summary_list.append(new_summary)
-
-    elif args.len_output == 'topic-length':
-        new_summary_list = []
-        for summary, topic in zip(summary_list, topic_list):
-            topic_keyword = topic
-            sum_len = len(summary.split(' '))
-            new_summary = 'Topic of Summary: {}. Length of Summary: {}. Summary: '.format(
-                topic_keyword, sum_len) + summary
-            new_summary_list.append(new_summary)
-
-    elif args.len_output == 'length-topic':
-        new_summary_list = []
-        for summary, topic in zip(summary_list, topic_list):
-            topic_keyword = topic
-            sum_len = len(summary.split(' '))
-            new_summary = 'Length of Summary: {}. Topic of Summary: {}. Summary: '.format(
-                sum_len, topic_keyword) + summary
-            new_summary_list.append(new_summary)
-
     if args.contrastive_loss:
-        split_dict = {
-            'id': id_list,
-            'dialogue': new_dialogue_list,
-            'negative_dialogue': new_negative_dialogue_list,
-            'summary': new_summary_list,
-            'negative_summary': new_negative_summary_list,
-            'topic': topic_list,
-            'negative_topic': negative_topic_list,
-        }
+        if args.postive_gen:
+            positive_topic_list = split_dict['positive_topic']
+            if args.topic_tagger:
+                positive_dialogue_list = split_dict['positive_dialogue']
+            else:
+                positive_dialogue_list = dialogue_list
+        else:
+            positive_topic_list = topic_list
+        if args.negative_gen:
+            negative_topic_list = split_dict['negative_topic']
+            if args.topic_tagger:
+                negative_dialogue_list = split_dict['negative_dialogue']
+            else:
+                negative_dialogue_list = dialogue_list
+                negative_dialogue_list = dialogue_list
+        else:
+            negative_topic_list = topic_list
+            negative_topic_list = topic_list
+    
+    new_prompt_list = []
+    new_positive_prompt_list = []
+    new_negative_prompt_list = []
+    new_summary_list = []
+    new_positive_summary_list = []
+    new_negative_summary_list = []
+    for dialogue, summary, topic, positive_dialogue, negative_dialogue, positive_topic, negative_topics in zip(dialogue_list, summary_list, topic_list,
+                                                                                                             positive_dialogue_list, negative_dialogue_list,
+                                                                                                             positive_topic_list, negative_topic_list):
+        new_dialogue = f'Dialogue: {dialogue}'
+        new_positive_dialogue = f'Dialogue: {positive_dialogue}'
+        new_negative_dialogue = f'Dialogue: {negative_dialogue}'
+        new_summary = f'Summary: {dialogue}'
+        if args.topic_prompt_input:
+            if args.topic_tagger:
+                new_topic_input = f'<tp>Topic of Summary</tp>: {topic}. '
+                if args.postive_gen:
+                    new_positive_topic_input = f'<tp>Topic of Summary</tp>: {positive_topic}. '
+                if args.negative_gen:
+                    new_negative_topic_input = f'<tp>Topic of Summary</tp>: {negative_topics}. '
+            else:
+                new_topic_input = f'Topic of Summary: {topic}. '
+                if args.postive_gen:
+                    new_positive_topic_input = f'Topic of Summary: {positive_topic}. '
+                if args.negative_gen:
+                    new_negative_topic_input = f'Topic of Summary: {negative_topics}. '
+        else:
+            new_topic_input = ''
+            if args.postive_gen:
+                new_positive_topic_input = ''
+            if args.negative_gen:
+                new_negative_topic_input = ''
+        if args.length_prompt_input:
+            sum_len = len(summary.split(' '))
+            new_length_input = f'Length of Summary: {sum_len}. '
+        else:
+            new_length_input = ''
+        new_prompt = new_topic_input + new_length_input + new_dialogue
+        new_prompt_list.append(new_prompt)                                                                                           
+        if args.postive_gen:
+            new_positive_prompt = new_positive_topic_input + new_length_input + new_positive_dialogue
+            new_positive_prompt_list.append(new_positive_prompt)
+        if args.negative_gen:
+            new_negative_prompt = new_negative_topic_input + new_length_input + new_negative_dialogue
+            new_negative_prompt_list.append(new_negative_prompt)
+        if split_type == 'train':
+            if args.topic_prompt_output:
+                if args.topic_tagger:
+                    new_topic_output = f'<tp>Topic of Summary</tp>: {topic}. '
+                    if args.postive_gen:
+                        new_positive_topic_output = f'<tp>Topic of Summary</tp>: {positive_topic}. '
+                    if args.negative_gen:
+                        new_negative_topic_output = f'<tp>Topic of Summary</tp>: {negative_topics}. '
+                else:
+                    new_topic_output = f'Topic of Summary: {topic}. '
+                    if args.postive_gen:
+                        new_positive_topic_output = f'Topic of Summary: {positive_topic}. '
+                    if args.negative_gen:
+                        new_negative_topic_output = f'Topic of Summary: {negative_topics}. '
+            else:
+                new_topic_output = ''
+                if args.postive_gen:
+                    new_positive_topic_output = ''
+                if args.negative_gen:
+                    new_negative_topic_output = ''
+            if args.length_prompt_output:
+                sum_len = len(summary.split(' '))
+                new_length_output = f'Length of Summary: {sum_len}. '
+            else:
+                new_length_output = ''
+            new_summary_all = new_topic_output + new_length_output + new_summary
+            new_summary_list.append(new_summary_all)   
+            if args.postive_gen:
+                new_positive_summary = new_positive_topic_output + new_length_output + new_summary
+                new_positive_summary_list.append(new_positive_summary)
+            if args.negative_gen:
+                new_negative_summary = new_negative_topic_output + new_length_output + new_summary
+                new_negative_summary_list.append(new_negative_summary)
 
-    else:
-        split_dict = {
-            'id': id_list,
-            'dialogue': new_dialogue_list,
-            'summary': new_summary_list,
-            'topic': topic_list,
-        }
+        else:
+            new_summary_all = new_summary
+            new_summary_list.append(new_summary_all)   
+            if args.postive_gen:
+                new_positive_summary = ''
+                new_positive_summary_list.append(new_positive_summary)
+            if args.negative_gen:
+                new_negative_summary = ''
+                new_negative_summary_list.append(new_negative_summary)                                                                                         
+
+    split_dict = {
+        'id': id_list,
+        'prompt': new_prompt_list,
+        'summary': new_summary_list,
+        'topic': topic_list,
+    }
+
+    if args.postive_gen:
+        split_dict['positive_prompt'] = new_positive_prompt_list
+        split_dict['positive_topic'] = positive_topic_list
+        if args.topic_prompt_output or args.length_prompt_output:
+            split_dict['positive_summary'] = new_positive_summary_list
+    
+    if args.negative_gen:
+        if args.negative_sample == 1:
+            split_dict['negative_prompt'] = new_negative_prompt_list[0]
+            split_dict['negative_topic'] = negative_topic_list[0]
+            if args.topic_prompt_output or args.length_prompt_output:
+                split_dict['negative_summary'] = new_negative_summary_list
+        else:
+            for num in range(args.negative_sample):
+                key_prompt_name = 'negative_prompt_' + str(num)
+                key_topic_name = 'negative_topic_' + str(num)
+                split_dict[key_prompt_name] = [prompt[num] for prompt in new_negative_prompt_lists]
+                split_dict[key_topic_name] = [topic[num] for topic in negative_topic_list]
+                if args.topic_prompt_output or args.length_prompt_output:
+                    key_summary_name = 'negative_summary_' + str(num)
+                    split_dict[key_summary_name] = [summary[num] for summary in new_negative_summary_lists]
 
     split_dict = Dataset.from_dict(split_dict)
 

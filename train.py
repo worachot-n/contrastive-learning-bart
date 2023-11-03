@@ -22,7 +22,7 @@ from data_loader import raw_data_loader, data_processor
 from model_loader import model_loader
 from rouge_s import py_rouge_scores
 from utils import label_smoothed_nll_loss, postprocess_text
-from new_loss import margin_ranking_loss, cosine_embedding_loss
+from contrastive_loss import cosine_embedding_loss, margin_ranking_loss
 
 
 # =  =  =  =  =  =  =  =  =  = Logging Setup =  =  =  =  =  =  =  =  =  =  =  = 
