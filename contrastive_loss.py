@@ -12,13 +12,10 @@ from nltk import word_tokenize, sent_tokenize
 from datasets import Dataset
 
 mr_loss = nn.MarginRankingLoss()
-cs_loss = nn.CosineEmbeddingLoss(margin=0.5)
 
-
-def cosine_embedding_loss(pos, neg, contrastive):
-    
+def cosine_embedding_loss(pos, neg, contrastive, margin=0.5):
+    cs_loss = nn.CosineEmbeddingLoss(margin)
     loss_cosine_embedding = cs_loss(pos, neg, contrastive)
-    
     return loss_cosine_embedding
 
 def margin_ranking_loss(pos, neg, target, target_one, ignore_index=-100):

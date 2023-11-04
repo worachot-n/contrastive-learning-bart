@@ -82,14 +82,14 @@ def len_adjust(args, split_dict, split_type=None):
         new_dialogue = f'Dialogue: {dialogue}'
         new_positive_dialogue = f'Dialogue: {positive_dialogue}'
         new_negative_dialogue = f'Dialogue: {negative_dialogue}'
-        new_summary = f'Summary: {dialogue}'
+        new_summary = f'Summary: {summary}'
         if args.topic_prompt_input:
             if args.topic_tagger:
-                new_topic_input = f'<tp>Topic of Summary</tp>: {topic}. '
+                new_topic_input = f'<t>Topic of Summary: {topic}</t>. '
                 if args.postive_gen:
-                    new_positive_topic_input = f'<tp>Topic of Summary</tp>: {positive_topic}. '
+                    new_positive_topic_input = f'<t>Topic of Summary: {positive_topic}</t>. '
                 if args.negative_gen:
-                    new_negative_topic_input = f'<tp>Topic of Summary</tp>: {negative_topics}. '
+                    new_negative_topic_input = f'<t>Topic of Summary: {negative_topics}</t>. '
             else:
                 new_topic_input = f'Topic of Summary: {topic}. '
                 if args.postive_gen:
@@ -118,11 +118,11 @@ def len_adjust(args, split_dict, split_type=None):
         if split_type == 'train':
             if args.topic_prompt_output:
                 if args.topic_tagger:
-                    new_topic_output = f'<tp>Topic of Summary</tp>: {topic}. '
+                    new_topic_output = f'<t>Topic of Summary: {topic}</t>. '
                     if args.postive_gen:
-                        new_positive_topic_output = f'<tp>Topic of Summary</tp>: {positive_topic}. '
+                        new_positive_topic_output = f'<t>Topic of Summary: {positive_topic}</t>. '
                     if args.negative_gen:
-                        new_negative_topic_output = f'<tp>Topic of Summary</tp>: {negative_topics}. '
+                        new_negative_topic_output = f'<t>Topic of Summary: {negative_topics}</t>. '
                 else:
                     new_topic_output = f'Topic of Summary: {topic}. '
                     if args.postive_gen:
@@ -151,13 +151,7 @@ def len_adjust(args, split_dict, split_type=None):
 
         else:
             new_summary_all = new_summary
-            new_summary_list.append(new_summary_all)   
-            if args.postive_gen:
-                new_positive_summary = ''
-                new_positive_summary_list.append(new_positive_summary)
-            if args.negative_gen:
-                new_negative_summary = ''
-                new_negative_summary_list.append(new_negative_summary)                                                                                         
+            new_summary_list.append(new_summary_all)                                                                                         
 
     split_dict = {
         'id': id_list,

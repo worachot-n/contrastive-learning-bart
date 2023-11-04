@@ -98,11 +98,7 @@ def main():
     # Optimizer
     # Split weights in two groups, one with weight decay and the other not.
     no_decay = ["bias", "LayerNorm.weight"]
-
-    if args.ctrlen_model: 
-        no_decay_emb_matrix = ["bias", "LayerNorm.weight", "shared"]
-    else:
-        no_decay_emb_matrix = ["bias", "LayerNorm.weight"]
+    no_decay_emb_matrix = ["bias", "LayerNorm.weight"]
 
     optimizer_grouped_parameters = [
         {
@@ -114,18 +110,6 @@ def main():
             "weight_decay": 0.0,
         },
     ]
-
-    if args.ctrlen_model:
-        if args.model_type == 'bart': 
-            optimizer_grouped_parameters.extend([{
-                "params": model.seq2seq_model.model.shared.parameters(),
-                "lr": args.embedding_lr}])
-        elif args.model_type == 't5':
-            optimizer_grouped_parameters.extend([{
-                "params": model.seq2seq_model.shared.parameters(),
-                "lr": args.embedding_lr}])
-        else:
-            raise ValueError('{} model type not implemented'.format(args.model_type))
 
     # optimizer
     optimizer = AdamW(optimizer_grouped_parameters, lr=args.learning_rate)
@@ -185,80 +169,136 @@ def main():
         # train
         model.train()
         for step, batch in enumerate(train_dataloader):
-
-            if args.ctrlen_model: # CTRLen model
-                outputs, loss = model(batch, tokenizer)
-            else: # w/ and w/o label smoothing (always better with label smoothing)
-                if args.label_smoothing == 0:
-                    outputs = model(**batch)
-                    loss = outputs.loss
-                else:
-                    outputs = model(**batch, output_hidden_states=True)
-                    output_logits = outputs.logits
+            if args.label_smoothing == 0:
+                outputs = model(**batch)
+                loss = outputs.loss
+            else:
+                outputs = model(**batch, output_hidden_states=True)
+                output_logits = outputs.logits
     
-                    output_probs = torch.nn.functional.log_softmax(
-                        output_logits, dim=-1)
-                    
-                    if args.contrastive_loss:
-
-                        # max_encoder_token = batch['input_ids'].shape[1]
-                        max_encoder_token = model.config.max_position_embeddings
-                        divide_num = int(output_probs.shape[0] / 2)
-                        
-                        # positive_embeddings = outputs.encoder_last_hidden_state[:divide_num,:,:max_encoder_token]
-                        # negative_embeddings = outputs.encoder_last_hidden_state[divide_num:,:,:max_encoder_token]
-                        positive_embeddings_encoder = outputs.encoder_last_hidden_state[:divide_num,:,:]
-                        negative_embeddings_encoder = outputs.encoder_last_hidden_state[divide_num:,:,:]
-                        positive_embeddings_encoder = positive_embeddings_encoder.view(-1, max_encoder_token)
-                        negative_embeddings_encoder = negative_embeddings_encoder.view(-1, max_encoder_token)
-                        positive_embeddings_decoder = outputs.decoder_hidden_states [-1][:divide_num,:,:]
-                        negative_embeddings_decoder = outputs.decoder_hidden_states [-1][divide_num:,:,:]
-                        positive_embeddings_decoder = positive_embeddings_decoder.view(-1, max_encoder_token)
-                        negative_embeddings_decoder = negative_embeddings_decoder.view(-1, max_encoder_token)
-                        contrastive_encoder = -1 * torch.ones(positive_embeddings_encoder.size(dim=0)).to(device)
-                        contrastive_decoder = -1 * torch.ones(positive_embeddings_decoder.size(dim=0)).to(device)
-    
-                        loss_cs_encoder = cosine_embedding_loss(positive_embeddings_encoder, negative_embeddings_encoder, contrastive_encoder)
-                        loss_cs_decoder = cosine_embedding_loss(positive_embeddings_decoder, negative_embeddings_decoder, contrastive_decoder)
-                        
-                        output_probs_pos = output_probs[:divide_num,:,:]
-                        output_probs_pos = output_probs_pos.view(-1,
-                                                         model.config.vocab_size)
-                        # output_probs_neg = output_probs[divide_num:,:,:]
-                        # output_probs_neg = output_probs_neg.view(-1,
-                        #                                  model.config.vocab_size)
-                        
-                        gt_logits = batch['labels'][:divide_num]
-                        gt_logits = gt_logits.view(-1)
-    
-                        loss_nll, nll = label_smoothed_nll_loss(
-                            output_probs_pos, gt_logits, args.label_smoothing, ignore_index=tokenizer.pad_token_id)
-                        
-                        # (pos, neg, target, ignore_index=-100, ,device)
+                output_probs = torch.nn.functional.log_softmax(
+                    output_logits, dim=-1)
                 
-                        # margin ranking loss
-                        # target_one = torch.ones(gt_logits.shape[0]).to(device)
-                        # loss_mr = margin_ranking_loss(output_probs_pos, output_probs_neg, 
-                        #                                           gt_logits, target_one, ignore_index=tokenizer.pad_token_id)
-                        # print(f"margin_ranking_loss: {loss_margin_ranking}")
-                        
-                        loss = loss_nll + (args.alpha * loss_cs_encoder) + (args.alpha * loss_cs_decoder)
-                        # loss = loss_nll + (args.alpha * loss_cs) + (args.alpha * loss_mr)
-                        
-                    else:
-                        output_probs = output_probs
-                        output_probs = output_probs.view(-1,
-                                                         model.config.vocab_size)
-                        
-        
-                        gt_logits = batch['labels']
-                        gt_logits = gt_logits.view(-1)
+                if args.contrastive_loss:
+                    # max_encoder_token = batch['input_ids'].shape[1]
+                    max_encoder_token = model.config.max_position_embeddings
+                    # print(max_encoder_token)
+    
+                    divide_num = int(output_probs.shape[0] / 2)
+                    # print(outputs.encoder_last_hidden_state[0].shape)
                     
-                        loss_nll, nll = label_smoothed_nll_loss(
-                            output_probs, gt_logits, args.label_smoothing, ignore_index=tokenizer.pad_token_id)
-        
-                        loss = loss_nll      
-
+                    embeddings_1 = outputs.encoder_last_hidden_state[0,:,:max_encoder_token]
+                    positive_embeddings_1 = outputs.encoder_last_hidden_state[1,:,:max_encoder_token]
+                    negative_embeddings_1 = outputs.encoder_last_hidden_state[2,:,:max_encoder_token]
+                    # positive_embeddings = positive_embeddings.view(-1, max_encoder_token)
+                    # negative_embeddings = negative_embeddings.view(-1, max_encoder_token)
+                    # positive_1 = 1 * torch.ones(positive_embeddings_1.size(dim=0)).to(device)
+                    # negative_1 = -1 * torch.ones(negative_embeddings_1.size(dim=0)).to(device)
+                    embeddings_2 = outputs.encoder_last_hidden_state[3,:,:max_encoder_token]
+                    positive_embeddings_2 = outputs.encoder_last_hidden_state[4,:,:max_encoder_token]
+                    negative_embeddings_2 = outputs.encoder_last_hidden_state[5,:,:max_encoder_token]
+                    # positive_2 = 1 * torch.ones(positive_embeddings_2.size(dim=0)).to(device)
+                    # negative_2 = -1 * torch.ones(negative_embeddings_2.size(dim=0)).to(device)
+                    # print(embeddings_1.shape)
+                    # print(positive_embeddings_1.shape)
+                    # print(negative_embeddings_1.shape)
+                    # print(embeddings.shape)
+                    # print(positive_embeddings_2.shape)
+                    # print(negative_embeddings_2.shape)
+                    # break
+    
+                    # loss_cs_positive_1 = cosine_embedding_loss(embeddings_1, positive_embeddings_1, positive_1, args.margin)
+                    # loss_cs_negative_1 = cosine_embedding_loss(embeddings_1, negative_embeddings_1, negative_1, args.margin)
+                    # loss_cs_positive_2 = cosine_embedding_loss(embeddings_2, positive_embeddings_2, positive_2, args.margin)
+                    # loss_cs_negative_2 = cosine_embedding_loss(embeddings_2, negative_embeddings_2, negative_2, args.margin)
+                    # loss_cs_1 = loss_cs_positive_1 + loss_cs_negative_1
+                    # loss_cs_2 = loss_cs_positive_2 + loss_cs_negative_2
+                    # loss_cs = (loss_cs_1 + loss_cs_2) / 2
+                    # loss_cs_positive = (loss_cs_positive_1 + loss_cs_positive_2) / 2
+                    # loss_cs_negative = (loss_cs_negative_1 + loss_cs_negative_2) / 2
+                    # loss_cs = loss_cs_positive+loss_cs_negative
+                    # print(f"loss_cs: {loss_cs}")
+    
+                    # distance_positive_1 = torch.dist(embeddings_1, positive_embeddings_1, p=2)
+                    # distance_negative_1 = torch.dist(embeddings_1, negative_embeddings_1, p=2)
+                    # distance_positive_2 = torch.dist(embeddings_2, positive_embeddings_2, p=2)
+                    # distance_negative_2 = torch.dist(embeddings_2, negative_embeddings_2, p=2)
+                    # loss_positive_1 = distance_positive_1
+                    # loss_negative_1 = torch.max(torch.tensor(0), args.margin - distance_negative_1) 
+                    # loss_positive_2 = distance_positive_2
+                    # loss_negative_2 = torch.max(torch.tensor(0), args.margin - distance_negative_2) 
+                    # contrastive_loss_1 = loss_positive_1 + loss_negative_1
+                    # contrastive_loss_2 = loss_positive_2 + loss_negative_2
+                    # contrastive_loss = (contrastive_loss_1 + contrastive_loss_2) / 2
+                    # print(f"contrastive_loss: {contrastive_loss}")
+    
+                    pos_distance_1 = torch.norm(embeddings_1 - positive_embeddings_1, p=2, dim=1)
+                    neg_distance_1 = torch.norm(embeddings_1 - negative_embeddings_1, p=2, dim=1)
+                    pos_distance_2 = torch.norm(embeddings_2 - positive_embeddings_2, p=2, dim=1)
+                    neg_distance_2 = torch.norm(embeddings_2 - negative_embeddings_2, p=2, dim=1)
+                    con_loss_1 = torch.mean(torch.relu(pos_distance_1 - neg_distance_1 + args.margin))
+                    con_loss_2 = torch.mean(torch.relu(pos_distance_2 - neg_distance_2 + args.margin))
+                    con_loss = (con_loss_1 + con_loss_2) / 2
+                    # print(f"con_loss: {con_loss}")
+    
+                    # pos_similarity_1 = torch.nn.functional.cosine_similarity(embeddings_1, positive_embeddings_1)
+                    # neg_similarity_1 = torch.nn.functional.cosine_similarity(embeddings_1, negative_embeddings_1)
+                    # pos_similarity_2 = torch.nn.functional.cosine_similarity(embeddings_2, positive_embeddings_2)
+                    # neg_similarity_2 = torch.nn.functional.cosine_similarity(embeddings_2, negative_embeddings_2)
+                    # sim_loss_1 = torch.mean(torch.relu(pos_distance_1 - neg_distance_1 + args.margin))
+                    # sim_loss_2 = torch.mean(torch.relu(pos_distance_2 - neg_distance_2 + args.margin))
+                    # sim_loss = (sim_loss_1 + sim_loss_2) / 2
+                    # print(f"sim_loss: {sim_loss}")
+    
+                    output_probs_1 = output_probs[1,:,:]
+                    # print(output_probs_1.shape)
+                    output_probs_2 = output_probs[3,:,:]
+                    # print(output_probs_2.shape)
+                    output_probs_all = torch.stack((output_probs_1, output_probs_2), dim=1)
+                    # print(output_probs_all.shape)
+                    # output_probs_all = output_probs.view(-1,
+                    #                                  model.config.vocab_size)
+                    # output_probs_pos = output_probs[:divide_num,:,:]
+                    # output_probs_pos = output_probs_pos.view(-1,
+                    #                                  model.config.vocab_size)
+                    # output_probs_neg = output_probs[divide_num:,:,:]
+                    # output_probs_neg = output_probs_neg.view(-1,
+                    #                                  model.config.vocab_size)
+    
+                    # gt_logits = batch['labels'][:divide_num]
+                    gt_logits = batch['labels']
+                    # print(gt_logits.shape)
+                    # gt_logits = gt_logits.view(-1)
+                    gt_logits_1 = gt_logits[1,:]
+                    gt_logits_2 = gt_logits[3,:]
+                    gt_logits_all = torch.stack((gt_logits_1, gt_logits_2), dim=1)
+                    # print(gt_logits_all.shape)
+    
+                    loss_nll, nll = label_smoothed_nll_loss(
+                        output_probs_all, gt_logits_all, args.label_smoothing, ignore_index=tokenizer.pad_token_id)
+                    
+                    # (pos, neg, target, ignore_index=-100, ,device)
+                    # target_one = torch.ones(gt_logits.shape[0]).to(device)
+                    # loss_mr = margin_ranking_loss(output_probs_pos, output_probs_neg, 
+                    #                                           gt_logits, target_one, ignore_index=tokenizer.pad_token_id)
+                    # print(f"margin_ranking_loss: {loss_margin_ranking}")
+                    # loss = loss_nll + (args.alpha * loss_cs) + (args.beta * loss_mr)
+                    loss = loss_nll + (args.alpha * con_loss)
+                    # print(loss)
+                    # break
+                    
+                else:
+                    output_probs = output_probs
+                    output_probs = output_probs.view(-1,
+                                                     model.config.vocab_size)
+                    
+                    gt_logits = batch['labels']
+                    gt_logits = gt_logits.view(-1)
+                
+                    loss_nll, nll = label_smoothed_nll_loss(
+                        output_probs, gt_logits, args.label_smoothing, ignore_index=tokenizer.pad_token_id)
+    
+                    loss = loss_nll       
 
             acc_losses.append(loss.item())
             loss = loss / args.gradient_accumulation_steps
@@ -311,7 +351,7 @@ def main():
                 val_predict.extend(decoded_preds)
                 val_groundtruth.extend(decoded_labels)
 
-        if args.len_output == 'topic':
+        if args.topic_prompt_output:
             new_val_predict = []
             for sample in val_predict:
                 try:
@@ -417,9 +457,9 @@ def main():
             test_predict.extend(decoded_preds)
             test_groundtruth.extend(decoded_labels)
 
-    print(raw_datasets['test']['dialogue'][0])
+    print(raw_datasets['test']['prompt'][0])
 
-    if args.len_output == 'topic':
+    if args.topic_prompt_output:
         new_test_predict = []
         for sample in test_predict:
             try:
@@ -436,18 +476,18 @@ def main():
 
 
     # Save generated summaries
-    if args.len_input == 'predict':
+    if args.predict_summary:
         os.makedirs(args.output_dir+'/predict_gen_samples', exist_ok=True)
     else:
         os.makedirs(args.output_dir+'/gen_samples', exist_ok=True)
 
     for i in range(len(test_predict)):
         test_id        = raw_datasets['test']['id'][i]
-        test_dialogue  = raw_datasets['test']['dialogue'][i]
+        test_dialogue  = raw_datasets['test']['prompt'][i]
         test_summary   = raw_datasets['test']['summary'][i]
         test_predict_s = test_predict[i]
 
-        if args.len_input == 'predict':
+        if args.predict_summary:
             with open(args.output_dir+'/predict_gen_samples/'+str(test_id)+'.txt', 'w') as f:
                 test_dialogue = test_dialogue.encode('ascii', 'ignore').decode('ascii')
                 f.write(test_dialogue)

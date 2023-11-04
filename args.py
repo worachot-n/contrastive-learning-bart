@@ -9,6 +9,8 @@ def parse_args():
                             default=False, help="Use topic prompt or not")
     arg_parser.add_argument("--length_prompt_input", dest="length_prompt_input", type=bool,
                             default=False, help="Use length prompt or not")
+    arg_parser.add_argument("--predict_summary", dest="predict_summary", type=bool,
+                            default=False, help="Use predict summary or not")
     # arg_parser.add_argument("--len_output", dest="len_output", type=str, default=None, help="set up prefix output", 
     #                         choices=('no', 'topic', 'length', 'topic-length'))
     arg_parser.add_argument("--topic_prompt_output", dest="topic_prompt_output", type=bool,
@@ -108,12 +110,14 @@ def parse_args():
                             default=False, help="Generate positive topic")
     arg_parser.add_argument("--negative_gen", dest="negative_gen", type=bool,
                             default=False, help="Generate negative topic")
-    # arg_parser.add_argument("--negative_sample", dest="negative_sample", type=int,
-    #                         default=1, help="The number of negative sample")
+    arg_parser.add_argument("--gen_sample", dest="gen_sample", type=int,
+                            default=1, help="The number of sample")
     arg_parser.add_argument("--alpha", dest="alpha", type=float,
                             default=0.5, help="ration of computation loss in encoder")
-    arg_parser.add_argument("--beta", dest="alpha", type=float,
+    arg_parser.add_argument("--beta", dest="beta", type=float,
                             default=0.5, help="ration of computation loss in decoder")
+    arg_parser.add_argument("--margin", dest="margin", type=float,
+                            default=0, help="margin of computation loss")
     arg_parser.add_argument("--debug", action='store_true',
                             default=False, help="Use the debug mode or not")
     args = arg_parser.parse_args()

@@ -8,15 +8,6 @@ from transformers import (
     AutoTokenizer,
 )
 
-# from transformers import (
-#     CONFIG_MAPPING,
-#     BartConfig,
-#     # BartForConditionalGeneration,
-#     BartTokenizer,
-# )
-
-# from modeling_bart import BartForConditionalGeneration
-
 
 def model_loader(accelerator, logger, args):
     '''
@@ -49,7 +40,7 @@ def model_loader(accelerator, logger, args):
         )
 
     if args.topic_tagger:
-        special_tokens = {'additional_special_tokens': ['<TAG>', '</TAG>']}
+        special_tokens = {'additional_special_tokens': ['<t>', '</t>']}
         tokenizer.add_special_tokens(special_tokens_dict=special_tokens)
 
     model = AutoModelForSeq2SeqLM.from_pretrained(
