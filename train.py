@@ -495,7 +495,10 @@ def main():
     for i in range(len(test_predict)):
         test_id        = raw_datasets['test']['id'][i]
         test_dialogue  = raw_datasets['test']['prompt'][i]
-        test_summary   = raw_datasets['test']['summary'][i]
+        if args.topic_prompt_output:
+            test_summary   = raw_datasets['test']['summary'][i].split('Summary: ')[1]
+        else:
+            test_summary   = raw_datasets['test']['summary'][i]
         test_predict_s = test_predict[i]
 
         if args.predict_summary:
