@@ -353,15 +353,21 @@ def main():
 
         if args.topic_prompt_output:
             new_val_predict = []
-            for sample in val_predict:
+            new_val_groundtruth = []
+            for sample_predict, smaple_groundtruth in zip(val_predict, val_groundtruth):
                 try:
-                    gen_sum = sample.split('Summary: ')[2]
+                    gen_sum = sample_predict.split('Summary: ')[1]
+                    truth_sum = smaple_groundtruth.split('Summary: ')[1]
                     new_val_predict.append(gen_sum)
+                    new_val_groundtruth.append(truth_sum)
                 except:
-                    new_val_predict.append(sample)
+                    new_val_predict.append(gen_sum)
+                    new_val_groundtruth.append(truth_sum)
             val_predict = new_val_predict
+            val_groundtruth = new_val_groundtruth
         else:
             new_val_predict = val_predict
+            new_val_groundtruth = val_groundtruth
 
         logger.info("")
         logger.info("Rouge score on val set after epoch {}".format(epoch+1))
@@ -461,15 +467,19 @@ def main():
 
     if args.topic_prompt_output:
         new_test_predict = []
-        for sample in test_predict:
+        new_test_groundtruth = []
+        for sample_predict, smaple_groundtruth in zip(test_predict, test_groundtruth):
             try:
-                # gen_sum = sample.split('Summary: ')[1]
-                gen_sum = sample.split('Summary: ')[2]
+                gen_sum = sample_predict.split('Summary: ')[1]
+                truth_sum = smaple_groundtruth.split('Summary: ')[1]
                 new_test_predict.append(gen_sum)
+                new_test_groundtruth.append(truth_sum)
             except:
-                new_test_predict.append(sample)
+                new_test_predict.append(gen_sum)
+                new_test_groundtruth.append(truth_sum)
         test_predict = new_test_predict
-
+        test_groundtruth = new_test_groundtruth
+        
     logger.info("")
     logger.info("ROUGE score on test set")
     test_scores = py_rouge_scores(test_predict, test_groundtruth)

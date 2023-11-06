@@ -167,15 +167,15 @@ def len_adjust(args, split_dict, split_type=None):
     if args.postive_gen:
         split_dict['positive_prompt'] = new_positive_prompt_list
         split_dict['positive_topic'] = positive_topic_list
-        if args.topic_prompt_output or args.length_prompt_output:
-            split_dict['positive_summary'] = new_positive_summary_list
+        # if args.topic_prompt_output or args.length_prompt_output:
+        #     split_dict['positive_summary'] = new_positive_summary_list
     
     if args.negative_gen:
         # if args.negative_sample == 1:
         split_dict['negative_prompt'] = new_negative_prompt_list
         split_dict['negative_topic'] = negative_topic_list
-        if args.topic_prompt_output or args.length_prompt_output:
-            split_dict['negative_summary'] = new_negative_summary_list
+        # if args.topic_prompt_output or args.length_prompt_output:
+        #     split_dict['negative_summary'] = new_negative_summary_list
         # else:
         #     for num in range(args.negative_sample):
         #         key_prompt_name = 'negative_prompt_' + str(num)
