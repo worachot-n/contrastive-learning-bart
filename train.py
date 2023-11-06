@@ -459,7 +459,7 @@ def main():
 
     print(raw_datasets['test']['prompt'][0])
 
-    if args.topic_prompt_output:
+    if args.topic_prompt_output or :
         new_test_predict = []
         for sample in test_predict:
             try:

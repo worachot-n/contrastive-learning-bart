@@ -82,7 +82,11 @@ def len_adjust(args, split_dict, split_type=None):
         new_dialogue = f'Dialogue: {dialogue}'
         new_positive_dialogue = f'Dialogue: {positive_dialogue}'
         new_negative_dialogue = f'Dialogue: {negative_dialogue}'
-        new_summary = f'Summary: {summary}'
+        if args.topic_prompt_output:
+            new_summary = f'Summary: {summary}'
+        else:
+            new_summary = f'{summary}'
+
         if args.topic_prompt_input:
             if args.topic_tagger:
                 new_topic_input = f'<t>Topic of Summary: {topic}</t>. '
