@@ -459,10 +459,11 @@ def main():
 
     print(raw_datasets['test']['prompt'][0])
 
-    if args.topic_prompt_output or :
+    if args.topic_prompt_output:
         new_test_predict = []
         for sample in test_predict:
             try:
+                # gen_sum = sample.split('Summary: ')[1]
                 gen_sum = sample.split('Summary: ')[2]
                 new_test_predict.append(gen_sum)
             except:
