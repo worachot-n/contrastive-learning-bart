@@ -356,7 +356,7 @@ def main():
             new_val_groundtruth = []
             for sample_predict, smaple_groundtruth in zip(val_predict, val_groundtruth):
                 try:
-                    gen_sum = sample_predict.split('Summary: ')[1]
+                    gen_sum = sample_predict.split('Summary: ')[2]
                     truth_sum = smaple_groundtruth.split('Summary: ')[1]
                     new_val_predict.append(gen_sum)
                     new_val_groundtruth.append(truth_sum)
@@ -470,7 +470,7 @@ def main():
         new_test_groundtruth = []
         for sample_predict, smaple_groundtruth in zip(test_predict, test_groundtruth):
             try:
-                gen_sum = sample_predict.split('Summary: ')[1]
+                gen_sum = sample_predict.split('Summary: ')[2]
                 truth_sum = smaple_groundtruth.split('Summary: ')[1]
                 new_test_predict.append(gen_sum)
                 new_test_groundtruth.append(truth_sum)
