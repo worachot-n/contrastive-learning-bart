@@ -361,8 +361,8 @@ def main():
                     new_val_predict.append(gen_sum)
                     new_val_groundtruth.append(truth_sum)
                 except:
-                    new_val_predict.append(gen_sum)
-                    new_val_groundtruth.append(truth_sum)
+                    new_val_predict.append(sample_predict)
+                    new_val_groundtruth.append(smaple_groundtruth)
             val_predict = new_val_predict
             val_groundtruth = new_val_groundtruth
         else:
@@ -475,8 +475,8 @@ def main():
                 new_test_predict.append(gen_sum)
                 new_test_groundtruth.append(truth_sum)
             except:
-                new_test_predict.append(gen_sum)
-                new_test_groundtruth.append(truth_sum)
+                new_test_predict.append(sample_predict)
+                new_test_groundtruth.append(smaple_groundtruth)
         test_predict = new_test_predict
         test_groundtruth = new_test_groundtruth
         
