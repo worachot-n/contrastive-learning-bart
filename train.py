@@ -238,7 +238,7 @@ def main():
                     neg_distance_2 = torch.norm(embeddings_2 - negative_embeddings_2, p=2, dim=1)
                     con_loss_1 = torch.mean(torch.relu(pos_distance_1 - neg_distance_1 + args.margin))
                     con_loss_2 = torch.mean(torch.relu(pos_distance_2 - neg_distance_2 + args.margin))
-                    con_loss = (con_loss_1 + con_loss_2) / 2
+                    # con_loss = (con_loss_1 + con_loss_2) / 2
                     # print(f"con_loss: {con_loss}")
     
                     # pos_similarity_1 = torch.nn.functional.cosine_similarity(embeddings_1, positive_embeddings_1)
@@ -250,7 +250,7 @@ def main():
                     # sim_loss = (sim_loss_1 + sim_loss_2) / 2
                     # print(f"sim_loss: {sim_loss}")
     
-                    output_probs_1 = output_probs[1,:,:]
+                    output_probs_1 = output_probs[0,:,:]
                     # print(output_probs_1.shape)
                     output_probs_2 = output_probs[3,:,:]
                     # print(output_probs_2.shape)
@@ -269,7 +269,7 @@ def main():
                     gt_logits = batch['labels']
                     # print(gt_logits.shape)
                     # gt_logits = gt_logits.view(-1)
-                    gt_logits_1 = gt_logits[1,:]
+                    gt_logits_1 = gt_logits[0,:]
                     gt_logits_2 = gt_logits[3,:]
                     gt_logits_all = torch.stack((gt_logits_1, gt_logits_2), dim=1)
                     # print(gt_logits_all.shape)
@@ -283,7 +283,7 @@ def main():
                     #                                           gt_logits, target_one, ignore_index=tokenizer.pad_token_id)
                     # print(f"margin_ranking_loss: {loss_margin_ranking}")
                     # loss = loss_nll + (args.alpha * loss_cs) + (args.beta * loss_mr)
-                    loss = loss_nll + (args.alpha * con_loss)
+                    loss = loss_nll + (args.alpha * con_loss_1) + (args.beta * con_loss_2)
                     # print(loss)
                     # break
                     
@@ -353,15 +353,20 @@ def main():
 
         if args.topic_prompt_output:
             new_val_predict = []
-            for sample in val_predict:
+            new_val_groundtruth = []
+            for sample_predict, smaple_groundtruth in zip(val_predict, val_groundtruth):
                 try:
-                    gen_sum = sample.split('Summary: ')[2]
+                    gen_sum = sample_predict.split('Summary: ')[1]
                     new_val_predict.append(gen_sum)
                 except:
-                    new_val_predict.append(sample)
+                    new_val_predict.append(sample_predict)
+                truth_sum = smaple_groundtruth.split('Summary: ')[1]
+                new_val_groundtruth.append(truth_sum)
             val_predict = new_val_predict
+            val_groundtruth = new_val_groundtruth
         else:
             new_val_predict = val_predict
+            new_val_groundtruth = val_groundtruth
 
         logger.info("")
         logger.info("Rouge score on val set after epoch {}".format(epoch+1))
@@ -459,15 +464,20 @@ def main():
 
     print(raw_datasets['test']['prompt'][0])
 
-    if args.topic_prompt_output or :
+    if args.topic_prompt_output:
         new_test_predict = []
-        for sample in test_predict:
+        new_test_groundtruth = []
+        for sample_predict, smaple_groundtruth in zip(test_predict, test_groundtruth):
             try:
-                gen_sum = sample.split('Summary: ')[2]
+                gen_sum = sample_predict.split('Summary: ')[1]
                 new_test_predict.append(gen_sum)
             except:
-                new_test_predict.append(sample)
+                new_test_predict.append(sample_predict)
+                new_test_groundtruth.append(smaple_groundtruth)
+            truth_sum = smaple_groundtruth.split('Summary: ')[1]
+            new_test_groundtruth.append(truth_sum)
         test_predict = new_test_predict
+        test_groundtruth = new_test_groundtruth
 
     logger.info("")
     logger.info("ROUGE score on test set")
@@ -511,7 +521,6 @@ def main():
                 f.write('Generate Summary:\n')
                 test_predict_s = test_predict_s.encode('ascii', 'ignore').decode('ascii')
                 f.write(test_predict_s)
-
 
                
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =

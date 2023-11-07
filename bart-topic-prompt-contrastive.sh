@@ -36,6 +36,7 @@ python3 train.py \
     --postive_gen True \
     --negative_gen True \
     --alpha 0.5 \
+    --beta 0.5 \
     --margin 0.5 \
     --overwrite_cache True \
 

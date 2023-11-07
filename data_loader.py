@@ -76,7 +76,7 @@ def load_from_dialogsum(args, file_path, split_type=None):
         positive_topic_list = []
         negative_topic_list = []
         for topic in topic_list:
-            if args.postive_gen:
+            if args.positive_gen:
                 tokenized_text = nltk.word_tokenize(topic)
                 positive_topic = []
                 for word in tokenized_text:
@@ -94,12 +94,12 @@ def load_from_dialogsum(args, file_path, split_type=None):
                 # negative_topic = random.sample(list(random_topic), args.negative_sample)
                 negative_topic = random.choice(list(random_topic))
                 negative_topic_list.append(negative_topic)
-        if args.postive_gen:
+        if args.positive_gen:
             data_dict['positive_topic'] = positive_topic_list
         if args.negative_gen:
             data_dict['negative_topic'] = negative_topic_list
         # else:
-        #     if args.postive_gen:
+        #     if args.positive_gen:
         #         data_dict['positive_topic'] = topic_list
         #         # data_dict['positive_topic'] = []
         #     if args.negative_gen:
@@ -117,7 +117,7 @@ def load_from_dialogsum(args, file_path, split_type=None):
             tagger = build_tagger(original_tokens, lemmatized_tokens, topic_list[i], i)
             topic_tagger.extend(tagger)
         data_dict['dialogue'] = topic_tagger
-        if args.postive_gen:
+        if args.positive_gen:
             for i in range(len(lemmatized_tokens)):
                 tagger = build_tagger(original_tokens, lemmatized_tokens, positive_topic_list[i], i)
                 positive_topic_tagger.extend(tagger)
@@ -130,7 +130,7 @@ def load_from_dialogsum(args, file_path, split_type=None):
         # else:
         #     data_dict['dialogue'] = dialogue_list
         #     # data_dict['dialogue'] = []
-        #     if args.postive_gen:
+        #     if args.positive_gen:
         #         data_dict['positive_dialogue'] = dialogue_list
         #         # data_dict['positive_dialogue'] = []
         #     if args.negative_gen:
@@ -430,7 +430,7 @@ def data_processor(logger, args, accelerator, raw_datasets, tokenizer, model):
             with tokenizer.as_target_tokenizer():
                 labels = tokenizer(targets, max_length=max_target_length, padding=padding, truncation=True)
             if args.topic_prompt_output or args.length_prompt_output:
-                if args.postive_gen:
+                if args.positive_gen:
                     targets_postive = examples['positive_prompt']
                     with tokenizer.as_target_tokenizer():
                         labels_postive = tokenizer(targets_postive, max_length=max_target_length, padding=padding, truncation=True)
@@ -458,7 +458,7 @@ def data_processor(logger, args, accelerator, raw_datasets, tokenizer, model):
         model_inputs = tokenizer(inputs, max_length=args.max_source_length, padding=padding, truncation=True)
         
         if args.contrastive_loss:
-            if args.postive_gen:
+            if args.positive_gen:
                 positive_inputs = examples['positive_prompt']
                 positive_model_inputs = tokenizer(positive_inputs, max_length=args.max_source_length, padding=padding, truncation=True)
             if args.negative_gen:
@@ -479,7 +479,7 @@ def data_processor(logger, args, accelerator, raw_datasets, tokenizer, model):
             if padding == "max_length" and args.ignore_pad_token_for_loss:
                 labels["input_ids"] = [[(l if l != tokenizer.pad_token_id else -100) for l in label] for label in labels["input_ids"]]
                 if args.topic_prompt_output or args.length_prompt_output:
-                    if args.postive_gen:
+                    if args.positive_gen:
                         labels_postive["input_ids"] = [[(l if l != tokenizer.pad_token_id else -100) for l in label] for label in labels_postive["input_ids"]]
                     if args.negative_gen:
                         # if args.negative_sample == 1:
@@ -495,7 +495,7 @@ def data_processor(logger, args, accelerator, raw_datasets, tokenizer, model):
 
         if args.contrastive_loss:
             model_inputs["labels"] = labels["input_ids"]
-            if args.postive_gen:
+            if args.positive_gen:
                 model_inputs["positive_inputs"] = positive_model_inputs["input_ids"]
                 if args.topic_prompt_output or args.length_prompt_output:
                     model_inputs["positive_labels"] = labels_postive["input_ids"]

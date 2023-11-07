@@ -5,10 +5,11 @@ echo $currentDate
 start=`date +%s`
 echo "= = = = = = = = = = = = = ="
 
-CUDA_VISIBLE_DEVICES=1 python3 train.py \
+python3 train.py \
     --topic_prompt_input True \
     --length_prompt_input True \
-    --output_dir ./output/bart-topic-length-prompt-contrastive \
+    --topic_prompt_output True \
+    --output_dir ./output/bart-topic-length-prompt-contrastive_topic \
     --train_file ./data/dialogsum/dialogsum.train.jsonl \
     --validation_file ./data/dialogsum/dialogsum.dev.jsonl \
     --test_file ./data/dialogsum/dialogsum.test.jsonl \

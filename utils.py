@@ -53,7 +53,7 @@ def len_adjust(args, split_dict, split_type=None):
     summary_list = split_dict['summary']
     topic_list = split_dict['topic']
     if args.contrastive_loss:
-        if args.postive_gen:
+        if args.positive_gen:
             positive_topic_list = split_dict['positive_topic']
             if args.topic_tagger:
                 positive_dialogue_list = split_dict['positive_dialogue']
@@ -90,19 +90,19 @@ def len_adjust(args, split_dict, split_type=None):
         if args.topic_prompt_input:
             if args.topic_tagger:
                 new_topic_input = f'<t>Topic of Summary: {topic}</t>. '
-                if args.postive_gen:
+                if args.positive_gen:
                     new_positive_topic_input = f'<t>Topic of Summary: {positive_topic}</t>. '
                 if args.negative_gen:
                     new_negative_topic_input = f'<t>Topic of Summary: {negative_topics}</t>. '
             else:
                 new_topic_input = f'Topic of Summary: {topic}. '
-                if args.postive_gen:
+                if args.positive_gen:
                     new_positive_topic_input = f'Topic of Summary: {positive_topic}. '
                 if args.negative_gen:
                     new_negative_topic_input = f'Topic of Summary: {negative_topics}. '
         else:
             new_topic_input = ''
-            if args.postive_gen:
+            if args.positive_gen:
                 new_positive_topic_input = ''
             if args.negative_gen:
                 new_negative_topic_input = ''
@@ -113,7 +113,7 @@ def len_adjust(args, split_dict, split_type=None):
             new_length_input = ''
         new_prompt = new_topic_input + new_length_input + new_dialogue
         new_prompt_list.append(new_prompt)                                                                                           
-        if args.postive_gen:
+        if args.positive_gen:
             new_positive_prompt = new_positive_topic_input + new_length_input + new_positive_dialogue
             new_positive_prompt_list.append(new_positive_prompt)
         if args.negative_gen:
@@ -122,20 +122,20 @@ def len_adjust(args, split_dict, split_type=None):
         if split_type == 'train':
             if args.topic_prompt_output:
                 if args.topic_tagger:
-                    new_topic_output = f'<t>Topic of Summary: {topic}</t>. '
-                    if args.postive_gen:
-                        new_positive_topic_output = f'<t>Topic of Summary: {positive_topic}</t>. '
+                    new_topic_output = f'<t>{topic}</t>. '
+                    if args.positive_gen:
+                        new_positive_topic_output = f'<t>{positive_topic}</t>. '
                     if args.negative_gen:
-                        new_negative_topic_output = f'<t>Topic of Summary: {negative_topics}</t>. '
+                        new_negative_topic_output = f'<t>{negative_topics}</t>. '
                 else:
                     new_topic_output = f'Topic of Summary: {topic}. '
-                    if args.postive_gen:
-                        new_positive_topic_output = f'Topic of Summary: {positive_topic}. '
+                    if args.positive_gen:
+                        new_positive_topic_output = f'{positive_topic}. '
                     if args.negative_gen:
-                        new_negative_topic_output = f'Topic of Summary: {negative_topics}. '
+                        new_negative_topic_output = f'{negative_topics}. '
             else:
                 new_topic_output = ''
-                if args.postive_gen:
+                if args.positive_gen:
                     new_positive_topic_output = ''
                 if args.negative_gen:
                     new_negative_topic_output = ''
@@ -146,7 +146,7 @@ def len_adjust(args, split_dict, split_type=None):
                 new_length_output = ''
             new_summary_all = new_topic_output + new_length_output + new_summary
             new_summary_list.append(new_summary_all)   
-            if args.postive_gen:
+            if args.positive_gen:
                 new_positive_summary = new_positive_topic_output + new_length_output + new_summary
                 new_positive_summary_list.append(new_positive_summary)
             if args.negative_gen:
@@ -164,18 +164,24 @@ def len_adjust(args, split_dict, split_type=None):
         'topic': topic_list,
     }
 
-    if args.postive_gen:
+    if args.positive_gen:
         split_dict['positive_prompt'] = new_positive_prompt_list
         split_dict['positive_topic'] = positive_topic_list
         if args.topic_prompt_output or args.length_prompt_output:
-            split_dict['positive_summary'] = new_positive_summary_list
-    
+            if split_type == "train":
+                split_dict['positive_summary'] = new_positive_summary_list
+            else:
+                split_dict['positive_summary'] = new_summary_list
+
     if args.negative_gen:
         # if args.negative_sample == 1:
         split_dict['negative_prompt'] = new_negative_prompt_list
         split_dict['negative_topic'] = negative_topic_list
         if args.topic_prompt_output or args.length_prompt_output:
-            split_dict['negative_summary'] = new_negative_summary_list
+            if split_type == "train":
+                split_dict['negative_summary'] = new_negative_summary_list
+            else:
+                split_dict['negative_summary'] = new_summary_list
         # else:
         #     for num in range(args.negative_sample):
         #         key_prompt_name = 'negative_prompt_' + str(num)

@@ -106,7 +106,7 @@ def parse_args():
                             default=False, help="Use contrastive loss or not")
     arg_parser.add_argument("--topic_tagger", dest="topic_tagger", type=bool,
                             default=False, help="Use topic word tag <t> </t> or not")
-    arg_parser.add_argument("--postive_gen", dest="postive_gen", type=bool,
+    arg_parser.add_argument("--positive_gen", dest="positive_gen", type=bool,
                             default=False, help="Generate positive topic")
     arg_parser.add_argument("--negative_gen", dest="negative_gen", type=bool,
                             default=False, help="Generate negative topic")
