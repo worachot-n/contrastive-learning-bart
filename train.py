@@ -192,13 +192,13 @@ def main():
                     negative_embeddings_1 = outputs.encoder_last_hidden_state[2,:,:max_encoder_token]
                     # positive_embeddings = positive_embeddings.view(-1, max_encoder_token)
                     # negative_embeddings = negative_embeddings.view(-1, max_encoder_token)
-                    # positive_1 = 1 * torch.ones(positive_embeddings_1.size(dim=0)).to(device)
-                    # negative_1 = -1 * torch.ones(negative_embeddings_1.size(dim=0)).to(device)
+                    positive_1 = -1 * torch.ones(positive_embeddings_1.size(dim=0)).to(device)
+                    negative_1 = -1 * torch.ones(negative_embeddings_1.size(dim=0)).to(device)
                     embeddings_2 = outputs.encoder_last_hidden_state[3,:,:max_encoder_token]
                     positive_embeddings_2 = outputs.encoder_last_hidden_state[4,:,:max_encoder_token]
                     negative_embeddings_2 = outputs.encoder_last_hidden_state[5,:,:max_encoder_token]
-                    # positive_2 = 1 * torch.ones(positive_embeddings_2.size(dim=0)).to(device)
-                    # negative_2 = -1 * torch.ones(negative_embeddings_2.size(dim=0)).to(device)
+                    positive_2 = -1 * torch.ones(positive_embeddings_2.size(dim=0)).to(device)
+                    negative_2 = -1 * torch.ones(negative_embeddings_2.size(dim=0)).to(device)
                     # print(embeddings_1.shape)
                     # print(positive_embeddings_1.shape)
                     # print(negative_embeddings_1.shape)
@@ -207,16 +207,16 @@ def main():
                     # print(negative_embeddings_2.shape)
                     # break
     
-                    # loss_cs_positive_1 = cosine_embedding_loss(embeddings_1, positive_embeddings_1, positive_1, args.margin)
-                    # loss_cs_negative_1 = cosine_embedding_loss(embeddings_1, negative_embeddings_1, negative_1, args.margin)
-                    # loss_cs_positive_2 = cosine_embedding_loss(embeddings_2, positive_embeddings_2, positive_2, args.margin)
-                    # loss_cs_negative_2 = cosine_embedding_loss(embeddings_2, negative_embeddings_2, negative_2, args.margin)
+                    loss_cs_positive_1 = cosine_embedding_loss(embeddings_1, positive_embeddings_1, positive_1, args.margin)
+                    loss_cs_negative_1 = cosine_embedding_loss(embeddings_1, negative_embeddings_1, negative_1, args.margin)
+                    loss_cs_positive_2 = cosine_embedding_loss(embeddings_2, positive_embeddings_2, positive_2, args.margin)
+                    loss_cs_negative_2 = cosine_embedding_loss(embeddings_2, negative_embeddings_2, negative_2, args.margin)
                     # loss_cs_1 = loss_cs_positive_1 + loss_cs_negative_1
                     # loss_cs_2 = loss_cs_positive_2 + loss_cs_negative_2
                     # loss_cs = (loss_cs_1 + loss_cs_2) / 2
                     # loss_cs_positive = (loss_cs_positive_1 + loss_cs_positive_2) / 2
                     # loss_cs_negative = (loss_cs_negative_1 + loss_cs_negative_2) / 2
-                    # loss_cs = loss_cs_positive+loss_cs_negative
+                    loss_cs = (loss_cs_positive_1 + loss_cs_positive_2 + loss_cs_negative_1 + loss_cs_negative_2) / 4
                     # print(f"loss_cs: {loss_cs}")
     
                     # distance_positive_1 = torch.dist(embeddings_1, positive_embeddings_1, p=2)
@@ -232,12 +232,12 @@ def main():
                     # contrastive_loss = (contrastive_loss_1 + contrastive_loss_2) / 2
                     # print(f"contrastive_loss: {contrastive_loss}")
     
-                    pos_distance_1 = torch.norm(embeddings_1 - positive_embeddings_1, p=2, dim=1)
-                    neg_distance_1 = torch.norm(embeddings_1 - negative_embeddings_1, p=2, dim=1)
-                    pos_distance_2 = torch.norm(embeddings_2 - positive_embeddings_2, p=2, dim=1)
-                    neg_distance_2 = torch.norm(embeddings_2 - negative_embeddings_2, p=2, dim=1)
-                    con_loss_1 = torch.mean(torch.relu(pos_distance_1 - neg_distance_1 + args.margin))
-                    con_loss_2 = torch.mean(torch.relu(pos_distance_2 - neg_distance_2 + args.margin))
+                    # pos_distance_1 = torch.norm(embeddings_1 - positive_embeddings_1, p=2, dim=1)
+                    # neg_distance_1 = torch.norm(embeddings_1 - negative_embeddings_1, p=2, dim=1)
+                    # pos_distance_2 = torch.norm(embeddings_2 - positive_embeddings_2, p=2, dim=1)
+                    # neg_distance_2 = torch.norm(embeddings_2 - negative_embeddings_2, p=2, dim=1)
+                    # con_loss_1 = torch.mean(torch.relu(pos_distance_1 - neg_distance_1 + args.margin))
+                    # con_loss_2 = torch.mean(torch.relu(pos_distance_2 - neg_distance_2 + args.margin))
                     # con_loss = (con_loss_1 + con_loss_2) / 2
                     # print(f"con_loss: {con_loss}")
     
@@ -283,7 +283,7 @@ def main():
                     #                                           gt_logits, target_one, ignore_index=tokenizer.pad_token_id)
                     # print(f"margin_ranking_loss: {loss_margin_ranking}")
                     # loss = loss_nll + (args.alpha * loss_cs) + (args.beta * loss_mr)
-                    loss = loss_nll + (args.alpha * con_loss_1) + (args.beta * con_loss_2)
+                    loss = loss_nll + (args.alpha * loss_cs)
                     # print(loss)
                     # break
                     

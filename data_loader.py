@@ -96,8 +96,12 @@ def load_from_dialogsum(args, file_path, split_type=None):
                 negative_topic_list.append(negative_topic)
         if args.positive_gen:
             data_dict['positive_topic'] = positive_topic_list
+        # else:
+        #     data_dict['positive_topic'] = topic_list
         if args.negative_gen:
             data_dict['negative_topic'] = negative_topic_list
+        # else:
+        #     data_dict['negative_topic'] = topic_list
         # else:
         #     if args.positive_gen:
         #         data_dict['positive_topic'] = topic_list
@@ -121,12 +125,16 @@ def load_from_dialogsum(args, file_path, split_type=None):
             for i in range(len(lemmatized_tokens)):
                 tagger = build_tagger(original_tokens, lemmatized_tokens, positive_topic_list[i], i)
                 positive_topic_tagger.extend(tagger)
-            data_dict['positive_dialogue'] = positive_topic_tagger        
+            data_dict['positive_dialogue'] = positive_topic_tagger
+        # else:
+        #     data_dict['positive_dialogue'] = dialogue_list
         if args.negative_gen:
             for i in range(len(lemmatized_tokens)):
                 tagger = build_tagger(original_tokens, lemmatized_tokens, negative_topic_list[i], i)
                 negative_topic_tagger.extend(tagger)
-            data_dict['negative_dialogue'] = negative_topic_tagger   
+            data_dict['negative_dialogue'] = negative_topic_tagger
+        # else:
+        #     data_dict['negative_dialogue'] = dialogue_list
         # else:
         #     data_dict['dialogue'] = dialogue_list
         #     # data_dict['dialogue'] = []
