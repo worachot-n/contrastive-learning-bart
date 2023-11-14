@@ -53,109 +53,99 @@ def len_adjust(args, split_dict, split_type=None):
     summary_list = split_dict['summary']
     topic_list = split_dict['topic']
     if args.contrastive_loss:
-        if args.positive_gen:
-            positive_topic_list = split_dict['positive_topic']
-            if args.topic_tagger:
-                positive_dialogue_list = split_dict['positive_dialogue']
+        if args.synonym_replacement:
+            synonym_topic_list = split_dict['synonym_topic']
+            new_synonym_summary_list = split_dict['synonym_summary']
+            if args.tagging == "topic" or args.tagging == "sentence":
+                synonym_dialogue_list = split_dict['synonym_dialogue']
             else:
-                positive_dialogue_list = dialogue_list
+                synonym_dialogue_list = dialogue_list
         else:
-            positive_topic_list = topic_list
-        if args.negative_gen:
-            negative_topic_list = split_dict['negative_topic']
-            if args.topic_tagger:
-                negative_dialogue_list = split_dict['negative_dialogue']
+            synonym_topic_list = topic_list
+            new_synonym_summary_list = summary_list
+            
+        if args.random_topic:
+            random_topic_list = split_dict['random_topic']
+            new_random_summary_list = split_dict['random_summary']
+            if args.tagging == "topic" or args.tagging == "sentence":
+                random_dialogue_list = split_dict['random_dialogue']
             else:
-                negative_dialogue_list = dialogue_list
+                random_dialogue_list = dialogue_list
         else:
-            negative_topic_list = topic_list
+            random_topic_list = topic_list
+            new_random_summary_list = summary_list
+    
+    else:
+        synonym_dialogue_list = dialogue_list
+        synonym_topic_list = topic_list
+        random_dialogue_list = dialogue_list
+        random_topic_list = topic_list
+        new_synonym_summary_list = summary_list
+        new_random_summary_list = summary_list
+        
+            
+    new_summary_list = summary_list
     
     new_prompt_list = []
-    new_positive_prompt_list = []
-    new_negative_prompt_list = []
-    new_summary_list = []
-    new_positive_summary_list = []
-    new_negative_summary_list = []
-    for dialogue, summary, topic, positive_dialogue, negative_dialogue, positive_topic, negative_topics in zip(dialogue_list, summary_list, topic_list,
-                                                                                                             positive_dialogue_list, negative_dialogue_list,
-                                                                                                             positive_topic_list, negative_topic_list):
-        new_dialogue = f'Dialogue: {dialogue}'
-        new_positive_dialogue = f'Dialogue: {positive_dialogue}'
-        new_negative_dialogue = f'Dialogue: {negative_dialogue}'
-        if args.topic_prompt_output:
-            new_summary = f'Summary: {summary}'
+    new_synonym_prompt_list = []
+    new_random_prompt_list = []
+
+    for dialogue, summary, topic, synonym_dialogue, random_dialogue, synonym_topic, random_topics, synonym_summary, random_summary in zip(dialogue_list, new_summary_list, topic_list,
+                                                                                                             synonym_dialogue_list, random_dialogue_list, synonym_topic_list, random_topic_list, 
+                                                                                                             new_synonym_summary_list, new_random_summary_list):
+        if args.topic_prompt_input:
+            new_dialogue = f'Dialogue: {dialogue}'
         else:
-            new_summary = f'{summary}'
+            new_dialogue = dialogue
+        new_synonym_dialogue = f'Dialogue: {synonym_dialogue}'
+        new_random_dialogue = f'Dialogue: {random_dialogue}'
+        new_summary = summary
 
         if args.topic_prompt_input:
-            if args.topic_tagger:
+            if args.tagging == "topic":
+                new_topic_input = f'Topic of Summary: <t>{topic}</t>. '
+                if args.synonym_replacement:
+                    new_synonym_topic_input = f'Topic of Summary: <t>{synonym_topic}</t>. '
+                if args.random_topic:
+                    new_random_topic_input = f'Topic of Summary: <t>{random_topics}</t>. '
+            elif args.tagging == "sentence":
                 new_topic_input = f'<t>Topic of Summary: {topic}</t>. '
-                if args.positive_gen:
-                    new_positive_topic_input = f'<t>Topic of Summary: {positive_topic}</t>. '
-                if args.negative_gen:
-                    new_negative_topic_input = f'<t>Topic of Summary: {negative_topics}</t>. '
+                if args.synonym_replacement:
+                    new_synonym_topic_input = f'<t>Topic of Summary: {synonym_topic}</t>. '
+                if args.random_topic:
+                    new_random_topic_input = f'<t>Topic of Summary: {random_topics}</t>. '
             else:
                 new_topic_input = f'Topic of Summary: {topic}. '
-                if args.positive_gen:
-                    new_positive_topic_input = f'Topic of Summary: {positive_topic}. '
-                if args.negative_gen:
-                    new_negative_topic_input = f'Topic of Summary: {negative_topics}. '
+                if args.synonym_replacement:
+                    new_synonym_topic_input = f'Topic of Summary: {synonym_topic}. '
+                if args.random_topic:
+                    new_random_topic_input = f'Topic of Summary: {random_topics}. '
         else:
             new_topic_input = ''
-            if args.positive_gen:
-                new_positive_topic_input = ''
-            if args.negative_gen:
-                new_negative_topic_input = ''
+            if args.synonym_replacement:
+                new_synonym_topic_input = ''
+            if args.random_topic:
+                new_random_topic_input = ''
         if args.length_prompt_input:
             sum_len = len(summary.split(' '))
             new_length_input = f'Length of Summary: {sum_len}. '
+            if args.synonym_replacement:
+                synonym_sum_len = len(synonym_summary.split(' '))
+                new_synonym_length_input = f'Length of Summary: {synonym_sum_len}. '
+            if args.random_topic:
+                random_sum_len = len(random_summary.split(' '))
+                new_random_length_input = f'Length of Summary: {random_sum_len}. '
+            
         else:
             new_length_input = ''
         new_prompt = new_topic_input + new_length_input + new_dialogue
         new_prompt_list.append(new_prompt)                                                                                           
-        if args.positive_gen:
-            new_positive_prompt = new_positive_topic_input + new_length_input + new_positive_dialogue
-            new_positive_prompt_list.append(new_positive_prompt)
-        if args.negative_gen:
-            new_negative_prompt = new_negative_topic_input + new_length_input + new_negative_dialogue
-            new_negative_prompt_list.append(new_negative_prompt)
-        if split_type == 'train':
-            if args.topic_prompt_output:
-                if args.topic_tagger:
-                    new_topic_output = f'<t>{topic}</t>. '
-                    if args.positive_gen:
-                        new_positive_topic_output = f'<t>{positive_topic}</t>. '
-                    if args.negative_gen:
-                        new_negative_topic_output = f'<t>{negative_topics}</t>. '
-                else:
-                    new_topic_output = f'Topic of Summary: {topic}. '
-                    if args.positive_gen:
-                        new_positive_topic_output = f'{positive_topic}. '
-                    if args.negative_gen:
-                        new_negative_topic_output = f'{negative_topics}. '
-            else:
-                new_topic_output = ''
-                if args.positive_gen:
-                    new_positive_topic_output = ''
-                if args.negative_gen:
-                    new_negative_topic_output = ''
-            if args.length_prompt_output:
-                sum_len = len(summary.split(' '))
-                new_length_output = f'Length of Summary: {sum_len}. '
-            else:
-                new_length_output = ''
-            new_summary_all = new_topic_output + new_length_output + new_summary
-            new_summary_list.append(new_summary_all)   
-            if args.positive_gen:
-                new_positive_summary = new_positive_topic_output + new_length_output + new_summary
-                new_positive_summary_list.append(new_positive_summary)
-            if args.negative_gen:
-                new_negative_summary = new_negative_topic_output + new_length_output + new_summary
-                new_negative_summary_list.append(new_negative_summary)
-
-        else:
-            new_summary_all = new_summary
-            new_summary_list.append(new_summary_all)                                                                                         
+        if args.synonym_replacement:
+            new_synonym_prompt = new_synonym_topic_input + new_synonym_length_input + new_synonym_dialogue
+            new_synonym_prompt_list.append(new_synonym_prompt)
+        if args.random_topic:
+            new_random_prompt = new_random_topic_input + new_random_length_input + new_random_dialogue
+            new_random_prompt_list.append(new_random_prompt)                                                                                         
 
     split_dict = {
         'id': id_list,
@@ -164,33 +154,26 @@ def len_adjust(args, split_dict, split_type=None):
         'topic': topic_list,
     }
 
-    if args.positive_gen:
-        split_dict['positive_prompt'] = new_positive_prompt_list
-        split_dict['positive_topic'] = positive_topic_list
-        if args.topic_prompt_output or args.length_prompt_output:
+    if args.synonym_replacement:
+        split_dict['synonym_prompt'] = new_synonym_prompt_list
+        split_dict['synonym_topic'] = synonym_topic_list
+        if args.contrastive_decoder:
             if split_type == "train":
-                split_dict['positive_summary'] = new_positive_summary_list
+                split_dict['synonym_summary'] = new_synonym_summary_list
             else:
-                split_dict['positive_summary'] = new_summary_list
+                split_dict['synonym_summary'] = new_summary_list
 
-    if args.negative_gen:
-        # if args.negative_sample == 1:
-        split_dict['negative_prompt'] = new_negative_prompt_list
-        split_dict['negative_topic'] = negative_topic_list
-        if args.topic_prompt_output or args.length_prompt_output:
+    if args.random_topic:
+        split_dict['random_prompt'] = new_random_prompt_list
+        split_dict['random_topic'] = random_topic_list
+        if args.contrastive_decoder:
             if split_type == "train":
-                split_dict['negative_summary'] = new_negative_summary_list
+                split_dict['random_summary'] = new_random_summary_list
             else:
-                split_dict['negative_summary'] = new_summary_list
-        # else:
-        #     for num in range(args.negative_sample):
-        #         key_prompt_name = 'negative_prompt_' + str(num)
-        #         key_topic_name = 'negative_topic_' + str(num)
-        #         split_dict[key_prompt_name] = [prompt[num] for prompt in new_negative_prompt_lists]
-        #         split_dict[key_topic_name] = [topic[num] for topic in negative_topic_list]
-        #         if args.topic_prompt_output or args.length_prompt_output:
-        #             key_summary_name = 'negative_summary_' + str(num)
-        #             split_dict[key_summary_name] = [summary[num] for summary in new_negative_summary_lists]
+                split_dict['random_summary'] = new_summary_list
+    
+    # print(split_dict.keys())
+    # print(split_dict)
 
     split_dict = Dataset.from_dict(split_dict)
 

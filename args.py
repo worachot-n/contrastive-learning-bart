@@ -3,30 +3,22 @@ from transformers import SchedulerType
 
 def parse_args():
     arg_parser = argparse.ArgumentParser(description="bart")
-    # arg_parser.add_argument("--len_input", dest="len_input", type=str, default=None, help="set up prefix input",
-    #                         choices=('no', 'topic', 'length', 'topic-length'))
     arg_parser.add_argument("--topic_prompt_input", dest="topic_prompt_input", type=bool,
                             default=False, help="Use topic prompt or not")
     arg_parser.add_argument("--length_prompt_input", dest="length_prompt_input", type=bool,
                             default=False, help="Use length prompt or not")
     arg_parser.add_argument("--predict_summary", dest="predict_summary", type=bool,
                             default=False, help="Use predict summary or not")
-    # arg_parser.add_argument("--len_output", dest="len_output", type=str, default=None, help="set up prefix output", 
-    #                         choices=('no', 'topic', 'length', 'topic-length'))
-    arg_parser.add_argument("--topic_prompt_output", dest="topic_prompt_output", type=bool,
-                            default=False, help="Use topic prompt or not")
-    arg_parser.add_argument("--length_prompt_output", dest="length_prompt_output", type=bool,
-                            default=False, help="Use length prompt or not")
     arg_parser.add_argument("--output_dir", dest="output_dir",
                             type=str, default="./output/1", help="default")
     arg_parser.add_argument("--train_file", dest="train_file", type=str,
-                            default=None, help="A csv or a json file containing the training data.")
+                            default=None, help="A json file containing the training data.")
     arg_parser.add_argument("--validation_file", dest="validation_file", type=str,
-                            default=None, help="A csv or a json file containing the validation data.")
+                            default=None, help="A json file containing the validation data.")
     arg_parser.add_argument("--test_file", dest="test_file", type=str,
-                            default=None, help="A csv or a json file containing the test data.")
+                            default=None, help="A json file containing the test data.")
     arg_parser.add_argument("--ignore_pad_token_for_loss", dest="ignore_pad_token_for_loss", type=bool, default=True,
-                            help="Whether to ignore the tokens corresponding to " "padded labels in the loss computation or not.",)
+                            help="Whether to ignore the tokens corresponding to padded labels in the loss computation or not.",)
     arg_parser.add_argument("--text_column", dest="text_column", type=str, default="dialogue",
                             help="The name of the column in the datasets containing the full texts (for summarization).")
     arg_parser.add_argument("--summary_column", dest="summary_column", type=str, default="summary",
@@ -37,8 +29,6 @@ def parse_args():
                             help="Model type to use if training from scratch.")
     arg_parser.add_argument("--max_source_length", dest="max_source_length", 
                             type=int, default=1024, help="default")
-    arg_parser.add_argument("--source_prefix", dest="source_prefix", type=str, default=None,
-                            help="A prefix to add before every source text " "(useful for T5 models).")
     arg_parser.add_argument("--preprocessing_num_workers", type=int, default=None,
                             help="The number of processes to use for the preprocessing.")
     arg_parser.add_argument("--overwrite_cache", dest="overwrite_cache", type=bool,
@@ -78,8 +68,6 @@ def parse_args():
                             type=int, default=12345, help="default")
     arg_parser.add_argument("--config_name", type=str, default=None,
                             help="Pretrained config name or path if not the same as model_name")
-    # arg_parser.add_argument("--ctrlen_model", action='store_true', default=False, 
-    #                         help="Use the ctrlen model or not",)
     arg_parser.add_argument("--tokenizer_name", type=str, default=None,
                             help="Pretrained tokenizer name or path if not the same as model_name")
     arg_parser.add_argument("--use_slow_tokenizer", dest="use_slow_tokenizer", action="store_true",
@@ -88,28 +76,24 @@ def parse_args():
                             help="Total number of training steps to perform. If provided, overrides num_train_epochs.")
     arg_parser.add_argument("--lr_scheduler_type", type=SchedulerType, default="linear", help="The scheduler type to use.",
                             choices=["linear", "cosine", "cosine_with_restarts", "polynomial", "constant", "constant_with_warmup"])
-    # arg_parser.add_argument("--special_len_token_init", type=str, default=None,
-    #                         help="ways to initialize special token for length (random, zero, token_embs)")
     arg_parser.add_argument("--embedding_lr", type=float, default=5e-5,
                             help="Initial learning rate for embedding layers.")
     arg_parser.add_argument("--len_start", type=int,
                             default=1, help="start length.")
     arg_parser.add_argument("--len_end", type=int,
                             default=100, help="end length.")
-    # arg_parser.add_argument("--data_aug", action='store_true', default=False,
-    #                         help="whether to perform data augmentation or not")
-    # arg_parser.add_argument("--pred_len", action='store_true', default=False,
-    #                         help="whether to use the golden length or predicted length")
-    # arg_parser.add_argument("--shuffle", action='store_true', default=False,
-    #                         help="whether to shuffle the dataset to balance train/validation/test")
     arg_parser.add_argument("--contrastive_loss", dest="contrastive_loss", type=bool,
                             default=False, help="Use contrastive loss or not")
-    arg_parser.add_argument("--topic_tagger", dest="topic_tagger", type=bool,
-                            default=False, help="Use topic word tag <t> </t> or not")
-    arg_parser.add_argument("--positive_gen", dest="positive_gen", type=bool,
-                            default=False, help="Generate positive topic")
-    arg_parser.add_argument("--negative_gen", dest="negative_gen", type=bool,
-                            default=False, help="Generate negative topic")
+    arg_parser.add_argument("--tagging", dest="tagging", type=str, default="no",
+                            choices=('no', 'word', 'sentence'), help="Use tagging (<tp>, </tp>) in word, sentence, or not")
+    arg_parser.add_argument("--synonym_replacement", dest="synonym_replacement", type=bool,
+                            default=False, help="Synonym replacement or not")
+    arg_parser.add_argument("--random_topic", dest="random_topic", type=bool,
+                            default=False, help="Random topic or not")
+    arg_parser.add_argument("--contrastive_encoder", dest="contrastive_encoder", type=bool,
+                            default=False, help="Contrastive encoder or not")
+    arg_parser.add_argument("--contrastive_decoder", dest="contrastive_decoder", type=bool,
+                            default=False, help="Contrastive decoder or not")
     arg_parser.add_argument("--gen_sample", dest="gen_sample", type=int,
                             default=1, help="The number of sample")
     arg_parser.add_argument("--alpha", dest="alpha", type=float,
@@ -122,18 +106,16 @@ def parse_args():
                             default=False, help="Use the debug mode or not")
     args = arg_parser.parse_args()
 
-    # # Sanity checks
-    # if args.train_file is None and args.validation_file is None:
-    #     raise ValueError(
-    #         "Need either a dataset name or a training/validation file.")
-    # else:
-    #     if args.train_file is not None:
-    #         extension = args.train_file.split(".")[-1]
-    #         assert extension in [
-    #             "csv", "json", "jsonl"], "`train_file` should be a csv or a json file."
-    #     if args.validation_file is not None:
-    #         extension = args.validation_file.split(".")[-1]
-    #         assert extension in [
-    #             "csv", "json", "jsonl"], "`validation_file` should be a csv or a json file."
+    # Sanity checks
+    if args.train_file is None and args.validation_file is None:
+        raise ValueError(
+            "Need either a dataset name or a training/validation file.")
+    else:
+        if args.train_file is not None:
+            extension = args.train_file.split(".")[-1]
+            assert extension in ["json", "jsonl"], "`train_file` should be a json file."
+        if args.validation_file is not None:
+            extension = args.validation_file.split(".")[-1]
+            assert extension in ["json", "jsonl"], "`validation_file` should be a json file."
 
     return args

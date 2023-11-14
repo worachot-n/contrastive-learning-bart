@@ -522,7 +522,7 @@ def main():
                 test_predict_s = test_predict_s.encode('ascii', 'ignore').decode('ascii')
                 f.write(test_predict_s)
 
-               
+
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 # main process
 if __name__ == "__main__":

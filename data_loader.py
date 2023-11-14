@@ -7,8 +7,6 @@ import numpy as np
 from collections.abc import Mapping
 from typing import Any, Callable, Dict, List, NewType, Optional, Tuple, Union
 
-import nltk
-from nltk.corpus import wordnet
 import datasets
 from datasets import Dataset
 import torch
@@ -19,14 +17,6 @@ from transformers.tokenization_utils_base import PreTrainedTokenizerBase, Paddin
 
 import utils
 from special_token import simple_tokenize, lemmatize_text, build_tagger
-
-
-def get_synonyms(word):
-    synonyms = []
-    for syn in wordnet.synsets(word):
-        for lemma in syn.lemmas():
-            synonyms.append(lemma.name())
-    return synonyms
 
 
 def load_from_dialogsum(args, file_path, split_type=None):
@@ -71,79 +61,42 @@ def load_from_dialogsum(args, file_path, split_type=None):
              'topic': topic_list}
     
     if args.contrastive_loss:
-        # if split_type == 'train':
-        topic_set = set(topic_list)
-        positive_topic_list = []
-        negative_topic_list = []
-        for topic in topic_list:
-            if args.positive_gen:
-                tokenized_text = nltk.word_tokenize(topic)
-                positive_topic = []
-                for word in tokenized_text:
-                    if word not in {'a', 'an'}:
-                        synonyms = get_synonyms(word)
-                        synonyms_not_duplicate = set(synonyms).difference(set([word]))
-                        if len(synonyms_not_duplicate):
-                            synonyms_not_duplicate = random.choice(list(synonyms_not_duplicate))
-                        else:
-                            synonyms_not_duplicate = word
-                        positive_topic.append(synonyms_not_duplicate)
-                positive_topic_list.append(' '.join(positive_topic))
-            if args.negative_gen:
-                random_topic = topic_set.difference(set([topic]))
-                # negative_topic = random.sample(list(random_topic), args.negative_sample)
-                negative_topic = random.choice(list(random_topic))
-                negative_topic_list.append(negative_topic)
-        if args.positive_gen:
-            data_dict['positive_topic'] = positive_topic_list
-        # else:
-        #     data_dict['positive_topic'] = topic_list
-        if args.negative_gen:
-            data_dict['negative_topic'] = negative_topic_list
-        # else:
-        #     data_dict['negative_topic'] = topic_list
-        # else:
-        #     if args.positive_gen:
-        #         data_dict['positive_topic'] = topic_list
-        #         # data_dict['positive_topic'] = []
-        #     if args.negative_gen:
-        #         data_dict['negative_topic'] = topic_list
-        #         # data_dict['negative_topic'] = []
+        if args.synonym_replacement:
+            # topic
+            synonym_topic_list = [sample['synonym_topic'] for sample in data]
+            # summary
+            synonym_summary_list = [sample['synonym_summary'] for sample in data]
+            data_dict['synonym_topic'] = synonym_topic_list
+            data_dict['synonym_summary'] = synonym_summary_list
+        if args.random_topic:
+            # topic
+            random_topic_list = [sample['random_topic'] for sample in data]
+            # summary
+            random_summary_list = [sample['random_summary'] for sample in data]
+            data_dict['random_topic'] = random_topic_list
+            data_dict['random_summary'] = random_summary_list
 
-    if args.topic_tagger:
-        # if split_type == 'train':
-        topic_tagger = []
-        positive_topic_tagger = []
-        negative_topic_tagger = []
+    if args.tagging == "topic" or args.tagging == "sentence":
+        original_tagger = []
         original_tokens = [simple_tokenize(x) for x in dialogue_list]
         lemmatized_tokens = [lemmatize_text(x) for x in dialogue_list]
         for i in range(len(lemmatized_tokens)):
             tagger = build_tagger(original_tokens, lemmatized_tokens, topic_list[i], i)
-            topic_tagger.extend(tagger)
-        data_dict['dialogue'] = topic_tagger
-        if args.positive_gen:
-            for i in range(len(lemmatized_tokens)):
-                tagger = build_tagger(original_tokens, lemmatized_tokens, positive_topic_list[i], i)
-                positive_topic_tagger.extend(tagger)
-            data_dict['positive_dialogue'] = positive_topic_tagger
-        # else:
-        #     data_dict['positive_dialogue'] = dialogue_list
-        if args.negative_gen:
-            for i in range(len(lemmatized_tokens)):
-                tagger = build_tagger(original_tokens, lemmatized_tokens, negative_topic_list[i], i)
-                negative_topic_tagger.extend(tagger)
-            data_dict['negative_dialogue'] = negative_topic_tagger
-        # else:
-        #     data_dict['negative_dialogue'] = dialogue_list
-        # else:
-        #     data_dict['dialogue'] = dialogue_list
-        #     # data_dict['dialogue'] = []
-        #     if args.positive_gen:
-        #         data_dict['positive_dialogue'] = dialogue_list
-        #         # data_dict['positive_dialogue'] = []
-        #     if args.negative_gen:
-        #         data_dict['negative_dialogue'] = dialogue_list
-        #         # data_dict['negative_dialogue'] = []
+            original_tagger.extend(tagger)
+        data_dict['dialogue'] = original_tagger
+        if args.contrastive_loss:
+            if args.synonym_replacement:
+                synonym_tagger = []
+                for i in range(len(lemmatized_tokens)):
+                    tagger = build_tagger(original_tokens, lemmatized_tokens, synonym_topic_list[i], i)
+                    synonym_tagger.extend(tagger)
+                data_dict['synonym_dialogue'] = synonym_tagger
+            if args.random_topic:
+                random_tagger = []
+                for i in range(len(lemmatized_tokens)):
+                    tagger = build_tagger(original_tokens, lemmatized_tokens, random_topic_list[i], i)
+                    random_tagger.extend(tagger)
+                data_dict['random_dialogue'] = random_tagger
 
     data_dict = Dataset.from_dict(data_dict)
 
@@ -182,31 +135,23 @@ class CustomWithNegativeDataCollator:
             return_tensors = self.return_tensors
         labels = [feature["labels"] for feature in features] if "labels" in features[0].keys() else None
         inputs = [np.array(feature['input_ids']) for feature in features] if "input_ids" in features[0].keys() else None
-        if "positive_labels" in features[0].keys():
-            positive_labels = [feature['positive_labels'] for feature in features]  
+        if "synonym_labels" in features[0].keys():
+            synonym_labels = [feature['synonym_labels'] for feature in features]  
         else: 
             None
-        if "negative_labels" in features[0].keys():
-            negative_labels = [feature['negative_labels'] for feature in features]
+        if "random_labels" in features[0].keys():
+            random_labels = [feature['random_labels'] for feature in features]
         else: 
             None
-        # if "negative_labels_0" in features[0].keys():
-        #     negative_labels_dict = {}
-        #     negative_labels = [feature['negative_labels'] for feature in features]
-            
-        # else: 
-        #     None
-        if "positive_inputs" in features[0].keys():
-            positive_inputs = [np.array(feature['positive_inputs']) for feature in features]
+        if "synonym_inputs" in features[0].keys():
+            synonym_inputs = [np.array(feature['synonym_inputs']) for feature in features]
         else: 
             None
-        if "negative_inputs" in features[0].keys():
-            negative_inputs = [np.array(feature['negative_inputs']) for feature in features]
+        if "random_inputs" in features[0].keys():
+            random_inputs = [np.array(feature['random_inputs']) for feature in features]
         else: 
             None
-        # negative_input_1 = [np.array(feature['negative_input_ids_1']) for feature in features]
-        # negative_input_2 = [np.array(feature['negative_input_ids_2']) for feature in features]
-        
+
         if labels is not None:
             max_label_length = max(len(l) for l in labels)
             if self.pad_to_multiple_of is not None:
@@ -220,61 +165,60 @@ class CustomWithNegativeDataCollator:
             for feature in features:
                 
                 remainder = [self.label_pad_token_id] * (max_label_length - len(feature["labels"]))
-                if "positive_labels" in features[0].keys():
-                    remainder_positive = [self.label_pad_token_id] * (max_label_length - len(feature["positive_labels"]))
-                if "negative_labels" in features[0].keys():
-                    remainder_negative = [self.label_pad_token_id] * (max_label_length - len(feature["negative_labels"]))
+                if "synonym_labels" in features[0].keys():
+                    remainder_synonym = [self.label_pad_token_id] * (max_label_length - len(feature["synonym_labels"]))
+                if "random_labels" in features[0].keys():
+                    remainder_random = [self.label_pad_token_id] * (max_label_length - len(feature["random_labels"]))
                 if isinstance(feature["labels"], list):
                     feature["labels"] = (
                         feature["labels"] + remainder if padding_side == "right" else remainder + feature["labels"]
                     )
-                    if "positive_labels" in features[0].keys():
-                        feature["positive_labels"] = (
-                            feature["positive_labels"] + remainder_positive if padding_side == "right" else remainder_positive + feature["positive_labels"]
+                    if "synonym_labels" in features[0].keys():
+                        feature["synonym_labels"] = (
+                            feature["synonym_labels"] + remainder_synonym if padding_side == "right" else remainder_synonym + feature["synonym_labels"]
                         )
-                    if "negative_labels" in features[0].keys():
-                        feature["negative_labels"] = (
-                            feature["negative_labels"] + remainder_negative if padding_side == "right" else remainder_negative + feature["negative_labels"]
+                    if "random_labels" in features[0].keys():
+                        feature["random_labels"] = (
+                            feature["random_labels"] + remainder_random if padding_side == "right" else remainder_random + feature["random_labels"]
                         )
                 elif padding_side == "right":
                     feature["labels"] = np.concatenate([feature["labels"], remainder]).astype(np.int64)
-                    if "positive_labels" in features[0].keys():
-                        feature["positive_labels"] = np.concatenate([feature["positive_labels"], remainder_positive]).astype(np.int64)
-                    if "negative_labels" in features[0].keys():
-                        feature["negative_labels"] = np.concatenate([feature["negative_labels"], remainder_negative]).astype(np.int64)
+                    if "synonym_labels" in features[0].keys():
+                        feature["synonym_labels"] = np.concatenate([feature["synonym_labels"], remainder_synonym]).astype(np.int64)
+                    if "random_labels" in features[0].keys():
+                        feature["random_labels"] = np.concatenate([feature["random_labels"], remainder_random]).astype(np.int64)
                 else:
                     feature["labels"] = np.concatenate([remainder, feature["labels"]]).astype(np.int64)
-                    if "positive_labels" in features[0].keys():
-                        feature["positive_labels"] = np.concatenate([remainder_positive, feature["positive_labels"]]).astype(np.int64)
-                    if "negative_labels" in features[0].keys():
-                        feature["negative_labels"] = np.concatenate([remainder_negative, feature["negative_labels"]]).astype(np.int64)
+                    if "synonym_labels" in features[0].keys():
+                        feature["synonym_labels"] = np.concatenate([remainder_synonym, feature["synonym_labels"]]).astype(np.int64)
+                    if "random_labels" in features[0].keys():
+                        feature["random_labels"] = np.concatenate([remainder_random, feature["random_labels"]]).astype(np.int64)
         
         new_labels = [feature["labels"] for feature in features]
-        if "positive_labels" in features[0].keys():
-            new_positive_labels = [feature["positive_labels"] for feature in features]
-        if "negative_labels" in features[0].keys():
-            new_negative_labels = [feature["negative_labels"] for feature in features]
-        # print(len(features))
+        if "synonym_labels" in features[0].keys():
+            new_synonym_labels = [feature["synonym_labels"] for feature in features]
+        if "random_labels" in features[0].keys():
+            new_random_labels = [feature["random_labels"] for feature in features]
 
-        if "positive_inputs" in features[0].keys() and "negative_inputs" not in features[0].keys():
+        if "synonym_inputs" in features[0].keys() and "random_inputs" not in features[0].keys():
             stack_features = self.tokenizer.pad(
-                {"input_ids": inputs+positive_inputs},
+                {"input_ids": inputs+synonym_inputs},
                 padding=self.padding,
                 max_length=self.max_length,
                 pad_to_multiple_of=self.pad_to_multiple_of,
                 return_tensors=return_tensors,
             )
-        elif "positive_inputs" not in features[0].keys() and "negative_inputs" in features[0].keys():
+        elif "synonym_inputs" not in features[0].keys() and "random_inputs" in features[0].keys():
             stack_features = self.tokenizer.pad(
-                {"input_ids": inputs+negative_inputs},
+                {"input_ids": inputs+random_inputs},
                 padding=self.padding,
                 max_length=self.max_length,
                 pad_to_multiple_of=self.pad_to_multiple_of,
                 return_tensors=return_tensors,
             )
-        elif "positive_inputs" in features[0].keys() and "negative_inputs" in features[0].keys():
+        elif "synonym_inputs" in features[0].keys() and "random_inputs" in features[0].keys():
             stack_features = self.tokenizer.pad(
-                {"input_ids": inputs+positive_inputs+negative_inputs},
+                {"input_ids": inputs+synonym_inputs+random_inputs},
                 padding=self.padding,
                 max_length=self.max_length,
                 pad_to_multiple_of=self.pad_to_multiple_of,
@@ -289,32 +233,32 @@ class CustomWithNegativeDataCollator:
                 return_tensors=return_tensors,
             )
 
-        if "positive_labels" in features[0].keys() and "negative_labels" not in features[0].keys():
+        if "synonym_labels" in features[0].keys() and "random_labels" not in features[0].keys():
             stack_features["labels"] = self.tokenizer.pad(
-                {"input_ids": new_labels+positive_labels},
+                {"input_ids": new_labels+synonym_labels},
                 padding=self.padding,
                 max_length=self.max_length,
                 pad_to_multiple_of=self.pad_to_multiple_of,
                 return_tensors=return_tensors,
             )["input_ids"]
-        elif "positive_labels" not in features[0].keys() and "negative_labels" in features[0].keys():
+        elif "synonym_labels" not in features[0].keys() and "random_labels" in features[0].keys():
             stack_features["labels"] = self.tokenizer.pad(
-                {"input_ids": new_labels+negative_labels},
+                {"input_ids": new_labels+random_labels},
                 padding=self.padding,
                 max_length=self.max_length,
                 pad_to_multiple_of=self.pad_to_multiple_of,
                 return_tensors=return_tensors,
             )["input_ids"]
-        elif "positive_labels" in features[0].keys() and "negative_labels" in features[0].keys():
+        elif "synonym_labels" in features[0].keys() and "random_labels" in features[0].keys():
             stack_features["labels"] = self.tokenizer.pad(
-                {"input_ids": new_labels+positive_labels+negative_labels},
+                {"input_ids": new_labels+synonym_labels+random_labels},
                 padding=self.padding,
                 max_length=self.max_length,
                 pad_to_multiple_of=self.pad_to_multiple_of,
                 return_tensors=return_tensors,
             )["input_ids"]
         else:
-            if "positive_inputs" in features[0].keys() and "negative_inputs" not in features[0].keys():
+            if "synonym_inputs" in features[0].keys() and "random_inputs" not in features[0].keys():
                 stack_features["labels"] = self.tokenizer.pad(
                     {"input_ids": new_labels+new_labels},
                     padding=self.padding,
@@ -322,7 +266,7 @@ class CustomWithNegativeDataCollator:
                     pad_to_multiple_of=self.pad_to_multiple_of,
                     return_tensors=return_tensors,
                 )["input_ids"]
-            if "positive_inputs" not in features[0].keys() and "negative_inputs" in features[0].keys():
+            if "synonym_inputs" not in features[0].keys() and "random_inputs" in features[0].keys():
                 stack_features["labels"] = self.tokenizer.pad(
                     {"input_ids": new_labels+new_labels},
                     padding=self.padding,
@@ -330,7 +274,7 @@ class CustomWithNegativeDataCollator:
                     pad_to_multiple_of=self.pad_to_multiple_of,
                     return_tensors=return_tensors,
                 )["input_ids"]
-            if "positive_inputs" in features[0].keys() and "negative_inputs" in features[0].keys():
+            if "synonym_inputs" in features[0].keys() and "random_inputs" in features[0].keys():
                 stack_features["labels"] = self.tokenizer.pad(
                     {"input_ids": new_labels+new_labels+new_labels},
                     padding=self.padding,
@@ -399,8 +343,7 @@ class CustomDataCollator:
                     feature["labels"] = np.concatenate([remainder, feature["labels"]]).astype(np.int64)
         
         new_labels = [feature["labels"] for feature in features]
-        
-        # print(len(features))
+
         stack_features = self.tokenizer.pad(
             {"input_ids": inputs},
             padding=self.padding,
@@ -437,24 +380,15 @@ def data_processor(logger, args, accelerator, raw_datasets, tokenizer, model):
             targets = examples[summary_column]
             with tokenizer.as_target_tokenizer():
                 labels = tokenizer(targets, max_length=max_target_length, padding=padding, truncation=True)
-            if args.topic_prompt_output or args.length_prompt_output:
-                if args.positive_gen:
-                    targets_postive = examples['positive_prompt']
+            if args.contrastive_decoder:
+                if args.synonym_replacement:
+                    targets_synonym = examples['synonym_prompt']
                     with tokenizer.as_target_tokenizer():
-                        labels_postive = tokenizer(targets_postive, max_length=max_target_length, padding=padding, truncation=True)
-                if args.negative_gen:
-                    targets_negative = examples['negative_prompt']
-                    # if args.negative_sample == 1:
+                        labels_synonym = tokenizer(targets_synonym, max_length=max_target_length, padding=padding, truncation=True)
+                if args.random_topic:
+                    targets_random = examples['random_prompt']
                     with tokenizer.as_target_tokenizer():
-                        labels_negative = tokenizer(targets_negative, max_length=max_target_length, padding=padding, truncation=True)
-                    # else:
-                    #     labels_negative_list = []
-                    #     for num in range(args.negative_sample):
-                    #         key_summary_name = 'negative_summary_' + str(num)
-                    #         targets_negative = examples[key_summary_name]
-                    #         with tokenizer.as_target_tokenizer():
-                    #             labels_negative = tokenizer(targets_negative, max_length=max_target_length, padding=padding, truncation=True)
-                    #         labels_negative_list.append(labels_negative)
+                        labels_random = tokenizer(targets_random, max_length=max_target_length, padding=padding, truncation=True)
 
         else:
             targets = examples[summary_column]
@@ -466,35 +400,23 @@ def data_processor(logger, args, accelerator, raw_datasets, tokenizer, model):
         model_inputs = tokenizer(inputs, max_length=args.max_source_length, padding=padding, truncation=True)
         
         if args.contrastive_loss:
-            if args.positive_gen:
-                positive_inputs = examples['positive_prompt']
-                positive_model_inputs = tokenizer(positive_inputs, max_length=args.max_source_length, padding=padding, truncation=True)
-            if args.negative_gen:
-                # if args.negative_sample == 1:
-                negative_inputs = examples['negative_prompt']
-                negative_model_inputs = tokenizer(negative_inputs, max_length=args.max_source_length, padding=padding, truncation=True)
-                # else:
-                #     negative_model_inputs_list = []
-                #     for num in range(args.negative_sample):
-                #         key_prompt_name = 'negative_prompt_' + str(num)
-                #         negative_inputs = examples[key_prompt_name]
-                #         negative_model_inputs = tokenizer(negative_inputs, max_length=args.max_source_length, padding=padding, truncation=True)
-                #         negative_model_inputs_list.append(negative_model_inputs)
+            if args.synonym_replacement:
+                synonym_inputs = examples['synonym_prompt']
+                synonym_model_inputs = tokenizer(synonym_inputs, max_length=args.max_source_length, padding=padding, truncation=True)
+            if args.random_topic:
+                random_inputs = examples['random_prompt']
+                random_model_inputs = tokenizer(random_inputs, max_length=args.max_source_length, padding=padding, truncation=True)
 
         # If we are padding here, replace all tokenizer.pad_token_id in the labels by -100 when we want to ignore
         # padding in the loss.
         if args.contrastive_loss:
             if padding == "max_length" and args.ignore_pad_token_for_loss:
                 labels["input_ids"] = [[(l if l != tokenizer.pad_token_id else -100) for l in label] for label in labels["input_ids"]]
-                if args.topic_prompt_output or args.length_prompt_output:
-                    if args.positive_gen:
-                        labels_postive["input_ids"] = [[(l if l != tokenizer.pad_token_id else -100) for l in label] for label in labels_postive["input_ids"]]
-                    if args.negative_gen:
-                        # if args.negative_sample == 1:
-                        labels_negative["input_ids"] = [[(l if l != tokenizer.pad_token_id else -100) for l in label] for label in labels_negative["input_ids"]]
-                        # else:
-                        #     for num in range(args.negative_sample):
-                        #         labels_negative_list[num]["input_ids"] = [[(l if l != tokenizer.pad_token_id else -100) for l in label] for label in labels_negative_list[num]["input_ids"]]
+                if args.contrastive_decoder:
+                    if args.synonym_replacement:
+                        labels_synonym["input_ids"] = [[(l if l != tokenizer.pad_token_id else -100) for l in label] for label in labels_synonym["input_ids"]]
+                    if args.random_topic:
+                        labels_random["input_ids"] = [[(l if l != tokenizer.pad_token_id else -100) for l in label] for label in labels_random["input_ids"]]
         else:
             if padding == "max_length" and args.ignore_pad_token_for_loss:
                 labels["input_ids"] = [
@@ -503,22 +425,14 @@ def data_processor(logger, args, accelerator, raw_datasets, tokenizer, model):
 
         if args.contrastive_loss:
             model_inputs["labels"] = labels["input_ids"]
-            if args.positive_gen:
-                model_inputs["positive_inputs"] = positive_model_inputs["input_ids"]
-                if args.topic_prompt_output or args.length_prompt_output:
-                    model_inputs["positive_labels"] = labels_postive["input_ids"]
-            if args.negative_gen:
-                # if args.negative_sample == 1:
-                model_inputs["negative_inputs"] = negative_model_inputs["input_ids"]
-                if args.topic_prompt_output or args.length_prompt_output:
-                    model_inputs["negative_labels"] = labels_negative["input_ids"]
-                # else:
-                #     for num in range(args.negative_sample):
-                #         key_model_inputs = 'negative_inputs_ids_' + str(num)
-                #         model_inputs[key_model_inputs] = negative_model_inputs_list[num]["input_ids"]
-                #         if args.topic_prompt_output or args.length_prompt_output:
-                #             key_model_inputs_labels = 'negative_labels_ids_' + str(num)
-                #             model_inputs[key_model_inputs_labels] = labels_negative_list[num]["input_ids"]
+            if args.synonym_replacement:
+                model_inputs["synonym_inputs"] = synonym_model_inputs["input_ids"]
+                if args.contrastive_decoder:
+                    model_inputs["synonym_labels"] = labels_synonym["input_ids"]
+            if args.random_topic:
+                model_inputs["random_inputs"] = random_model_inputs["input_ids"]
+                if args.contrastive_decoder:
+                    model_inputs["random_labels"] = labels_random["input_ids"]
         else: 
             model_inputs["labels"] = labels["input_ids"]
 
