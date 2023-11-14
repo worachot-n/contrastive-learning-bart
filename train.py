@@ -180,75 +180,43 @@ def main():
                     output_logits, dim=-1)
                 
                 if args.contrastive_loss:
-                    # max_encoder_token = batch['input_ids'].shape[1]
                     max_encoder_token = model.config.max_position_embeddings
                     # print(max_encoder_token)
     
                     divide_num = int(output_probs.shape[0] / 2)
-                    # print(outputs.encoder_last_hidden_state[0].shape)
+                    # print(divide_num)
                     
                     embeddings_1 = outputs.encoder_last_hidden_state[0,:,:max_encoder_token]
-                    positive_embeddings_1 = outputs.encoder_last_hidden_state[1,:,:max_encoder_token]
-                    negative_embeddings_1 = outputs.encoder_last_hidden_state[2,:,:max_encoder_token]
-                    # positive_embeddings = positive_embeddings.view(-1, max_encoder_token)
-                    # negative_embeddings = negative_embeddings.view(-1, max_encoder_token)
-                    positive_1 = -1 * torch.ones(positive_embeddings_1.size(dim=0)).to(device)
-                    negative_1 = -1 * torch.ones(negative_embeddings_1.size(dim=0)).to(device)
+                    synonym_embeddings_1 = outputs.encoder_last_hidden_state[1,:,:max_encoder_token]
+                    random_embeddings_1 = outputs.encoder_last_hidden_state[2,:,:max_encoder_token]
+                    # synonym_embeddings = synonym_embeddings.view(-1, max_encoder_token)
+                    # random_embeddings = random_embeddings.view(-1, max_encoder_token)
+                    synonym_1 = -1 * torch.ones(synonym_embeddings_1.size(dim=0)).to(device)
+                    random_1 = -1 * torch.ones(random_embeddings_1.size(dim=0)).to(device)
                     embeddings_2 = outputs.encoder_last_hidden_state[3,:,:max_encoder_token]
-                    positive_embeddings_2 = outputs.encoder_last_hidden_state[4,:,:max_encoder_token]
-                    negative_embeddings_2 = outputs.encoder_last_hidden_state[5,:,:max_encoder_token]
-                    positive_2 = -1 * torch.ones(positive_embeddings_2.size(dim=0)).to(device)
-                    negative_2 = -1 * torch.ones(negative_embeddings_2.size(dim=0)).to(device)
+                    synonym_embeddings_2 = outputs.encoder_last_hidden_state[4,:,:max_encoder_token]
+                    random_embeddings_2 = outputs.encoder_last_hidden_state[5,:,:max_encoder_token]
+                    synonym_2 = -1 * torch.ones(synonym_embeddings_2.size(dim=0)).to(device)
+                    random_2 = -1 * torch.ones(random_embeddings_2.size(dim=0)).to(device)
                     # print(embeddings_1.shape)
-                    # print(positive_embeddings_1.shape)
-                    # print(negative_embeddings_1.shape)
+                    # print(synonym_embeddings_1.shape)
+                    # print(random_embeddings_1.shape)
                     # print(embeddings.shape)
-                    # print(positive_embeddings_2.shape)
-                    # print(negative_embeddings_2.shape)
+                    # print(synonym_embeddings_2.shape)
+                    # print(random_embeddings_2.shape)
                     # break
     
-                    loss_cs_positive_1 = cosine_embedding_loss(embeddings_1, positive_embeddings_1, positive_1, args.margin)
-                    loss_cs_negative_1 = cosine_embedding_loss(embeddings_1, negative_embeddings_1, negative_1, args.margin)
-                    loss_cs_positive_2 = cosine_embedding_loss(embeddings_2, positive_embeddings_2, positive_2, args.margin)
-                    loss_cs_negative_2 = cosine_embedding_loss(embeddings_2, negative_embeddings_2, negative_2, args.margin)
-                    # loss_cs_1 = loss_cs_positive_1 + loss_cs_negative_1
-                    # loss_cs_2 = loss_cs_positive_2 + loss_cs_negative_2
+                    loss_cs_synonym_1 = cosine_embedding_loss(embeddings_1, synonym_embeddings_1, synonym_1, args.margin)
+                    loss_cs_random_1 = cosine_embedding_loss(embeddings_1, random_embeddings_1, random_1, args.margin)
+                    loss_cs_synonym_2 = cosine_embedding_loss(embeddings_2, synonym_embeddings_2, synonym_2, args.margin)
+                    loss_cs_random_2 = cosine_embedding_loss(embeddings_2, random_embeddings_2, random_2, args.margin)
+                    # loss_cs_1 = loss_cs_synonym_1 + loss_cs_random_1
+                    # loss_cs_2 = loss_cs_synonym_2 + loss_cs_random_2
                     # loss_cs = (loss_cs_1 + loss_cs_2) / 2
-                    # loss_cs_positive = (loss_cs_positive_1 + loss_cs_positive_2) / 2
-                    # loss_cs_negative = (loss_cs_negative_1 + loss_cs_negative_2) / 2
-                    loss_cs = (loss_cs_positive_1 + loss_cs_positive_2 + loss_cs_negative_1 + loss_cs_negative_2) / 4
+                    # loss_cs_synonym = (loss_cs_synonym_1 + loss_cs_synonym_2) / 2
+                    # loss_cs_random = (loss_cs_random_1 + loss_cs_random_2) / 2
+                    loss_cs = (loss_cs_synonym_1 + loss_cs_synonym_2 + loss_cs_random_1 + loss_cs_random_2) / 4
                     # print(f"loss_cs: {loss_cs}")
-    
-                    # distance_positive_1 = torch.dist(embeddings_1, positive_embeddings_1, p=2)
-                    # distance_negative_1 = torch.dist(embeddings_1, negative_embeddings_1, p=2)
-                    # distance_positive_2 = torch.dist(embeddings_2, positive_embeddings_2, p=2)
-                    # distance_negative_2 = torch.dist(embeddings_2, negative_embeddings_2, p=2)
-                    # loss_positive_1 = distance_positive_1
-                    # loss_negative_1 = torch.max(torch.tensor(0), args.margin - distance_negative_1) 
-                    # loss_positive_2 = distance_positive_2
-                    # loss_negative_2 = torch.max(torch.tensor(0), args.margin - distance_negative_2) 
-                    # contrastive_loss_1 = loss_positive_1 + loss_negative_1
-                    # contrastive_loss_2 = loss_positive_2 + loss_negative_2
-                    # contrastive_loss = (contrastive_loss_1 + contrastive_loss_2) / 2
-                    # print(f"contrastive_loss: {contrastive_loss}")
-    
-                    # pos_distance_1 = torch.norm(embeddings_1 - positive_embeddings_1, p=2, dim=1)
-                    # neg_distance_1 = torch.norm(embeddings_1 - negative_embeddings_1, p=2, dim=1)
-                    # pos_distance_2 = torch.norm(embeddings_2 - positive_embeddings_2, p=2, dim=1)
-                    # neg_distance_2 = torch.norm(embeddings_2 - negative_embeddings_2, p=2, dim=1)
-                    # con_loss_1 = torch.mean(torch.relu(pos_distance_1 - neg_distance_1 + args.margin))
-                    # con_loss_2 = torch.mean(torch.relu(pos_distance_2 - neg_distance_2 + args.margin))
-                    # con_loss = (con_loss_1 + con_loss_2) / 2
-                    # print(f"con_loss: {con_loss}")
-    
-                    # pos_similarity_1 = torch.nn.functional.cosine_similarity(embeddings_1, positive_embeddings_1)
-                    # neg_similarity_1 = torch.nn.functional.cosine_similarity(embeddings_1, negative_embeddings_1)
-                    # pos_similarity_2 = torch.nn.functional.cosine_similarity(embeddings_2, positive_embeddings_2)
-                    # neg_similarity_2 = torch.nn.functional.cosine_similarity(embeddings_2, negative_embeddings_2)
-                    # sim_loss_1 = torch.mean(torch.relu(pos_distance_1 - neg_distance_1 + args.margin))
-                    # sim_loss_2 = torch.mean(torch.relu(pos_distance_2 - neg_distance_2 + args.margin))
-                    # sim_loss = (sim_loss_1 + sim_loss_2) / 2
-                    # print(f"sim_loss: {sim_loss}")
     
                     output_probs_1 = output_probs[0,:,:]
                     # print(output_probs_1.shape)
@@ -258,11 +226,11 @@ def main():
                     # print(output_probs_all.shape)
                     # output_probs_all = output_probs.view(-1,
                     #                                  model.config.vocab_size)
-                    # output_probs_pos = output_probs[:divide_num,:,:]
-                    # output_probs_pos = output_probs_pos.view(-1,
+                    # output_probs_synonym = output_probs[:divide_num,:,:]
+                    # output_probs_synonym = output_probs_synonym.view(-1,
                     #                                  model.config.vocab_size)
-                    # output_probs_neg = output_probs[divide_num:,:,:]
-                    # output_probs_neg = output_probs_neg.view(-1,
+                    # output_probs_random = output_probs[divide_num:,:,:]
+                    # output_probs_random = output_probs_random.view(-1,
                     #                                  model.config.vocab_size)
     
                     # gt_logits = batch['labels'][:divide_num]
@@ -279,11 +247,12 @@ def main():
                     
                     # (pos, neg, target, ignore_index=-100, ,device)
                     # target_one = torch.ones(gt_logits.shape[0]).to(device)
-                    # loss_mr = margin_ranking_loss(output_probs_pos, output_probs_neg, 
+                    # loss_mr = margin_ranking_loss(output_probs_synonym, output_probs_random, 
                     #                                           gt_logits, target_one, ignore_index=tokenizer.pad_token_id)
                     # print(f"margin_ranking_loss: {loss_margin_ranking}")
-                    # loss = loss_nll + (args.alpha * loss_cs) + (args.beta * loss_mr)
+                    
                     loss = loss_nll + (args.alpha * loss_cs)
+                    # loss = loss_nll + (args.alpha * loss_cs) + (args.beta * loss_mr)
                     # print(loss)
                     # break
                     
@@ -351,22 +320,19 @@ def main():
                 val_predict.extend(decoded_preds)
                 val_groundtruth.extend(decoded_labels)
 
-        if args.topic_prompt_output:
-            new_val_predict = []
-            new_val_groundtruth = []
-            for sample_predict, smaple_groundtruth in zip(val_predict, val_groundtruth):
-                try:
-                    gen_sum = sample_predict.split('Summary: ')[1]
-                    new_val_predict.append(gen_sum)
-                except:
-                    new_val_predict.append(sample_predict)
-                truth_sum = smaple_groundtruth.split('Summary: ')[1]
-                new_val_groundtruth.append(truth_sum)
-            val_predict = new_val_predict
-            val_groundtruth = new_val_groundtruth
-        else:
-            new_val_predict = val_predict
-            new_val_groundtruth = val_groundtruth
+        # if args.topic_prompt_output:
+        #     new_val_predict = []
+        #     new_val_groundtruth = []
+        #     for sample_predict, smaple_groundtruth in zip(val_predict, val_groundtruth):
+        #         try:
+        #             gen_sum = sample_predict.split('Summary: ')[1]
+        #             new_val_predict.append(gen_sum)
+        #         except:
+        #             new_val_predict.append(sample_predict)
+        #         truth_sum = smaple_groundtruth.split('Summary: ')[1]
+        #         new_val_groundtruth.append(truth_sum)
+        #     val_predict = new_val_predict
+        #     val_groundtruth = new_val_groundtruth
 
         logger.info("")
         logger.info("Rouge score on val set after epoch {}".format(epoch+1))
@@ -462,22 +428,20 @@ def main():
             test_predict.extend(decoded_preds)
             test_groundtruth.extend(decoded_labels)
 
-    print(raw_datasets['test']['prompt'][0])
-
-    if args.topic_prompt_output:
-        new_test_predict = []
-        new_test_groundtruth = []
-        for sample_predict, smaple_groundtruth in zip(test_predict, test_groundtruth):
-            try:
-                gen_sum = sample_predict.split('Summary: ')[1]
-                new_test_predict.append(gen_sum)
-            except:
-                new_test_predict.append(sample_predict)
-                new_test_groundtruth.append(smaple_groundtruth)
-            truth_sum = smaple_groundtruth.split('Summary: ')[1]
-            new_test_groundtruth.append(truth_sum)
-        test_predict = new_test_predict
-        test_groundtruth = new_test_groundtruth
+    # if args.topic_prompt_output:
+    #     new_test_predict = []
+    #     new_test_groundtruth = []
+    #     for sample_predict, smaple_groundtruth in zip(test_predict, test_groundtruth):
+    #         try:
+    #             gen_sum = sample_predict.split('Summary: ')[1]
+    #             new_test_predict.append(gen_sum)
+    #         except:
+    #             new_test_predict.append(sample_predict)
+    #             new_test_groundtruth.append(smaple_groundtruth)
+    #         truth_sum = smaple_groundtruth.split('Summary: ')[1]
+    #         new_test_groundtruth.append(truth_sum)
+    #     test_predict = new_test_predict
+    #     test_groundtruth = new_test_groundtruth
 
     logger.info("")
     logger.info("ROUGE score on test set")
