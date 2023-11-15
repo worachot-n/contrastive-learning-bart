@@ -34,7 +34,7 @@ python3 train.py \
     --overwrite_cache True \
     --seed 12345 \
     --contrastive_loss True \
-    --tagging no \
+    --tagging prompt \
     --synonym_replacement True \
     --random_topic True \
     --contrastive_encoder True \

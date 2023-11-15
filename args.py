@@ -85,7 +85,7 @@ def parse_args():
     arg_parser.add_argument("--contrastive_loss", dest="contrastive_loss", type=bool,
                             default=False, help="Use contrastive loss or not")
     arg_parser.add_argument("--tagging", dest="tagging", type=str, default="no",
-                            choices=('no', 'word', 'sentence'), help="Use tagging (<tp>, </tp>) in word, sentence, or not")
+                            choices=('no', 'word', 'prompt'), help="Use tagging (<tp>, </tp>) in word, sentence, or not")
     arg_parser.add_argument("--synonym_replacement", dest="synonym_replacement", type=bool,
                             default=False, help="Synonym replacement or not")
     arg_parser.add_argument("--random_topic", dest="random_topic", type=bool,
