@@ -183,7 +183,7 @@ def main():
                     max_encoder_token = model.config.max_position_embeddings
                     # print(max_encoder_token)
 
-                    divide_num = int(output_probs.shape[0] / 2)
+                    # divide_num = int(output_probs.shape[0] / 2)
                     # print(divide_num)
 
                     embeddings_1 = outputs.encoder_last_hidden_state[0,:,:max_encoder_token]
