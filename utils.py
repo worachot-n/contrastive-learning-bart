@@ -103,17 +103,17 @@ def len_adjust(args, split_dict, split_type=None):
 
         if args.topic_prompt_input:
             if args.tagging == "topic":
-                new_topic_input = f'Topic of Summary: <t>{topic}</t>. '
+                new_topic_input = f'Topic of Summary: <topic>{topic}</topic>. '
                 if args.synonym_replacement:
-                    new_synonym_topic_input = f'Topic of Summary: <t>{synonym_topic}</t>. '
+                    new_synonym_topic_input = f'Topic of Summary: <topic>{synonym_topic}</topic>. '
                 if args.random_topic:
-                    new_random_topic_input = f'Topic of Summary: <t>{random_topics}</t>. '
+                    new_random_topic_input = f'Topic of Summary: <topic>{random_topics}</topic>. '
             elif args.tagging == "prompt":
-                new_topic_input = f'<t>Topic of Summary: {topic}</t>. '
+                new_topic_input = f'<topic>Topic of Summary: {topic}</topic>. '
                 if args.synonym_replacement:
-                    new_synonym_topic_input = f'<t>Topic of Summary: {synonym_topic}</t>. '
+                    new_synonym_topic_input = f'<topic>Topic of Summary: {synonym_topic}</topic>. '
                 if args.random_topic:
-                    new_random_topic_input = f'<t>Topic of Summary: {random_topics}</t>. '
+                    new_random_topic_input = f'<topic>Topic of Summary: {random_topics}</topic>. '
             else:
                 new_topic_input = f'Topic of Summary: {topic}. '
                 if args.synonym_replacement:
