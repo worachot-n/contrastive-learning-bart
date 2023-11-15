@@ -93,7 +93,7 @@ def len_adjust(args, split_dict, split_type=None):
     for dialogue, summary, topic, synonym_dialogue, random_dialogue, synonym_topic, random_topics, synonym_summary, random_summary in zip(dialogue_list, new_summary_list, topic_list,
                                                                                                              synonym_dialogue_list, random_dialogue_list, synonym_topic_list, random_topic_list, 
                                                                                                              new_synonym_summary_list, new_random_summary_list):
-        if args.topic_prompt_input:
+        if args.topic_prompt_input or args.length_prompt_input:
             new_dialogue = f'Dialogue: {dialogue}'
         else:
             new_dialogue = dialogue
@@ -130,10 +130,16 @@ def len_adjust(args, split_dict, split_type=None):
             sum_len = len(summary.split(' '))
             new_length_input = f'Length of Summary: {sum_len}. '
             if args.synonym_replacement:
-                synonym_sum_len = len(synonym_summary.split(' '))
+                if args.contrastive_decoder:
+                    synonym_sum_len = len(synonym_summary.split(' '))
+                else:
+                    synonym_sum_len = len(summary.split(' '))
                 new_synonym_length_input = f'Length of Summary: {synonym_sum_len}. '
             if args.random_topic:
-                random_sum_len = len(random_summary.split(' '))
+                if args.contrastive_decoder:
+                    random_sum_len = len(random_summary.split(' '))
+                else:
+                    random_sum_len = len(summary.split(' '))
                 new_random_length_input = f'Length of Summary: {random_sum_len}. '
             
         else:

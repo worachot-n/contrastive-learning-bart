@@ -187,14 +187,14 @@ def main():
                     # print(divide_num)
 
                     embeddings_1 = outputs.encoder_last_hidden_state[0,:,:max_encoder_token]
-                    synonym_embeddings_1 = outputs.encoder_last_hidden_state[1,:,:max_encoder_token]
-                    random_embeddings_1 = outputs.encoder_last_hidden_state[2,:,:max_encoder_token]
+                    synonym_embeddings_1 = outputs.encoder_last_hidden_state[2,:,:max_encoder_token]
+                    random_embeddings_1 = outputs.encoder_last_hidden_state[4,:,:max_encoder_token]
                     # synonym_embeddings = synonym_embeddings.view(-1, max_encoder_token)
                     # random_embeddings = random_embeddings.view(-1, max_encoder_token)
                     synonym_1 = -1 * torch.ones(synonym_embeddings_1.size(dim=0)).to(device)
                     random_1 = -1 * torch.ones(random_embeddings_1.size(dim=0)).to(device)
-                    embeddings_2 = outputs.encoder_last_hidden_state[3,:,:max_encoder_token]
-                    synonym_embeddings_2 = outputs.encoder_last_hidden_state[4,:,:max_encoder_token]
+                    embeddings_2 = outputs.encoder_last_hidden_state[1,:,:max_encoder_token]
+                    synonym_embeddings_2 = outputs.encoder_last_hidden_state[3,:,:max_encoder_token]
                     random_embeddings_2 = outputs.encoder_last_hidden_state[5,:,:max_encoder_token]
                     synonym_2 = -1 * torch.ones(synonym_embeddings_2.size(dim=0)).to(device)
                     random_2 = -1 * torch.ones(random_embeddings_2.size(dim=0)).to(device)
@@ -221,38 +221,38 @@ def main():
                     
                     output_probs_1 = output_probs[0,:,:]
                     # print(output_probs_1.shape)
-                    output_probs_2 = output_probs[3,:,:]
+                    output_probs_2 = output_probs[1,:,:]
                     # print(output_probs_2.shape)
                     output_probs_all = torch.stack((output_probs_1, output_probs_2), dim=1)
                     # print("output_probs_all: ", output_probs_all.shape)
                     
-                    ## decoder
-                    output_probs_synonym_1 = output_probs[1,:,:]
-                    output_probs_synonym_2 = output_probs[4,:,:]
-                    output_probs_synonym = torch.stack((output_probs_synonym_1, output_probs_synonym_2), dim=1)
-                    # print("output_probs_synonym: ", output_probs_synonym.shape)
-                    output_probs_random_1 = output_probs[2,:,:]
-                    output_probs_random_2 = output_probs[5,:,:]
-                    output_probs_random = torch.stack((output_probs_random_1, output_probs_random_2), dim=1)
-                    # print("output_probs_random: ", output_probs_random.shape)
-                    output_probs_all_mr = output_probs_all.view(-1,
-                                                     model.config.vocab_size)
-                    # print("output_probs_all_mr: ", output_probs_all_mr.shape)
-                    output_probs_synonym = output_probs_synonym.view(-1,
-                                                     model.config.vocab_size)
-                    # print("output_probs_synonym: ", output_probs_synonym.shape)
-                    output_probs_random = output_probs_random.view(-1,
-                                                     model.config.vocab_size)
-                    # print("output_probs_random: ", output_probs_random.shape)
-                    # (pos, neg, target, ignore_index=-100, ,device)
-                    target_one = torch.ones(gt_logits_all_mr.shape[0]).to(device)
-                    # print("target_one: ", target_one.shape)
-                    loss_mr_1 = margin_ranking_loss(output_probs_all_mr, output_probs_synonym, 
-                                                              gt_logits_all_mr, target_one, ignore_index=tokenizer.pad_token_id)
-                    loss_mr_2 = margin_ranking_loss(output_probs_all_mr, output_probs_random, 
-                                                              gt_logits_all_mr, target_one, ignore_index=tokenizer.pad_token_id)
-                    loss_mr = (loss_mr_1 + loss_mr_2) / 2
-                    # print(f"loss_mr: {loss_mr}")
+                    # ## decoder
+                    # output_probs_synonym_1 = output_probs[2,:,:]
+                    # output_probs_synonym_2 = output_probs[4,:,:]
+                    # output_probs_synonym = torch.stack((output_probs_synonym_1, output_probs_synonym_2), dim=1)
+                    # # print("output_probs_synonym: ", output_probs_synonym.shape)
+                    # output_probs_random_1 = output_probs[3,:,:]
+                    # output_probs_random_2 = output_probs[5,:,:]
+                    # output_probs_random = torch.stack((output_probs_random_1, output_probs_random_2), dim=1)
+                    # # print("output_probs_random: ", output_probs_random.shape)
+                    # output_probs_all_mr = output_probs_all.view(-1,
+                    #                                  model.config.vocab_size)
+                    # # print("output_probs_all_mr: ", output_probs_all_mr.shape)
+                    # output_probs_synonym = output_probs_synonym.view(-1,
+                    #                                  model.config.vocab_size)
+                    # # print("output_probs_synonym: ", output_probs_synonym.shape)
+                    # output_probs_random = output_probs_random.view(-1,
+                    #                                  model.config.vocab_size)
+                    # # print("output_probs_random: ", output_probs_random.shape)
+                    # # (pos, neg, target, ignore_index=-100, ,device)
+                    # target_one = torch.ones(gt_logits_all_mr.shape[0]).to(device)
+                    # # print("target_one: ", target_one.shape)
+                    # loss_mr_1 = margin_ranking_loss(output_probs_all_mr, output_probs_synonym, 
+                    #                                           gt_logits_all_mr, target_one, ignore_index=tokenizer.pad_token_id)
+                    # loss_mr_2 = margin_ranking_loss(output_probs_all_mr, output_probs_random, 
+                    #                                           gt_logits_all_mr, target_one, ignore_index=tokenizer.pad_token_id)
+                    # loss_mr = (loss_mr_1 + loss_mr_2) / 2
+                    # # print(f"loss_mr: {loss_mr}")
                     
                                         
                     ## negative log-likelihood
@@ -262,18 +262,20 @@ def main():
                     # print("gt_logits: ", gt_logits.shape)
                     # gt_logits = gt_logits.view(-1)
                     gt_logits_1 = gt_logits[0,:]
-                    gt_logits_2 = gt_logits[3,:]
+                    gt_logits_2 = gt_logits[1,:]
                     gt_logits_all = torch.stack((gt_logits_1, gt_logits_2), dim=1)
                     
-                    ## decoder
-                    gt_logits_all_mr = gt_logits_all.view(-1)
-                    # print("gt_logits_all_mr: ", gt_logits_all_mr.shape)
+                    # ## decoder
+                    # gt_logits_all_mr = gt_logits_all.view(-1)
+                    # # print("gt_logits_all_mr: ", gt_logits_all_mr.shape)
 
                     loss_nll, nll = label_smoothed_nll_loss(
                         output_probs_all, gt_logits_all, args.label_smoothing, ignore_index=tokenizer.pad_token_id)
 
-                    # loss = loss_nll + (args.alpha * loss_cs)
-                    loss = loss_nll + (args.alpha * loss_cs) + (args.beta * loss_mr)
+                    loss = loss_nll + (args.alpha * loss_cs)
+                    
+                    # ## decoder
+                    # loss = loss_nll + (args.alpha * loss_cs) + (args.beta * loss_mr)
                     # print(loss)
                     # break
 
