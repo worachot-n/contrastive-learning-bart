@@ -140,7 +140,7 @@ def load_from_dialogsum(args, file_path, split_type=None):
         new_dict['random_topic'] = random_topic
         data_dict_list.append(new_dict)
         
-    with open(f'./data/dialogsum_aug/dialogsum.{split_type}.jsonl', 'w') as outfile:
+    with open(f'./data/dialogtest_aug/dialogsum.{split_type}.jsonl', 'w') as outfile:
         for entry in data_dict_list:
             json.dump(entry, outfile)
             outfile.write('\n')

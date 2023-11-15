@@ -382,11 +382,11 @@ def data_processor(logger, args, accelerator, raw_datasets, tokenizer, model):
                 labels = tokenizer(targets, max_length=max_target_length, padding=padding, truncation=True)
             if args.contrastive_decoder:
                 if args.synonym_replacement:
-                    targets_synonym = examples['synonym_prompt']
+                    targets_synonym = examples['synonym_summary']
                     with tokenizer.as_target_tokenizer():
                         labels_synonym = tokenizer(targets_synonym, max_length=max_target_length, padding=padding, truncation=True)
                 if args.random_topic:
-                    targets_random = examples['random_prompt']
+                    targets_random = examples['random_summary']
                     with tokenizer.as_target_tokenizer():
                         labels_random = tokenizer(targets_random, max_length=max_target_length, padding=padding, truncation=True)
 

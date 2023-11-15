@@ -39,7 +39,7 @@ def model_loader(accelerator, logger, args):
             "You can do it from another script, save it, and load it from here, using --tokenizer_name."
         )
 
-    if args.topic_tagger:
+    if args.tagging:
         special_tokens = {'additional_special_tokens': ['<t>', '</t>']}
         tokenizer.add_special_tokens(special_tokens_dict=special_tokens)
 
