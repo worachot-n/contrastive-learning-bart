@@ -466,6 +466,8 @@ def main():
     #         new_test_groundtruth.append(truth_sum)
     #     test_predict = new_test_predict
     #     test_groundtruth = new_test_groundtruth
+    
+    print(raw_datasets['test']['prompt'][0])
 
     logger.info("")
     logger.info("ROUGE score on test set")
