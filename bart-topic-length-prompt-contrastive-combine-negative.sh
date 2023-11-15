@@ -8,7 +8,7 @@ echo "= = = = = = = = = = = = = ="
 python3 train.py \
     --topic_prompt_input True \
     --length_prompt_input True \
-    --output_dir ./output/bart-topic-length-prompt-contrastive-combine-negative-prompt-tagger \
+    --output_dir ./output/bart-topic-length-prompt-contrastive-combine-negative \
     --train_file ./data/dialogsum_aug/dialogsum.train.jsonl \
     --validation_file ./data/dialogsum_aug/dialogsum.dev.jsonl \
     --test_file ./data/dialogsum_aug/dialogsum.test.jsonl \
@@ -34,7 +34,7 @@ python3 train.py \
     --overwrite_cache True \
     --seed 12345 \
     --contrastive_loss True \
-    --tagging prompt \
+    --tagging no \
     --synonym_replacement True \
     --random_topic True \
     --contrastive_encoder True \
