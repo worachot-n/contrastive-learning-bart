@@ -76,7 +76,7 @@ def load_from_dialogsum(args, file_path, split_type=None):
             data_dict['random_topic'] = random_topic_list
             data_dict['random_summary'] = random_summary_list
 
-    if args.tagging == "topic" or args.tagging == "prompt":
+    if args.tagging == "word" or args.tagging == "prompt":
         original_tagger = []
         original_tokens = [simple_tokenize(x) for x in dialogue_list]
         lemmatized_tokens = [lemmatize_text(x) for x in dialogue_list]

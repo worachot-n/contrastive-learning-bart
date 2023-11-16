@@ -56,7 +56,7 @@ def len_adjust(args, split_dict, split_type=None):
         if args.synonym_replacement:
             synonym_topic_list = split_dict['synonym_topic']
             new_synonym_summary_list = split_dict['synonym_summary']
-            if args.tagging == "topic" or args.tagging == "prompt":
+            if args.tagging == "word" or args.tagging == "prompt":
                 synonym_dialogue_list = split_dict['synonym_dialogue']
             else:
                 synonym_dialogue_list = dialogue_list
@@ -67,7 +67,7 @@ def len_adjust(args, split_dict, split_type=None):
         if args.random_topic:
             random_topic_list = split_dict['random_topic']
             new_random_summary_list = split_dict['random_summary']
-            if args.tagging == "topic" or args.tagging == "prompt":
+            if args.tagging == "word" or args.tagging == "prompt":
                 random_dialogue_list = split_dict['random_dialogue']
             else:
                 random_dialogue_list = dialogue_list
@@ -102,7 +102,7 @@ def len_adjust(args, split_dict, split_type=None):
         new_summary = summary
 
         if args.topic_prompt_input:
-            if args.tagging == "topic":
+            if args.tagging == "word":
                 new_topic_input = f'Topic of Summary: <topic>{topic}</topic>. '
                 if args.synonym_replacement:
                     new_synonym_topic_input = f'Topic of Summary: <topic>{synonym_topic}</topic>. '
