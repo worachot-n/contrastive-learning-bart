@@ -39,7 +39,7 @@ def model_loader(accelerator, logger, args):
             "You can do it from another script, save it, and load it from here, using --tokenizer_name."
         )
 
-    if args.tagging:
+    if args.tagging == "word" or args.tagging == "prompt":
         special_tokens = {'additional_special_tokens': ['<topic>', '</topic>']}
         tokenizer.add_special_tokens(special_tokens_dict=special_tokens)
 
