@@ -61,6 +61,7 @@ def len_adjust(args, split_dict, split_type=None):
             else:
                 synonym_dialogue_list = dialogue_list
         else:
+            synonym_dialogue_list = dialogue_list
             synonym_topic_list = topic_list
             new_synonym_summary_list = summary_list
             
@@ -72,6 +73,7 @@ def len_adjust(args, split_dict, split_type=None):
             else:
                 random_dialogue_list = dialogue_list
         else:
+            random_dialogue_list = dialogue_list
             random_topic_list = topic_list
             new_random_summary_list = summary_list
     

@@ -266,7 +266,7 @@ class CustomWithNegativeDataCollator:
                     pad_to_multiple_of=self.pad_to_multiple_of,
                     return_tensors=return_tensors,
                 )["input_ids"]
-            if "synonym_inputs" not in features[0].keys() and "random_inputs" in features[0].keys():
+            elif "synonym_inputs" not in features[0].keys() and "random_inputs" in features[0].keys():
                 stack_features["labels"] = self.tokenizer.pad(
                     {"input_ids": new_labels+new_labels},
                     padding=self.padding,
@@ -274,7 +274,7 @@ class CustomWithNegativeDataCollator:
                     pad_to_multiple_of=self.pad_to_multiple_of,
                     return_tensors=return_tensors,
                 )["input_ids"]
-            if "synonym_inputs" in features[0].keys() and "random_inputs" in features[0].keys():
+            elif "synonym_inputs" in features[0].keys() and "random_inputs" in features[0].keys():
                 stack_features["labels"] = self.tokenizer.pad(
                     {"input_ids": new_labels+new_labels+new_labels},
                     padding=self.padding,
