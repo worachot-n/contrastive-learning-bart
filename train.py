@@ -218,32 +218,29 @@ def main():
                 if args.contrastive_loss:
                     max_encoder_token = model.config.max_position_embeddings
 
-                    divide_num = int(output_probs.shape[0] / args.per_device_train_batch_size)
-
-                    embeddings = outputs.encoder_last_hidden_state[0::divide_num,:,:max_encoder_token]
+                    embeddings = outputs.encoder_last_hidden_state[:args.per_device_train_batch_size,:,:max_encoder_token]
+                    # print(embeddings.shape)
                     embeddings = embeddings.reshape(-1, max_encoder_token)
 
+                    minus_one = -1 * torch.ones(embeddings.size(dim=0)).to(device)
+
                     if args.synonym_replacement and not args.random_topic:
-                        synonym_embeddings = outputs.encoder_last_hidden_state[1::divide_num,:,:max_encoder_token]
+                        synonym_embeddings = outputs.encoder_last_hidden_state[args.per_device_train_batch_size:args.per_device_train_batch_size*2,:,:max_encoder_token]
                         synonym_embeddings = synonym_embeddings.reshape(-1, max_encoder_token)
-                        synonym_one = -1 * torch.ones(synonym_embeddings_1.size(dim=0)).to(device)
-                        loss_cs = cosine_embedding_loss(embeddings, synonym_embeddings, synonym_one, args.margin)
+                        loss_cs = cosine_embedding_loss(embeddings, synonym_embeddings, minus_one, args.margin)
 
                     elif not args.synonym_replacement and args.random_topic:
-                        random_embeddings = outputs.encoder_last_hidden_state[1::divide_num,:,:max_encoder_token]
+                        random_embeddings = outputs.encoder_last_hidden_state[args.per_device_train_batch_size:args.per_device_train_batch_size*2,:,:max_encoder_token]
                         random_embeddings = random_embeddings.reshape(-1, max_encoder_token)
-                        random_one = -1 * torch.ones(random_embeddings.size(dim=0)).to(device)
-                        loss_cs = cosine_embedding_loss(embeddings, random_embeddings, random_one, args.margin)
+                        loss_cs = cosine_embedding_loss(embeddings, random_embeddings, minus_one, args.margin)
 
                     elif args.synonym_replacement and args.random_topic:
-                        synonym_embeddings = outputs.encoder_last_hidden_state[1::divide_num,:,:max_encoder_token]
-                        random_embeddings = outputs.encoder_last_hidden_state[2::divide_num,:,:max_encoder_token]
+                        synonym_embeddings = outputs.encoder_last_hidden_state[args.per_device_train_batch_size:args.per_device_train_batch_size*2,:,:max_encoder_token]
+                        random_embeddings = outputs.encoder_last_hidden_state[args.per_device_train_batch_size*2:,:,:max_encoder_token]
                         synonym_embeddings = synonym_embeddings.reshape(-1, max_encoder_token)
                         random_embeddings = random_embeddings.reshape(-1, max_encoder_token)
-                        synonym_one = -1 * torch.ones(synonym_embeddings.size(dim=0)).to(device)
-                        random_one = -1 * torch.ones(random_embeddings.size(dim=0)).to(device)
-                        loss_cs_synonym = cosine_embedding_loss(embeddings, synonym_embeddings, synonym_one, args.margin)
-                        loss_cs_random = cosine_embedding_loss(embeddings, random_embeddings, random_one, args.margin)
+                        loss_cs_synonym = cosine_embedding_loss(embeddings, synonym_embeddings, minus_one, args.margin)
+                        loss_cs_random = cosine_embedding_loss(embeddings, random_embeddings, minus_one, args.margin)
                         loss_cs = (loss_cs_synonym + loss_cs_random) / 2
 
                     # negative log-likelihood

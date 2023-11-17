@@ -91,14 +91,18 @@ def load_from_dialogsum(args, file_path, split_type=None):
                         synonyms = get_synonyms(word)
                         synonyms_not_duplicate = set(synonyms).difference(set([word]))
                         if len(synonyms_not_duplicate):
-                            synonyms_not_duplicate = random.choice(list(synonyms_not_duplicate))
+                            synonyms_not_duplicate_list = list(synonyms_not_duplicate)
+                            synonyms_not_duplicate_list.sort()
+                            synonyms_not_duplicate = random.choice(synonyms_not_duplicate_list)
                         else:
                             synonyms_not_duplicate = word
                         synonym_topic.append(synonyms_not_duplicate)
                 synonym_topic_list.append(' '.join(synonym_topic))
             if args.random_topic:
-                topic_set = topic_set.difference(set(topic))
-                random_topic = random.choice(list(topic_set))
+                new_topic_set = topic_set.difference(set(topic))
+                new_topic_list = list(new_topic_set)
+                new_topic_list.sort()
+                random_topic = random.choice(new_topic_list)
                 random_topic_list.append(random_topic)
         if args.synonym_replacement:
             data_dict['synonym_topic'] = synonym_topic_list
@@ -445,9 +449,9 @@ def data_processor(logger, args, accelerator, raw_datasets, tokenizer, model):
             pad_to_multiple_of=8 if accelerator.use_fp16 else None,
         )
         
-        train_dataloader = DataLoader(train_dataset, shuffle=True, collate_fn=data_collator, batch_size=args.per_device_train_batch_size, worker_init_fn=lambda _: np.random.seed())
-        eval_dataloader = DataLoader(eval_dataset, collate_fn=valid_data_collator, batch_size=args.per_device_eval_batch_size, worker_init_fn=lambda _: np.random.seed())
-        test_dataloader = DataLoader(test_dataset, collate_fn=valid_data_collator, batch_size=args.per_device_test_batch_size, worker_init_fn=lambda _: np.random.seed())
+        train_dataloader = DataLoader(train_dataset, shuffle=True, collate_fn=data_collator, batch_size=args.per_device_train_batch_size, worker_init_fn=lambda _: np.random.seed(args.seed))
+        eval_dataloader = DataLoader(eval_dataset, collate_fn=valid_data_collator, batch_size=args.per_device_eval_batch_size, worker_init_fn=lambda _: np.random.seed(args.seed))
+        test_dataloader = DataLoader(test_dataset, collate_fn=valid_data_collator, batch_size=args.per_device_test_batch_size, worker_init_fn=lambda _: np.random.seed(args.seed))
     else:
         data_collator = CustomDataCollator(
             tokenizer,
@@ -456,8 +460,8 @@ def data_processor(logger, args, accelerator, raw_datasets, tokenizer, model):
             pad_to_multiple_of=8 if accelerator.use_fp16 else None,
         )
     
-        train_dataloader = DataLoader(train_dataset, shuffle=True, collate_fn=data_collator, batch_size=args.per_device_train_batch_size, worker_init_fn=lambda _: np.random.seed())
-        eval_dataloader = DataLoader(eval_dataset, collate_fn=data_collator, batch_size=args.per_device_eval_batch_size, worker_init_fn=lambda _: np.random.seed())
-        test_dataloader = DataLoader(test_dataset, collate_fn=data_collator, batch_size=args.per_device_test_batch_size, worker_init_fn=lambda _: np.random.seed())
+        train_dataloader = DataLoader(train_dataset, shuffle=True, collate_fn=data_collator, batch_size=args.per_device_train_batch_size, worker_init_fn=lambda _: np.random.seed(args.seed))
+        eval_dataloader = DataLoader(eval_dataset, collate_fn=data_collator, batch_size=args.per_device_eval_batch_size, worker_init_fn=lambda _: np.random.seed(args.seed))
+        test_dataloader = DataLoader(test_dataset, collate_fn=data_collator, batch_size=args.per_device_test_batch_size, worker_init_fn=lambda _: np.random.seed(args.seed))
 
     return (train_dataloader, eval_dataloader, test_dataloader), (train_dataset, eval_dataset, test_dataset)
