@@ -211,30 +211,20 @@ def main():
                         loss_cs = (loss_cs_synonym + loss_cs_random) / 2
                                         
                     # negative log-likelihood
-                    output_probs = output_probs.view(-1,
-                                                     model.config.vocab_size)
-
+                    output_probs = output_probs.view(-1, model.config.vocab_size)
                     gt_logits = batch['labels']
                     gt_logits = gt_logits.view(-1)
+                    loss_nll, nll = label_smoothed_nll_loss(output_probs, gt_logits, args.label_smoothing, ignore_index=tokenizer.pad_token_id)
 
-                    loss_nll, nll = label_smoothed_nll_loss(
-                        output_probs, gt_logits, args.label_smoothing, ignore_index=tokenizer.pad_token_id)
-
+                    # joint loss
                     loss = loss_nll + (args.alpha * loss_cs)
-                    # break
 
                 else:
-                    output_probs = output_probs.view(-1,
-                                                     model.config.vocab_size)
-
+                    output_probs = output_probs.view(-1,model.config.vocab_size)
                     gt_logits = batch['labels']
                     gt_logits = gt_logits.view(-1)
-
-                    loss_nll, nll = label_smoothed_nll_loss(
-                        output_probs, gt_logits, args.label_smoothing, ignore_index=tokenizer.pad_token_id)
-
+                    loss_nll, nll = label_smoothed_nll_loss(output_probs, gt_logits, args.label_smoothing, ignore_index=tokenizer.pad_token_id)
                     loss = loss_nll
-                    # break
 
             acc_losses.append(loss.item())
             loss = loss / args.gradient_accumulation_steps
@@ -286,20 +276,6 @@ def main():
 
                 val_predict.extend(decoded_preds)
                 val_groundtruth.extend(decoded_labels)
-
-        # if args.topic_prompt_output:
-        #     new_val_predict = []
-        #     new_val_groundtruth = []
-        #     for sample_predict, smaple_groundtruth in zip(val_predict, val_groundtruth):
-        #         try:
-        #             gen_sum = sample_predict.split('Summary: ')[1]
-        #             new_val_predict.append(gen_sum)
-        #         except:
-        #             new_val_predict.append(sample_predict)
-        #         truth_sum = smaple_groundtruth.split('Summary: ')[1]
-        #         new_val_groundtruth.append(truth_sum)
-        #     val_predict = new_val_predict
-        #     val_groundtruth = new_val_groundtruth
 
         logger.info("")
         logger.info("Rouge score on val set after epoch {}".format(epoch+1))
@@ -394,21 +370,6 @@ def main():
 
             test_predict.extend(decoded_preds)
             test_groundtruth.extend(decoded_labels)
-
-    # if args.topic_prompt_output:
-    #     new_test_predict = []
-    #     new_test_groundtruth = []
-    #     for sample_predict, smaple_groundtruth in zip(test_predict, test_groundtruth):
-    #         try:
-    #             gen_sum = sample_predict.split('Summary: ')[1]
-    #             new_test_predict.append(gen_sum)
-    #         except:
-    #             new_test_predict.append(sample_predict)
-    #             new_test_groundtruth.append(smaple_groundtruth)
-    #         truth_sum = smaple_groundtruth.split('Summary: ')[1]
-    #         new_test_groundtruth.append(truth_sum)
-    #     test_predict = new_test_predict
-    #     test_groundtruth = new_test_groundtruth
     
     print(raw_datasets['test']['prompt'][0])
 
@@ -416,7 +377,6 @@ def main():
     logger.info("ROUGE score on test set")
     test_scores = py_rouge_scores(test_predict, test_groundtruth)
     logger.info("")
-
 
     # Save generated summaries
     if args.predict_summary:
