@@ -7,6 +7,8 @@ import numpy as np
 from collections.abc import Mapping
 from typing import Any, Callable, Dict, List, NewType, Optional, Tuple, Union
 
+import nltk
+from nltk.corpus import wordnet
 import datasets
 from datasets import Dataset
 import torch
@@ -17,6 +19,14 @@ from transformers.tokenization_utils_base import PreTrainedTokenizerBase, Paddin
 
 import utils
 from special_token import simple_tokenize, lemmatize_text, build_tagger
+
+
+def get_synonyms(word):
+    synonyms = []
+    for syn in wordnet.synsets(word):
+        for lemma in syn.lemmas():
+            synonyms.append(lemma.name())
+    return synonyms
 
 
 def load_from_dialogsum(args, file_path, split_type=None):
@@ -61,20 +71,32 @@ def load_from_dialogsum(args, file_path, split_type=None):
              'topic': topic_list}
     
     if args.contrastive_loss:
+        topic_set = set(topic_list)
+        synonym_topic_list = []
+        random_topic_list = []
+        for topic in topic_list:
+            if args.synonym_replacement:
+                tokenized_text = nltk.word_tokenize(topic)
+                synonym_topic = []
+                for word in tokenized_text:
+                    if word not in {'a', 'an' ,'the'}:
+                        synonyms = get_synonyms(word)
+                        synonyms_not_duplicate = set(synonyms).difference(set([word]))
+                        if len(synonyms_not_duplicate):
+                            synonyms_not_duplicate = random.choice(list(synonyms_not_duplicate))
+                        else:
+                            synonyms_not_duplicate = word
+                        synonym_topic.append(synonyms_not_duplicate)
+                synonym_topic_list.append(' '.join(synonym_topic))
+            if args.random_topic:
+                topic_set = topic_set.difference(set(topic))
+                # negative_topic = random.sample(list(random_topic), args.negative_sample)
+                random_topic = random.choice(list(topic_set))
+                random_topic_list.append(random_topic)
         if args.synonym_replacement:
-            # topic
-            synonym_topic_list = [sample['synonym_topic'] for sample in data]
-            # summary
-            synonym_summary_list = [sample['synonym_summary'] for sample in data]
             data_dict['synonym_topic'] = synonym_topic_list
-            data_dict['synonym_summary'] = synonym_summary_list
         if args.random_topic:
-            # topic
-            random_topic_list = [sample['random_topic'] for sample in data]
-            # summary
-            random_summary_list = [sample['random_summary'] for sample in data]
             data_dict['random_topic'] = random_topic_list
-            data_dict['random_summary'] = random_summary_list
 
     if args.tagging == "word" or args.tagging == "prompt":
         original_tagger = []
@@ -135,14 +157,6 @@ class CustomWithNegativeDataCollator:
             return_tensors = self.return_tensors
         labels = [feature["labels"] for feature in features] if "labels" in features[0].keys() else None
         inputs = [np.array(feature['input_ids']) for feature in features] if "input_ids" in features[0].keys() else None
-        if "synonym_labels" in features[0].keys():
-            synonym_labels = [feature['synonym_labels'] for feature in features]  
-        else: 
-            None
-        if "random_labels" in features[0].keys():
-            random_labels = [feature['random_labels'] for feature in features]
-        else: 
-            None
         if "synonym_inputs" in features[0].keys():
             synonym_inputs = [np.array(feature['synonym_inputs']) for feature in features]
         else: 
@@ -163,42 +177,17 @@ class CustomWithNegativeDataCollator:
 
             padding_side = self.tokenizer.padding_side
             for feature in features:
-                
                 remainder = [self.label_pad_token_id] * (max_label_length - len(feature["labels"]))
-                if "synonym_labels" in features[0].keys():
-                    remainder_synonym = [self.label_pad_token_id] * (max_label_length - len(feature["synonym_labels"]))
-                if "random_labels" in features[0].keys():
-                    remainder_random = [self.label_pad_token_id] * (max_label_length - len(feature["random_labels"]))
                 if isinstance(feature["labels"], list):
                     feature["labels"] = (
                         feature["labels"] + remainder if padding_side == "right" else remainder + feature["labels"]
                     )
-                    if "synonym_labels" in features[0].keys():
-                        feature["synonym_labels"] = (
-                            feature["synonym_labels"] + remainder_synonym if padding_side == "right" else remainder_synonym + feature["synonym_labels"]
-                        )
-                    if "random_labels" in features[0].keys():
-                        feature["random_labels"] = (
-                            feature["random_labels"] + remainder_random if padding_side == "right" else remainder_random + feature["random_labels"]
-                        )
                 elif padding_side == "right":
                     feature["labels"] = np.concatenate([feature["labels"], remainder]).astype(np.int64)
-                    if "synonym_labels" in features[0].keys():
-                        feature["synonym_labels"] = np.concatenate([feature["synonym_labels"], remainder_synonym]).astype(np.int64)
-                    if "random_labels" in features[0].keys():
-                        feature["random_labels"] = np.concatenate([feature["random_labels"], remainder_random]).astype(np.int64)
                 else:
-                    feature["labels"] = np.concatenate([remainder, feature["labels"]]).astype(np.int64)
-                    if "synonym_labels" in features[0].keys():
-                        feature["synonym_labels"] = np.concatenate([remainder_synonym, feature["synonym_labels"]]).astype(np.int64)
-                    if "random_labels" in features[0].keys():
-                        feature["random_labels"] = np.concatenate([remainder_random, feature["random_labels"]]).astype(np.int64)
+                    feature["labels"] = np.concatenate([remainder, feature["labels"]]).astype(np.int64)          
         
         new_labels = [feature["labels"] for feature in features]
-        if "synonym_labels" in features[0].keys():
-            new_synonym_labels = [feature["synonym_labels"] for feature in features]
-        if "random_labels" in features[0].keys():
-            new_random_labels = [feature["random_labels"] for feature in features]
 
         if "synonym_inputs" in features[0].keys() and "random_inputs" not in features[0].keys():
             stack_features = self.tokenizer.pad(
@@ -233,63 +222,38 @@ class CustomWithNegativeDataCollator:
                 return_tensors=return_tensors,
             )
 
-        if "synonym_labels" in features[0].keys() and "random_labels" not in features[0].keys():
+        if "synonym_inputs" in features[0].keys() and "random_inputs" not in features[0].keys():
             stack_features["labels"] = self.tokenizer.pad(
-                {"input_ids": new_labels+synonym_labels},
+                {"input_ids": new_labels+new_labels},
                 padding=self.padding,
                 max_length=self.max_length,
                 pad_to_multiple_of=self.pad_to_multiple_of,
                 return_tensors=return_tensors,
             )["input_ids"]
-        elif "synonym_labels" not in features[0].keys() and "random_labels" in features[0].keys():
+        elif "synonym_inputs" not in features[0].keys() and "random_inputs" in features[0].keys():
             stack_features["labels"] = self.tokenizer.pad(
-                {"input_ids": new_labels+random_labels},
+                {"input_ids": new_labels+new_labels},
                 padding=self.padding,
                 max_length=self.max_length,
                 pad_to_multiple_of=self.pad_to_multiple_of,
                 return_tensors=return_tensors,
             )["input_ids"]
-        elif "synonym_labels" in features[0].keys() and "random_labels" in features[0].keys():
+        elif "synonym_inputs" in features[0].keys() and "random_inputs" in features[0].keys():
             stack_features["labels"] = self.tokenizer.pad(
-                {"input_ids": new_labels+synonym_labels+random_labels},
+                {"input_ids": new_labels+new_labels+new_labels},
                 padding=self.padding,
                 max_length=self.max_length,
                 pad_to_multiple_of=self.pad_to_multiple_of,
                 return_tensors=return_tensors,
             )["input_ids"]
         else:
-            if "synonym_inputs" in features[0].keys() and "random_inputs" not in features[0].keys():
-                stack_features["labels"] = self.tokenizer.pad(
-                    {"input_ids": new_labels+new_labels},
-                    padding=self.padding,
-                    max_length=self.max_length,
-                    pad_to_multiple_of=self.pad_to_multiple_of,
-                    return_tensors=return_tensors,
-                )["input_ids"]
-            elif "synonym_inputs" not in features[0].keys() and "random_inputs" in features[0].keys():
-                stack_features["labels"] = self.tokenizer.pad(
-                    {"input_ids": new_labels+new_labels},
-                    padding=self.padding,
-                    max_length=self.max_length,
-                    pad_to_multiple_of=self.pad_to_multiple_of,
-                    return_tensors=return_tensors,
-                )["input_ids"]
-            elif "synonym_inputs" in features[0].keys() and "random_inputs" in features[0].keys():
-                stack_features["labels"] = self.tokenizer.pad(
-                    {"input_ids": new_labels+new_labels+new_labels},
-                    padding=self.padding,
-                    max_length=self.max_length,
-                    pad_to_multiple_of=self.pad_to_multiple_of,
-                    return_tensors=return_tensors,
-                )["input_ids"]
-            else:
-                stack_features["labels"] = self.tokenizer.pad(
-                    {"input_ids": new_labels},
-                    padding=self.padding,
-                    max_length=self.max_length,
-                    pad_to_multiple_of=self.pad_to_multiple_of,
-                    return_tensors=return_tensors,
-                )["input_ids"]
+            stack_features["labels"] = self.tokenizer.pad(
+                {"input_ids": new_labels},
+                padding=self.padding,
+                max_length=self.max_length,
+                pad_to_multiple_of=self.pad_to_multiple_of,
+                return_tensors=return_tensors,
+            )["input_ids"]
         
         # prepare decoder_input_ids
         if (
@@ -380,15 +344,6 @@ def data_processor(logger, args, accelerator, raw_datasets, tokenizer, model):
             targets = examples[summary_column]
             with tokenizer.as_target_tokenizer():
                 labels = tokenizer(targets, max_length=max_target_length, padding=padding, truncation=True)
-            if args.contrastive_decoder:
-                if args.synonym_replacement:
-                    targets_synonym = examples['synonym_summary']
-                    with tokenizer.as_target_tokenizer():
-                        labels_synonym = tokenizer(targets_synonym, max_length=max_target_length, padding=padding, truncation=True)
-                if args.random_topic:
-                    targets_random = examples['random_summary']
-                    with tokenizer.as_target_tokenizer():
-                        labels_random = tokenizer(targets_random, max_length=max_target_length, padding=padding, truncation=True)
 
         else:
             targets = examples[summary_column]
@@ -412,11 +367,7 @@ def data_processor(logger, args, accelerator, raw_datasets, tokenizer, model):
         if args.contrastive_loss:
             if padding == "max_length" and args.ignore_pad_token_for_loss:
                 labels["input_ids"] = [[(l if l != tokenizer.pad_token_id else -100) for l in label] for label in labels["input_ids"]]
-                if args.contrastive_decoder:
-                    if args.synonym_replacement:
-                        labels_synonym["input_ids"] = [[(l if l != tokenizer.pad_token_id else -100) for l in label] for label in labels_synonym["input_ids"]]
-                    if args.random_topic:
-                        labels_random["input_ids"] = [[(l if l != tokenizer.pad_token_id else -100) for l in label] for label in labels_random["input_ids"]]
+
         else:
             if padding == "max_length" and args.ignore_pad_token_for_loss:
                 labels["input_ids"] = [
@@ -427,12 +378,8 @@ def data_processor(logger, args, accelerator, raw_datasets, tokenizer, model):
             model_inputs["labels"] = labels["input_ids"]
             if args.synonym_replacement:
                 model_inputs["synonym_inputs"] = synonym_model_inputs["input_ids"]
-                if args.contrastive_decoder:
-                    model_inputs["synonym_labels"] = labels_synonym["input_ids"]
             if args.random_topic:
                 model_inputs["random_inputs"] = random_model_inputs["input_ids"]
-                if args.contrastive_decoder:
-                    model_inputs["random_labels"] = labels_random["input_ids"]
         else: 
             model_inputs["labels"] = labels["input_ids"]
 

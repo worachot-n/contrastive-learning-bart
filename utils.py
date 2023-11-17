@@ -55,7 +55,6 @@ def len_adjust(args, split_dict, split_type=None):
     if args.contrastive_loss:
         if args.synonym_replacement:
             synonym_topic_list = split_dict['synonym_topic']
-            new_synonym_summary_list = split_dict['synonym_summary']
             if args.tagging == "word" or args.tagging == "prompt":
                 synonym_dialogue_list = split_dict['synonym_dialogue']
             else:
@@ -63,11 +62,9 @@ def len_adjust(args, split_dict, split_type=None):
         else:
             synonym_dialogue_list = dialogue_list
             synonym_topic_list = topic_list
-            new_synonym_summary_list = summary_list
             
         if args.random_topic:
             random_topic_list = split_dict['random_topic']
-            new_random_summary_list = split_dict['random_summary']
             if args.tagging == "word" or args.tagging == "prompt":
                 random_dialogue_list = split_dict['random_dialogue']
             else:
@@ -75,113 +72,102 @@ def len_adjust(args, split_dict, split_type=None):
         else:
             random_dialogue_list = dialogue_list
             random_topic_list = topic_list
-            new_random_summary_list = summary_list
+
     
     else:
         synonym_dialogue_list = dialogue_list
         synonym_topic_list = topic_list
         random_dialogue_list = dialogue_list
         random_topic_list = topic_list
-        new_synonym_summary_list = summary_list
-        new_random_summary_list = summary_list
-        
-            
+     
     new_summary_list = summary_list
+
     
-    new_prompt_list = []
-    new_synonym_prompt_list = []
-    new_random_prompt_list = []
+    if args.contrastive_loss:
+        
+        new_prompt_list = []
+        new_synonym_prompt_list = []
+        new_random_prompt_list = []
 
-    for dialogue, summary, topic, synonym_dialogue, random_dialogue, synonym_topic, random_topics, synonym_summary, random_summary in zip(dialogue_list, new_summary_list, topic_list,
-                                                                                                             synonym_dialogue_list, random_dialogue_list, synonym_topic_list, random_topic_list, 
-                                                                                                             new_synonym_summary_list, new_random_summary_list):
-        if args.topic_prompt_input or args.length_prompt_input:
-            new_dialogue = f'Dialogue: {dialogue}'
-        else:
-            new_dialogue = dialogue
-        new_synonym_dialogue = f'Dialogue: {synonym_dialogue}'
-        new_random_dialogue = f'Dialogue: {random_dialogue}'
-        new_summary = summary
-
-        if args.topic_prompt_input:
-            if args.tagging == "word":
-                new_topic_input = f'Topic of Summary: <topic>{topic}</topic>. '
-                if args.synonym_replacement:
-                    new_synonym_topic_input = f'Topic of Summary: <topic>{synonym_topic}</topic>. '
-                if args.random_topic:
-                    new_random_topic_input = f'Topic of Summary: <topic>{random_topics}</topic>. '
-            elif args.tagging == "prompt":
-                new_topic_input = f'<topic>Topic of Summary: {topic}</topic>. '
-                if args.synonym_replacement:
-                    new_synonym_topic_input = f'<topic>Topic of Summary: {synonym_topic}</topic>. '
-                if args.random_topic:
-                    new_random_topic_input = f'<topic>Topic of Summary: {random_topics}</topic>. '
+        for dialogue, summary, topic, synonym_dialogue, random_dialogue, synonym_topic, random_topics in zip(dialogue_list, new_summary_list, topic_list,
+                                                                                                                 synonym_dialogue_list, random_dialogue_list,
+                                                                                                                 synonym_topic_list, random_topic_list):
+            if args.topic_prompt_input or args.length_prompt_input:
+                new_dialogue = f'Dialogue: {dialogue}'
             else:
-                new_topic_input = f'Topic of Summary: {topic}. '
-                if args.synonym_replacement:
-                    new_synonym_topic_input = f'Topic of Summary: {synonym_topic}. '
-                if args.random_topic:
-                    new_random_topic_input = f'Topic of Summary: {random_topics}. '
-        else:
-            new_topic_input = ''
-            if args.synonym_replacement:
-                new_synonym_topic_input = ''
-            if args.random_topic:
-                new_random_topic_input = ''
-        if args.length_prompt_input:
-            sum_len = len(summary.split(' '))
-            new_length_input = f'Length of Summary: {sum_len}. '
-            if args.synonym_replacement:
-                if args.contrastive_decoder:
-                    synonym_sum_len = len(synonym_summary.split(' '))
+                new_dialogue = dialogue
+            new_synonym_dialogue = f'Dialogue: {synonym_dialogue}'
+            new_random_dialogue = f'Dialogue: {random_dialogue}'
+            new_summary = summary
+
+            if args.topic_prompt_input:
+                if args.tagging == "word":
+                    new_topic_input = f'Topic of Summary: <topic>{topic}</topic>. '
+                    if args.synonym_replacement:
+                        new_synonym_topic_input = f'Topic of Summary: <topic>{synonym_topic}</topic>. '
+                    if args.random_topic:
+                        new_random_topic_input = f'Topic of Summary: <topic>{random_topics}</topic>. '
+                elif args.tagging == "prompt":
+                    new_topic_input = f'<topic>Topic of Summary: {topic}</topic>. '
+                    if args.synonym_replacement:
+                        new_synonym_topic_input = f'<topic>Topic of Summary: {synonym_topic}</topic>. '
+                    if args.random_topic:
+                        new_random_topic_input = f'<topic>Topic of Summary: {random_topics}</topic>. '
                 else:
+                    new_topic_input = f'Topic of Summary: {topic}. '
+                    if args.synonym_replacement:
+                        new_synonym_topic_input = f'Topic of Summary: {synonym_topic}. '
+                    if args.random_topic:
+                        new_random_topic_input = f'Topic of Summary: {random_topics}. '
+            else:
+                new_topic_input = ''
+                if args.synonym_replacement:
+                    new_synonym_topic_input = ''
+                if args.random_topic:
+                    new_random_topic_input = ''
+            if args.length_prompt_input:
+                sum_len = len(summary.split(' '))
+                new_length_input = f'Length of Summary: {sum_len}. '
+                if args.synonym_replacement:
                     synonym_sum_len = len(summary.split(' '))
-                new_synonym_length_input = f'Length of Summary: {synonym_sum_len}. '
-            if args.random_topic:
-                if args.contrastive_decoder:
-                    random_sum_len = len(random_summary.split(' '))
-                else:
+                    new_synonym_length_input = f'Length of Summary: {synonym_sum_len}. '
+                if args.random_topic:
                     random_sum_len = len(summary.split(' '))
-                new_random_length_input = f'Length of Summary: {random_sum_len}. '
-            
-        else:
-            new_length_input = ''
-        new_prompt = new_topic_input + new_length_input + new_dialogue
-        new_prompt_list.append(new_prompt)                                                                                           
+                    new_random_length_input = f'Length of Summary: {random_sum_len}. '
+
+            else:
+                new_length_input = ''
+            new_prompt = new_topic_input + new_length_input + new_dialogue
+            new_prompt_list.append(new_prompt)                                                                                           
+            if args.synonym_replacement:
+                new_synonym_prompt = new_synonym_topic_input + new_synonym_length_input + new_synonym_dialogue
+                new_synonym_prompt_list.append(new_synonym_prompt)
+            if args.random_topic:
+                new_random_prompt = new_random_topic_input + new_random_length_input + new_random_dialogue
+                new_random_prompt_list.append(new_random_prompt)                                                                                         
+
+        split_dict = {
+            'id': id_list,
+            'prompt': new_prompt_list,
+            'summary': new_summary_list,
+            'topic': topic_list,
+        }
+
         if args.synonym_replacement:
-            new_synonym_prompt = new_synonym_topic_input + new_synonym_length_input + new_synonym_dialogue
-            new_synonym_prompt_list.append(new_synonym_prompt)
+            split_dict['synonym_prompt'] = new_synonym_prompt_list
+            split_dict['synonym_topic'] = synonym_topic_list
+
         if args.random_topic:
-            new_random_prompt = new_random_topic_input + new_random_length_input + new_random_dialogue
-            new_random_prompt_list.append(new_random_prompt)                                                                                         
-
-    split_dict = {
-        'id': id_list,
-        'prompt': new_prompt_list,
-        'summary': new_summary_list,
-        'topic': topic_list,
-    }
-
-    if args.synonym_replacement:
-        split_dict['synonym_prompt'] = new_synonym_prompt_list
-        split_dict['synonym_topic'] = synonym_topic_list
-        if args.contrastive_decoder:
-            if split_type == "train":
-                split_dict['synonym_summary'] = new_synonym_summary_list
-            else:
-                split_dict['synonym_summary'] = new_summary_list
-
-    if args.random_topic:
-        split_dict['random_prompt'] = new_random_prompt_list
-        split_dict['random_topic'] = random_topic_list
-        if args.contrastive_decoder:
-            if split_type == "train":
-                split_dict['random_summary'] = new_random_summary_list
-            else:
-                split_dict['random_summary'] = new_summary_list
-    
-    # print(split_dict.keys())
-    # print(split_dict)
+            split_dict['random_prompt'] = new_random_prompt_list
+            split_dict['random_topic'] = random_topic_list
+            
+    else:
+        split_dict = {
+            'id': id_list,
+            'prompt': new_prompt_list,
+            'summary': new_summary_list,
+            'topic': topic_list,
+        }
 
     split_dict = Dataset.from_dict(split_dict)
 
