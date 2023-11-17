@@ -81,6 +81,7 @@ def len_adjust(args, split_dict, split_type=None):
     new_prompt_list = []
     new_synonym_prompt_list = []
     new_random_prompt_list = []
+    new_summary_list = []
 
     for dialogue, summary, topic, synonym_dialogue, random_dialogue, synonym_topic, random_topics in zip(dialogue_list, summary_list, topic_list,
                                                                                                              synonym_dialogue_list, random_dialogue_list,
@@ -128,7 +129,7 @@ def len_adjust(args, split_dict, split_type=None):
                 new_random_length_input = f'Length of Summary: {random_sum_len}. '
 
         else:
-            new_topic_input = ''
+            new_length_input = ''
                 
         new_prompt = new_topic_input + new_length_input + new_dialogue
         new_prompt_list.append(new_prompt)

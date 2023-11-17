@@ -108,12 +108,16 @@ def load_from_dialogsum(args, file_path, split_type=None):
         if args.contrastive_loss:
             if args.synonym_replacement:
                 synonym_tagger = []
+                original_tokens = [simple_tokenize(x) for x in dialogue_list]
+                lemmatized_tokens = [lemmatize_text(x) for x in dialogue_list]
                 for i in range(len(lemmatized_tokens)):
                     tagger = build_tagger(original_tokens, lemmatized_tokens, synonym_topic_list[i], i)
                     synonym_tagger.extend(tagger)
                 data_dict['synonym_dialogue'] = synonym_tagger
             if args.random_topic:
                 random_tagger = []
+                original_tokens = [simple_tokenize(x) for x in dialogue_list]
+                lemmatized_tokens = [lemmatize_text(x) for x in dialogue_list]
                 for i in range(len(lemmatized_tokens)):
                     tagger = build_tagger(original_tokens, lemmatized_tokens, random_topic_list[i], i)
                     random_tagger.extend(tagger)
