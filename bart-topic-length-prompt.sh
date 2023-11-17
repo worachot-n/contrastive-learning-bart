@@ -8,10 +8,10 @@ echo "= = = = = = = = = = = = = ="
 python3 train.py \
     --topic_prompt_input True \
     --length_prompt_input True \
-    --output_dir ./output/bart-topic-length-prompt-contrastive-combine-negative \
-    --train_file ./data/dialogsum_aug/dialogsum.train.jsonl \
-    --validation_file ./data/dialogsum_aug/dialogsum.dev.jsonl \
-    --test_file ./data/dialogsum_aug/dialogsum.test.jsonl \
+    --output_dir ./output/bart-topic-length-prompt \
+    --train_file ./data/dialogsum/dialogsum.train.jsonl \
+    --validation_file ./data/dialogsum/dialogsum.dev.jsonl \
+    --test_file ./data/dialogsum/dialogsum.test.jsonl \
     --text_column prompt \
     --summary_column summary \
     --model_name_or_path facebook/bart-large \
@@ -33,15 +33,7 @@ python3 train.py \
     --cache_dir ./output/cache \
     --overwrite_cache True \
     --seed 12345 \
-    --contrastive_loss True \
     --tagging no \
-    --synonym_replacement True \
-    --random_topic True \
-    --contrastive_encoder True \
-    --gen_sample 1 \
-    --alpha 0.5 \
-    --beta 0.5 \
-    --margin 0.5 \
     --overwrite_cache True \
 
 echo "= = = = = = = = = = = = = ="

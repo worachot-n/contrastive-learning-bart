@@ -72,24 +72,19 @@ def len_adjust(args, split_dict, split_type=None):
         else:
             random_dialogue_list = dialogue_list
             random_topic_list = topic_list
-
-    
     else:
         synonym_dialogue_list = dialogue_list
         synonym_topic_list = topic_list
         random_dialogue_list = dialogue_list
         random_topic_list = topic_list
-     
-    new_summary_list = summary_list
 
-    
     if args.contrastive_loss:
         
         new_prompt_list = []
         new_synonym_prompt_list = []
         new_random_prompt_list = []
 
-        for dialogue, summary, topic, synonym_dialogue, random_dialogue, synonym_topic, random_topics in zip(dialogue_list, new_summary_list, topic_list,
+        for dialogue, summary, topic, synonym_dialogue, random_dialogue, synonym_topic, random_topics in zip(dialogue_list, summary_list, topic_list,
                                                                                                                  synonym_dialogue_list, random_dialogue_list,
                                                                                                                  synonym_topic_list, random_topic_list):
             if args.topic_prompt_input or args.length_prompt_input:
@@ -98,7 +93,6 @@ def len_adjust(args, split_dict, split_type=None):
                 new_dialogue = dialogue
             new_synonym_dialogue = f'Dialogue: {synonym_dialogue}'
             new_random_dialogue = f'Dialogue: {random_dialogue}'
-            new_summary = summary
 
             if args.topic_prompt_input:
                 if args.tagging == "word":
@@ -138,7 +132,8 @@ def len_adjust(args, split_dict, split_type=None):
             else:
                 new_length_input = ''
             new_prompt = new_topic_input + new_length_input + new_dialogue
-            new_prompt_list.append(new_prompt)                                                                                           
+            new_prompt_list.append(new_prompt)
+            new_summary_list.append(summary)
             if args.synonym_replacement:
                 new_synonym_prompt = new_synonym_topic_input + new_synonym_length_input + new_synonym_dialogue
                 new_synonym_prompt_list.append(new_synonym_prompt)
@@ -164,8 +159,8 @@ def len_adjust(args, split_dict, split_type=None):
     else:
         split_dict = {
             'id': id_list,
-            'prompt': new_prompt_list,
-            'summary': new_summary_list,
+            'prompt': dialogue_list,
+            'summary': summary_list,
             'topic': topic_list,
         }
 
