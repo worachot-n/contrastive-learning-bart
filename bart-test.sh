@@ -9,9 +9,9 @@ python3 train.py \
     --topic_prompt_input True \
     --length_prompt_input True \
     --output_dir ./output/bart-test \
-    --train_file ./data/dialogtest_aug/dialogsum.train.jsonl \
-    --validation_file ./data/dialogtest_aug/dialogsum.dev.jsonl \
-    --test_file ./data/dialogtest_aug/dialogsum.test.jsonl \
+    --train_file ./data/dialogtest/dialogsum.train.jsonl \
+    --validation_file ./data/dialogtest/dialogsum.dev.jsonl \
+    --test_file ./data/dialogtest/dialogsum.test.jsonl \
     --text_column prompt \
     --summary_column summary \
     --model_name_or_path facebook/bart-large \
@@ -38,10 +38,8 @@ python3 train.py \
     --synonym_replacement True \
     --random_topic True \
     --contrastive_encoder True \
-    --contrastive_decoder True \
     --gen_sample 1 \
     --alpha 0.5 \
-    --beta 0.5 \
     --margin 0.5 \
     --overwrite_cache True \
 

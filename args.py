@@ -97,7 +97,7 @@ def parse_args():
     arg_parser.add_argument("--alpha", dest="alpha", type=float,
                             default=0.5, help="ration of computation loss in encoder")
     arg_parser.add_argument("--margin", dest="margin", type=float,
-                            default=0, help="margin of computation loss")
+                            default=0.5, help="margin of computation loss")
     arg_parser.add_argument("--debug", action='store_true',
                             default=False, help="Use the debug mode or not")
     args = arg_parser.parse_args()
