@@ -33,7 +33,10 @@ python3 train.py \
     --cache_dir ./output/cache \
     --overwrite_cache True \
     --seed 12345 \
+    --contrastive_loss True \
     --tagging no \
+    --synonym_replacement True \
+    --random_topic True \
     --overwrite_cache True \
 
 echo "= = = = = = = = = = = = = ="

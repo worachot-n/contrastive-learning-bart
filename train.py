@@ -2,11 +2,13 @@ import math
 import os
 import pprint
 import logging
+import json
 
 import datasets
 import nltk
 import numpy as np
 import torch
+import random
 from tqdm.auto import tqdm
 
 import transformers
@@ -56,6 +58,19 @@ def main():
     for item, value in vars(args).items():
         logging.info("{}: {}".format(item, value))
     logging.info("")
+    
+    # If passed along, set the training seed now.
+    logging.info("*** Set Seed ***")
+    logger.info(args.seed)
+    set_seed(args.seed)
+    random.seed(args.seed)
+    os.environ['PYTHONHASHSEED'] = str(args.seed)
+    np.random.seed(args.seed)
+    torch.manual_seed(args.seed)
+    torch.cuda.manual_seed(args.seed)
+    torch.backends.cudnn.enabled = False 
+    torch.backends.cudnn.benchmark = False
+    torch.backends.cudnn.deterministic = True
 
     # Initialize the accelerator. The accelerator will handle device placement for us.
     accelerator = Accelerator(mixed_precision="fp16")
@@ -70,13 +85,6 @@ def main():
     else:
         datasets.utils.logging.set_verbosity_error()
         transformers.utils.logging.set_verbosity_error()
-
-    # If passed along, set the training seed now.
-    if args.seed is not None:
-        set_seed(args.seed)
-        torch.backends.cudnn.enabled = False 
-        torch.backends.cudnn.benchmark = False
-        torch.backends.cudnn.deterministic = True
 
     if accelerator.is_main_process:
         if args.output_dir is not None:
@@ -93,6 +101,34 @@ def main():
     dataloader, processed_dataset = data_processor(logger, args, accelerator, raw_datasets, tokenizer, model)
     train_dataloader, eval_dataloader, test_dataloader = dataloader
     train_dataset, _, _ = processed_dataset
+    
+    for dataloader_step, batch in enumerate(train_dataloader):
+        logging.info("*** Train Batch Size Per Device ***")
+        logger.info(args.per_device_train_batch_size)
+        logging.info("*** Topic Prompt Input ***")
+        logger.info(args.topic_prompt_input)
+        logging.info("*** Length Prompt Input ***")
+        logger.info(args.length_prompt_input)
+        logging.info("*** Contrastive Loss ***")
+        logger.info(args.contrastive_loss)
+        logging.info("*** Tagging ***")
+        logger.info(args.tagging)
+        logging.info("*** Synonym Replacement ***")
+        logger.info(args.synonym_replacement)
+        logging.info("*** Random Topic ***")
+        logger.info(args.random_topic)
+        logging.info("*** Check dataloader ***")
+        for ind, batch_keys in enumerate(batch.keys()):
+            logger.info(batch[batch_keys].shape)
+            for batch_indx in range(batch[batch_keys].shape[0]):
+                logger.info(batch_indx)
+                if batch_keys == 'labels':
+                    batch[batch_keys][batch_indx] = torch.where(batch[batch_keys][batch_indx] != -100, batch[batch_keys][batch_indx], tokenizer.pad_token_id)
+                    logger.info(tokenizer.decode((batch[batch_keys][batch_indx]), skip_special_tokens=True))
+                else:
+                    logger.info(tokenizer.decode((batch[batch_keys][batch_indx])))
+                    # logger.info(tokenizer.decode((batch[batch_keys][indx]), skip_special_tokens=True))
+        break
 
     # = = = Training Preparation = = =
     # Optimizer
@@ -183,22 +219,22 @@ def main():
                     max_encoder_token = model.config.max_position_embeddings
 
                     divide_num = int(output_probs.shape[0] / args.per_device_train_batch_size)
-                    
+
                     embeddings = outputs.encoder_last_hidden_state[0::divide_num,:,:max_encoder_token]
                     embeddings = embeddings.reshape(-1, max_encoder_token)
-                    
+
                     if args.synonym_replacement and not args.random_topic:
                         synonym_embeddings = outputs.encoder_last_hidden_state[1::divide_num,:,:max_encoder_token]
                         synonym_embeddings = synonym_embeddings.reshape(-1, max_encoder_token)
                         synonym_one = -1 * torch.ones(synonym_embeddings_1.size(dim=0)).to(device)
                         loss_cs = cosine_embedding_loss(embeddings, synonym_embeddings, synonym_one, args.margin)
-                        
+
                     elif not args.synonym_replacement and args.random_topic:
                         random_embeddings = outputs.encoder_last_hidden_state[1::divide_num,:,:max_encoder_token]
                         random_embeddings = random_embeddings.reshape(-1, max_encoder_token)
                         random_one = -1 * torch.ones(random_embeddings.size(dim=0)).to(device)
                         loss_cs = cosine_embedding_loss(embeddings, random_embeddings, random_one, args.margin)
-                        
+
                     elif args.synonym_replacement and args.random_topic:
                         synonym_embeddings = outputs.encoder_last_hidden_state[1::divide_num,:,:max_encoder_token]
                         random_embeddings = outputs.encoder_last_hidden_state[2::divide_num,:,:max_encoder_token]
@@ -209,22 +245,37 @@ def main():
                         loss_cs_synonym = cosine_embedding_loss(embeddings, synonym_embeddings, synonym_one, args.margin)
                         loss_cs_random = cosine_embedding_loss(embeddings, random_embeddings, random_one, args.margin)
                         loss_cs = (loss_cs_synonym + loss_cs_random) / 2
-                                        
+
                     # negative log-likelihood
+                    output_probs = output_probs[:args.per_device_train_batch_size,:,:]
+                    # print("output_probs:" ,output_probs.shape)
                     output_probs = output_probs.view(-1, model.config.vocab_size)
-                    gt_logits = batch['labels']
+                    # print("output_probs:" ,output_probs.shape)
+                    gt_logits = batch['labels'][:args.per_device_train_batch_size,:]
+                    # print("gt_logits:" ,gt_logits.shape)
+                    # gt_logits_0 = torch.where(gt_logits[0] != -100, gt_logits[0], tokenizer.pad_token_id)
+                    # gt_logits_1 = torch.where(gt_logits[1] != -100, gt_logits[1], tokenizer.pad_token_id)
+                    # print(tokenizer.decode(gt_logits_0))
+                    # print(tokenizer.decode(gt_logits_1))
                     gt_logits = gt_logits.view(-1)
+                    # print("gt_logits:" ,gt_logits.shape)
                     loss_nll, nll = label_smoothed_nll_loss(output_probs, gt_logits, args.label_smoothing, ignore_index=tokenizer.pad_token_id)
 
                     # joint loss
                     loss = loss_nll + (args.alpha * loss_cs)
 
                 else:
+                    # print("no contrastive")
+                    # print("output_probs:" ,output_probs.shape)
                     output_probs = output_probs.view(-1,model.config.vocab_size)
+                    # print("output_probs:" ,output_probs.shape)
                     gt_logits = batch['labels']
+                    # print("gt_logits:" ,gt_logits.shape)
                     gt_logits = gt_logits.view(-1)
+                    # print("gt_logits:" ,gt_logits.shape)
                     loss_nll, nll = label_smoothed_nll_loss(output_probs, gt_logits, args.label_smoothing, ignore_index=tokenizer.pad_token_id)
                     loss = loss_nll
+                    # break
 
             acc_losses.append(loss.item())
             loss = loss / args.gradient_accumulation_steps
@@ -377,6 +428,12 @@ def main():
     logger.info("ROUGE score on test set")
     test_scores = py_rouge_scores(test_predict, test_groundtruth)
     logger.info("")
+    
+    with open(args.output_dir+'/'+'loss.json', 'w') as f:
+    # with open('./'+'loss.json', 'w') as f:
+        json_string = json.dumps(acc_losses)
+        f.write(json_string)
+    logger.info("Save Loss JSON file")
 
     # Save generated summaries
     if args.predict_summary:
