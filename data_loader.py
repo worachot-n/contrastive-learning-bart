@@ -90,7 +90,6 @@ def load_from_dialogsum(args, file_path, split_type=None):
                 synonym_topic_list.append(' '.join(synonym_topic))
             if args.random_topic:
                 topic_set = topic_set.difference(set(topic))
-                # negative_topic = random.sample(list(random_topic), args.negative_sample)
                 random_topic = random.choice(list(topic_set))
                 random_topic_list.append(random_topic)
         if args.synonym_replacement:

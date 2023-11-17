@@ -92,8 +92,6 @@ def parse_args():
                             default=False, help="Random topic or not")
     arg_parser.add_argument("--contrastive_encoder", dest="contrastive_encoder", type=bool,
                             default=False, help="Contrastive encoder or not")
-    arg_parser.add_argument("--gen_sample", dest="gen_sample", type=int,
-                            default=1, help="The number of sample")
     arg_parser.add_argument("--alpha", dest="alpha", type=float,
                             default=0.5, help="ration of computation loss in encoder")
     arg_parser.add_argument("--margin", dest="margin", type=float,

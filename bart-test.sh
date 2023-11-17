@@ -8,7 +8,7 @@ echo "= = = = = = = = = = = = = ="
 python3 train.py \
     --topic_prompt_input True \
     --length_prompt_input True \
-    --output_dir ./output/bart-topic-length-prompt \
+    --output_dir ./output/bart-test \
     --train_file ./data/dialogtest/dialogsum.train.jsonl \
     --validation_file ./data/dialogtest/dialogsum.dev.jsonl \
     --test_file ./data/dialogtest/dialogsum.test.jsonl \
@@ -24,7 +24,7 @@ python3 train.py \
     --weight_decay 1e-3 \
     --label_smoothing 0.1 \
     --length_penalty 1.0 \
-    --num_train_epochs 15 \
+    --num_train_epochs 1 \
     --per_device_train_batch_size 2 \
     --gradient_accumulation_steps 64 \
     --per_device_eval_batch_size 8 \
