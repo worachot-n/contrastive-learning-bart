@@ -118,27 +118,21 @@ def len_adjust(args, split_dict, split_type=None):
                 new_synonym_topic_input = ''
             if args.random_topic:
                 new_random_topic_input = ''
+
         if args.length_prompt_input:
             sum_len = len(summary.split(' '))
-            new_length_input = f'Length of Summary: {sum_len}. '
-            if args.synonym_replacement:
-                synonym_sum_len = len(summary.split(' '))
-                new_synonym_length_input = f'Length of Summary: {synonym_sum_len}. '
-            if args.random_topic:
-                random_sum_len = len(summary.split(' '))
-                new_random_length_input = f'Length of Summary: {random_sum_len}. '
-
+            new_sum_length_input = f'Length of Summary: {sum_len}. '
         else:
-            new_length_input = ''
+            new_sum_length_input = ''
                 
-        new_prompt = new_topic_input + new_length_input + new_dialogue
+        new_prompt = new_topic_input + new_sum_length_input + new_dialogue
         new_prompt_list.append(new_prompt)
         new_summary_list.append(summary)
         if args.synonym_replacement:
-            new_synonym_prompt = new_synonym_topic_input + new_synonym_length_input + new_synonym_dialogue
+            new_synonym_prompt = new_synonym_topic_input + new_sum_length_input + new_synonym_dialogue
             new_synonym_prompt_list.append(new_synonym_prompt)
         if args.random_topic:
-            new_random_prompt = new_random_topic_input + new_random_length_input + new_random_dialogue
+            new_random_prompt = new_random_topic_input + new_sum_length_input + new_random_dialogue
             new_random_prompt_list.append(new_random_prompt)                                                                                         
 
     split_dict = {
