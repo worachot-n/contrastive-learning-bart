@@ -6,9 +6,7 @@ start=`date +%s`
 echo "= = = = = = = = = = = = = ="
 
 python3 train.py \
-    --topic_prompt_input True \
-    --length_prompt_input True \
-    --output_dir ./output/bart-test \
+    --output_dir ./output/bart-topic-length-prompt \
     --train_file ./data/dialogsum/dialogsum.train.jsonl \
     --validation_file ./data/dialogsum/dialogsum.dev.jsonl \
     --test_file ./data/dialogsum/dialogsum.test.jsonl \
@@ -33,7 +31,6 @@ python3 train.py \
     --cache_dir ./output/cache \
     --overwrite_cache True \
     --seed 12345 \
-    --overwrite_cache True \
 
 echo "= = = = = = = = = = = = = ="
 echo "The project is Finished..."

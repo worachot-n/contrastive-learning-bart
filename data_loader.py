@@ -30,14 +30,6 @@ def get_synonyms(word):
 
 
 def load_from_dialogsum(args, file_path, split_type=None):
-    random.seed(args.seed)
-    os.environ['PYTHONHASHSEED'] = str(args.seed)
-    np.random.seed(args.seed)
-    torch.manual_seed(args.seed)
-    torch.cuda.manual_seed(args.seed)
-    torch.backends.cudnn.enabled = False 
-    torch.backends.cudnn.benchmark = False
-    torch.backends.cudnn.deterministic = True
     data = []
     with open(file_path, 'r') as f:
         for line in f:
@@ -352,14 +344,6 @@ class CustomDataCollator:
 
 def data_processor(logger, args, accelerator, raw_datasets, tokenizer, model):
     ''' prepare dataset format for train/val/test '''
-    random.seed(args.seed)
-    os.environ['PYTHONHASHSEED'] = str(args.seed)
-    np.random.seed(args.seed)
-    torch.manual_seed(args.seed)
-    torch.cuda.manual_seed(args.seed)
-    torch.backends.cudnn.enabled = False 
-    torch.backends.cudnn.benchmark = False
-    torch.backends.cudnn.deterministic = True
     def preprocess_function(examples):
 
         # summary - target
@@ -449,9 +433,9 @@ def data_processor(logger, args, accelerator, raw_datasets, tokenizer, model):
             pad_to_multiple_of=8 if accelerator.use_fp16 else None,
         )
         
-        train_dataloader = DataLoader(train_dataset, shuffle=True, collate_fn=data_collator, batch_size=args.per_device_train_batch_size, worker_init_fn=lambda _: np.random.seed(args.seed))
-        eval_dataloader = DataLoader(eval_dataset, collate_fn=valid_data_collator, batch_size=args.per_device_eval_batch_size, worker_init_fn=lambda _: np.random.seed(args.seed))
-        test_dataloader = DataLoader(test_dataset, collate_fn=valid_data_collator, batch_size=args.per_device_test_batch_size, worker_init_fn=lambda _: np.random.seed(args.seed))
+        train_dataloader = DataLoader(train_dataset, shuffle=True, collate_fn=data_collator, batch_size=args.per_device_train_batch_size)
+        eval_dataloader = DataLoader(eval_dataset, collate_fn=valid_data_collator, batch_size=args.per_device_eval_batch_size)
+        test_dataloader = DataLoader(test_dataset, collate_fn=valid_data_collator, batch_size=args.per_device_test_batch_size)
     else:
         data_collator = CustomDataCollator(
             tokenizer,
@@ -460,8 +444,8 @@ def data_processor(logger, args, accelerator, raw_datasets, tokenizer, model):
             pad_to_multiple_of=8 if accelerator.use_fp16 else None,
         )
     
-        train_dataloader = DataLoader(train_dataset, shuffle=True, collate_fn=data_collator, batch_size=args.per_device_train_batch_size, worker_init_fn=lambda _: np.random.seed(args.seed))
-        eval_dataloader = DataLoader(eval_dataset, collate_fn=data_collator, batch_size=args.per_device_eval_batch_size, worker_init_fn=lambda _: np.random.seed(args.seed))
-        test_dataloader = DataLoader(test_dataset, collate_fn=data_collator, batch_size=args.per_device_test_batch_size, worker_init_fn=lambda _: np.random.seed(args.seed))
+        train_dataloader = DataLoader(train_dataset, shuffle=True, collate_fn=data_collator, batch_size=args.per_device_train_batch_size)
+        eval_dataloader = DataLoader(eval_dataset, collate_fn=data_collator, batch_size=args.per_device_eval_batch_size)
+        test_dataloader = DataLoader(test_dataset, collate_fn=data_collator, batch_size=args.per_device_test_batch_size)
 
     return (train_dataloader, eval_dataloader, test_dataloader), (train_dataset, eval_dataset, test_dataset)
