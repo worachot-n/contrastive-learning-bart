@@ -223,11 +223,12 @@ def main():
                     embeddings = embeddings.reshape(-1, max_encoder_token)
 
                     minus_one = -1 * torch.ones(embeddings.size(dim=0)).to(device)
+                    # plus_one = 1 * torch.ones(embeddings.size(dim=0)).to(device)
 
                     if args.synonym_replacement and not args.random_topic:
                         synonym_embeddings = outputs.encoder_last_hidden_state[args.per_device_train_batch_size:args.per_device_train_batch_size*2,:,:max_encoder_token]
                         synonym_embeddings = synonym_embeddings.reshape(-1, max_encoder_token)
-                        loss_cs = cosine_embedding_loss(embeddings, synonym_embeddings, minus_one, args.margin)
+                        loss_cs = cosine_embedding_loss(embeddings, synonym_embeddings, minus_one, 0)
 
                     elif not args.synonym_replacement and args.random_topic:
                         random_embeddings = outputs.encoder_last_hidden_state[args.per_device_train_batch_size:args.per_device_train_batch_size*2,:,:max_encoder_token]
@@ -239,7 +240,7 @@ def main():
                         random_embeddings = outputs.encoder_last_hidden_state[args.per_device_train_batch_size*2:,:,:max_encoder_token]
                         synonym_embeddings = synonym_embeddings.reshape(-1, max_encoder_token)
                         random_embeddings = random_embeddings.reshape(-1, max_encoder_token)
-                        loss_cs_synonym = cosine_embedding_loss(embeddings, synonym_embeddings, minus_one, args.margin)
+                        loss_cs_synonym = cosine_embedding_loss(embeddings, synonym_embeddings, minus_one, 0)
                         loss_cs_random = cosine_embedding_loss(embeddings, random_embeddings, minus_one, args.margin)
                         loss_cs = (loss_cs_synonym + loss_cs_random) / 2
 

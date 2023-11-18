@@ -8,10 +8,10 @@ echo "= = = = = = = = = = = = = ="
 python3 train.py \
     --topic_prompt_input True \
     --length_prompt_input True \
-    --output_dir ./output/bart-topic-length-prompt \
-    --train_file ./data/dialogsum/dialogsum.train.jsonl \
-    --validation_file ./data/dialogsum/dialogsum.dev.jsonl \
-    --test_file ./data/dialogsum/dialogsum.test.jsonl \
+    --output_dir ./output/bart-topic-length-prompt-contrastive-combine-negative-word-tagger \
+    --train_file ./data/dialogtest/dialogsum.train.jsonl \
+    --validation_file ./data/dialogtest/dialogsum.dev.jsonl \
+    --test_file ./data/dialogtest/dialogsum.test.jsonl \
     --text_column prompt \
     --summary_column summary \
     --model_name_or_path facebook/bart-large \
@@ -24,7 +24,7 @@ python3 train.py \
     --weight_decay 1e-3 \
     --label_smoothing 0.1 \
     --length_penalty 1.0 \
-    --num_train_epochs 15 \
+    --num_train_epochs 1 \
     --per_device_train_batch_size 2 \
     --gradient_accumulation_steps 64 \
     --per_device_eval_batch_size 8 \
@@ -33,7 +33,10 @@ python3 train.py \
     --cache_dir ./output/cache \
     --overwrite_cache True \
     --seed 12345 \
-    --overwrite_cache True \
+    --contrastive_loss True \
+    --tagging word \
+    --synonym_replacement True \
+    --random_topic True \
 
 echo "= = = = = = = = = = = = = ="
 echo "The project is Finished..."
